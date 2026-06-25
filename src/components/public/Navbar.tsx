@@ -56,7 +56,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
               title={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
             >
               <Globe className="w-3.5 h-3.5" />
-              <span>{lang === 'ar' ? 'EN' : 'ع'}</span>
+              <span>{lang === 'ar' ? 'EN' : 'عربي'}</span>
             </button>
 
             <Link href="/book">
@@ -101,7 +101,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
               className="flex items-center gap-1.5 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg px-3 py-2"
             >
               <Globe className="w-3.5 h-3.5" />
-              {lang === 'ar' ? 'EN' : 'ع'}
+              {lang === 'ar' ? 'EN' : 'عربي'}
             </button>
           </div>
         </div>
