@@ -71,7 +71,7 @@ export default function Navbar({
 
             <button
               onClick={toggleTheme}
-              className="hidden md:flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-[#D8A83E]/60 hover:text-[#9A6A16] dark:border-white/15 dark:text-white/70 dark:hover:text-[#F7D775]"
+              className="eurocure-theme-toggle hidden md:flex h-8 w-8 items-center justify-center rounded-full border transition-colors"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
@@ -85,7 +85,7 @@ export default function Navbar({
 
             <button
               onClick={toggleTheme}
-              className="flex md:hidden h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-[#D8A83E]/60 hover:text-[#9A6A16]"
+              className="eurocure-theme-toggle flex md:hidden h-9 w-9 items-center justify-center rounded-full border transition-colors"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
@@ -132,7 +132,7 @@ export default function Navbar({
             </button>
             <button
               onClick={() => { toggleTheme(); setMobileOpen(false) }}
-              className="flex items-center gap-1.5 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg px-3 py-2 dark:border-white/15 dark:text-white/70"
+              className="eurocure-theme-toggle flex items-center gap-1.5 text-xs font-medium rounded-lg px-3 py-2"
             >
               {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
               {theme === 'dark' ? 'Light' : 'Dark'}

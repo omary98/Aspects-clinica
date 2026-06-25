@@ -459,9 +459,35 @@
   text-shadow: 0 1px 0 rgba(216, 168, 62, 0.12);
 }
 
+.eurocure-theme-toggle {
+  background-color: #fffaf0 !important;
+  border-color: #d8dde6 !important;
+  color: #263241 !important;
+  box-shadow: 0 8px 20px rgba(16, 16, 16, 0.04);
+}
+
+.eurocure-theme-toggle:hover {
+  background-color: #fff3d4 !important;
+  border-color: rgba(154, 106, 22, 0.42) !important;
+  color: #8a5d12 !important;
+}
+
 [data-theme="dark"] .eurocure-nav-wordmark {
   color: #f7d775 !important;
   text-shadow: 0 0 18px rgba(216, 168, 62, 0.18);
+}
+
+[data-theme="dark"] .eurocure-theme-toggle {
+  background-color: #15130f !important;
+  border-color: rgba(247, 215, 117, 0.28) !important;
+  color: #f7d775 !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme="dark"] .eurocure-theme-toggle:hover {
+  background-color: #211b0f !important;
+  border-color: rgba(247, 215, 117, 0.5) !important;
+  color: #ffe28a !important;
 }
 
 [data-theme="dark"] .eurocure-primary-cta,
