@@ -330,7 +330,7 @@ export default async function HomePage() {
                     <span className="text-white font-bold text-xs">EC</span>
                   </div>
                 )}
-                <span className="font-bold text-white">EuroCure</span>
+                <span className="eurocure-wordmark text-white">EuroCure</span>
               </div>
               <p className="text-sm max-w-xs">{footerTagline}</p>
             </div>

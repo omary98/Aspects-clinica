@@ -31,7 +31,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
                 <span className="text-[#D8A83E] font-bold text-sm">EC</span>
               </div>
             )}
-            <span className="font-bold text-xl text-[#101010]">EuroCure</span>
+            <span className="eurocure-wordmark text-xl text-[#101010]">EuroCure</span>
           </Link>
 
           {/* Desktop nav */}

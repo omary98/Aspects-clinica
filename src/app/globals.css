@@ -25,7 +25,9 @@
     --eurocure-blue: #1B4F72;
     --eurocure-blue-light: #2E86C1;
     --eurocure-gold: #D4AC0D;
-    --font-cairo: 'Cairo';
+    --font-body: Optima, 'Avenir Next', 'Segoe UI', Arial, sans-serif;
+    --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-arabic: 'Geeza Pro', 'Noto Naskh Arabic', Tahoma, Arial, sans-serif;
   }
 
   * {
@@ -35,17 +37,34 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-cairo), 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: var(--font-body);
+    font-feature-settings: "kern" 1, "liga" 1;
   }
 
   [dir="rtl"] body,
   [dir="rtl"] {
-    font-family: var(--font-cairo), 'Cairo', 'Tahoma', sans-serif;
+    font-family: var(--font-arabic);
   }
 
   [dir="ltr"] body,
   [dir="ltr"] {
-    font-family: var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  .eurocure-wordmark {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] .eurocure-wordmark {
+    font-family: var(--font-arabic);
+    font-weight: 700;
+    letter-spacing: 0;
   }
 
   /* Smooth direction transitions */
