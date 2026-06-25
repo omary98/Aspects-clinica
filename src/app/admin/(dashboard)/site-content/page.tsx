@@ -5,7 +5,12 @@ export default async function SiteContentPage() {
   const supabase = await createAdminClient()
   const [contentRes, settingsRes] = await Promise.all([
     supabase.from('site_content').select('*').order('section_key').order('display_order'),
-    supabase.from('clinic_settings').select('key, value').in('key', ['landing_hero_background_url', 'landing_cta_background_url']),
+    supabase.from('clinic_settings').select('key, value').in('key', [
+      'landing_hero_background_url',
+      'landing_cta_background_url',
+      'landing_hero_background_dark_url',
+      'landing_cta_background_dark_url',
+    ]),
   ])
 
   const settings = Object.fromEntries(((settingsRes.data || []) as Array<{ key: string; value: string }>).map((row) => [row.key, row.value]))

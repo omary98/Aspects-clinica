@@ -109,6 +109,7 @@ Run each file below **in order** — paste the full contents and click **Run**:
 3. `supabase/migrations/003_production_hardening.sql` — security patches and performance indexes
 4. `supabase/migrations/004_api_grants.sql` — grants required for Supabase REST/API writes
 5. `supabase/migrations/005_cms_media.sql` — mini-CMS tables, media library, and Storage policies
+6. `supabase/migrations/006_service_doctors_theme_settings.sql` — multi-doctor service assignments and light/dark branding settings
 
 > **Important:** Run them in this order. Each file depends on the previous one.
 

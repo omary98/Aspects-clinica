@@ -9,10 +9,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (overrideSession) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen flex-col bg-gray-50 lg:flex-row">
         <AdminSidebar adminName={overrideSession.fullName} adminRole={overrideSession.role} />
-        <main className="flex-1 min-w-0 overflow-auto">
-          <div className="max-w-7xl mx-auto">
+        <main className="w-full flex-1 min-w-0 overflow-x-hidden">
+          <div className="w-full max-w-7xl mx-auto">
             {children}
           </div>
         </main>
@@ -41,10 +41,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 lg:flex-row">
       <AdminSidebar adminName={profile.full_name} adminRole={profile.role} />
-      <main className="flex-1 min-w-0 overflow-auto">
-        <div className="max-w-7xl mx-auto">
+      <main className="w-full flex-1 min-w-0 overflow-x-hidden">
+        <div className="w-full max-w-7xl mx-auto">
           {children}
         </div>
       </main>

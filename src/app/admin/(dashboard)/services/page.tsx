@@ -7,7 +7,7 @@ export default async function ServicesPage() {
   const [servicesRes, specialtiesRes, doctorsRes] = await Promise.all([
     supabase
       .from('services')
-      .select('*, specialties (id, name_en), doctors (id, name_en)')
+      .select('*, specialties (id, name_en), doctors (id, name_en), service_doctors (doctor_id, doctors (id, name_en))')
       .order('specialty_id')
       .order('display_order'),
     supabase.from('specialties').select('id, name_en').eq('is_active', true).order('display_order'),

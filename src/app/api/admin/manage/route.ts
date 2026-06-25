@@ -28,7 +28,6 @@ type AdminManageBody = {
 const simpleTables: Partial<Record<AdminResource, string>> = {
   branches: 'branches',
   rooms: 'rooms',
-  services: 'services',
   'admin-profiles': 'admin_profiles',
 }
 
@@ -68,23 +67,6 @@ function normalizeSimplePayload(resource: AdminResource, payload: Record<string,
     }
   }
 
-  if (resource === 'services') {
-    const nameEn = String(payload.name_en || '').trim()
-    return {
-      specialty_id: payload.specialty_id,
-      doctor_id: payload.doctor_id || null,
-      name_en: nameEn,
-      name_ar: String(payload.name_ar || '').trim() || nameEn,
-      description_en: payload.description_en || null,
-      description_ar: payload.description_ar || null,
-      duration_minutes: Number.isFinite(payload.duration_minutes) ? payload.duration_minutes : 20,
-      fee: payload.fee ?? null,
-      is_visible_to_patients: payload.is_visible_to_patients !== false,
-      is_active: payload.is_active !== false,
-      display_order: Number.isFinite(payload.display_order) ? payload.display_order : 0,
-    }
-  }
-
   if (resource === 'admin-profiles') {
     return {
       user_id: payload.user_id,
@@ -98,6 +80,30 @@ function normalizeSimplePayload(resource: AdminResource, payload: Record<string,
   }
 
   return payload
+}
+
+function normalizeServicePayload(payload: Record<string, any>) {
+  const nameEn = String(payload.name_en || '').trim()
+  const doctorIds = Array.isArray(payload.doctor_ids)
+    ? payload.doctor_ids.filter((id: unknown) => typeof id === 'string' && id)
+    : (payload.doctor_id ? [payload.doctor_id] : [])
+
+  return {
+    service: {
+      specialty_id: payload.specialty_id,
+      doctor_id: doctorIds.length === 1 ? doctorIds[0] : null,
+      name_en: nameEn,
+      name_ar: String(payload.name_ar || '').trim() || nameEn,
+      description_en: payload.description_en || null,
+      description_ar: payload.description_ar || null,
+      duration_minutes: Number.isFinite(payload.duration_minutes) ? payload.duration_minutes : 20,
+      fee: payload.fee ?? null,
+      is_visible_to_patients: payload.is_visible_to_patients !== false,
+      is_active: payload.is_active !== false,
+      display_order: Number.isFinite(payload.display_order) ? payload.display_order : 0,
+    },
+    doctorIds,
+  }
 }
 
 async function getAdminSupabase(request: NextRequest) {
@@ -130,6 +136,39 @@ async function saveSimpleResource(supabase: any, body: AdminManageBody) {
   }
 
   return NextResponse.json({ error: 'Unsupported action.' }, { status: 400 })
+}
+
+async function saveService(supabase: any, body: AdminManageBody) {
+  if (!['create', 'update'].includes(body.action)) {
+    return NextResponse.json({ error: 'Unsupported action.' }, { status: 400 })
+  }
+
+  const { service, doctorIds } = normalizeServicePayload(body.payload || {})
+  let serviceId = body.id || null
+
+  if (body.action === 'create') {
+    const { data, error } = await supabase.from('services').insert(service).select('id').single()
+    if (error) return databaseErrorResponse(error)
+    serviceId = data.id
+  } else {
+    if (!serviceId) return NextResponse.json({ error: 'ID is required.' }, { status: 400 })
+    const { error } = await supabase.from('services').update(service).eq('id', serviceId)
+    if (error) return databaseErrorResponse(error)
+  }
+
+  if (serviceId) {
+    const removeAssignments = await supabase.from('service_doctors').delete().eq('service_id', serviceId)
+    if (removeAssignments.error) return databaseErrorResponse(removeAssignments.error)
+
+    if (doctorIds.length > 0) {
+      const { error } = await supabase
+        .from('service_doctors')
+        .insert(doctorIds.map((doctor_id: string) => ({ service_id: serviceId, doctor_id })))
+      if (error) return databaseErrorResponse(error)
+    }
+  }
+
+  return NextResponse.json({ ok: true, id: serviceId })
 }
 
 async function saveSchedule(supabase: any, body: AdminManageBody) {
@@ -288,6 +327,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (simpleTables[body.resource]) return saveSimpleResource(supabase, body)
+  if (body.resource === 'services') return saveService(supabase, body)
   if (body.resource === 'schedules') return saveSchedule(supabase, body)
   if (body.resource === 'blocked-times') return saveBlockedTime(supabase, body)
   if (body.resource === 'clinic-settings') return saveClinicSettings(supabase, body)

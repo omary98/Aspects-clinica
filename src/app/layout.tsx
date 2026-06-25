@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { getLang } from '@/lib/i18n/server'
 import { LanguageProvider } from '@/components/LanguageProvider'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import { createClient } from '@/lib/supabase/server'
 
 const siteUrl = 'https://eurocure-clinic.vercel.app'
 const siteTitle = 'EuroCure Clinic — No Pain Just Comfort'
@@ -51,13 +53,22 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const lang = await getLang()
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
+  const supabase = await createClient()
+  const { data: themeSetting } = await (supabase as any)
+    .from('clinic_settings')
+    .select('value')
+    .eq('key', 'site_theme_default')
+    .maybeSingle()
+  const defaultTheme = (themeSetting as { value?: string } | null)?.value === 'dark' ? 'dark' : 'light'
 
   return (
     <html lang={lang} dir={dir} className="h-full">
       <body className="min-h-full flex flex-col antialiased">
-        <LanguageProvider initialLang={lang}>
-          {children}
-        </LanguageProvider>
+        <ThemeProvider defaultTheme={defaultTheme}>
+          <LanguageProvider initialLang={lang}>
+            {children}
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

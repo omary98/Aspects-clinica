@@ -71,6 +71,116 @@
   html {
     scroll-behavior: smooth;
   }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  .eurocure-page {
+    background: var(--page-bg-light, #fffdf7);
+    transition: background-color 320ms ease, color 320ms ease;
+  }
+
+  [data-theme="dark"] .eurocure-page {
+    background: var(--page-bg-dark, #080806);
+    color: #f7f0df;
+  }
+
+  [data-theme="dark"] header,
+  [data-theme="dark"] .bg-white {
+    background-color: #11100d;
+  }
+
+  [data-theme="dark"] header {
+    border-color: rgba(225, 184, 77, 0.18);
+  }
+
+  [data-theme="dark"] header a,
+  [data-theme="dark"] header button {
+    color: #d9cfb8;
+  }
+
+  [data-theme="dark"] header .eurocure-wordmark {
+    color: #f7d775;
+  }
+
+  [data-theme="dark"] .text-gray-900,
+  [data-theme="dark"] .text-gray-800,
+  [data-theme="dark"] .text-gray-700 {
+    color: #f6edd8;
+  }
+
+  [data-theme="dark"] .text-gray-600,
+  [data-theme="dark"] .text-gray-500 {
+    color: #c9bfa8;
+  }
+
+  [data-theme="dark"] .bg-gray-50,
+  [data-theme="dark"] .bg-\[\#FFFDF7\] {
+    background-color: #15130f;
+  }
+
+  [data-theme="dark"] .border-gray-100,
+  [data-theme="dark"] .border-amber-100 {
+    border-color: rgba(225, 184, 77, 0.22);
+  }
+
+  .eurocure-hero,
+  .eurocure-cta {
+    background-image: var(--hero-bg-light);
+    background-size: cover;
+    background-position: center;
+  }
+
+  .eurocure-cta {
+    background-image: var(--cta-bg-light);
+  }
+
+  [data-theme="dark"] .eurocure-hero {
+    background-image: var(--hero-bg-dark);
+  }
+
+  [data-theme="dark"] .eurocure-cta {
+    background-image: var(--cta-bg-dark);
+  }
+
+  [data-theme="dark"] .footer-logo-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .footer-logo-dark {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .eurocure-page a,
+    .eurocure-page button,
+    .eurocure-page [role="button"] {
+      transition-duration: 220ms;
+      transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .eurocure-page section {
+      animation: eurocure-soft-rise 520ms ease both;
+    }
+
+    .eurocure-page .group:hover,
+    .eurocure-page a:hover > .rounded-lg,
+    .eurocure-page button:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @keyframes eurocure-soft-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 @theme inline {

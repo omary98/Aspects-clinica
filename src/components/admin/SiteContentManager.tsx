@@ -53,6 +53,8 @@ export default function SiteContentManager({
   const [imageSettings, setImageSettings] = useState({
     landing_hero_background_url: settings.landing_hero_background_url || '',
     landing_cta_background_url: settings.landing_cta_background_url || '',
+    landing_hero_background_dark_url: settings.landing_hero_background_dark_url || '',
+    landing_cta_background_dark_url: settings.landing_cta_background_dark_url || '',
   })
   const [uploading, setUploading] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -75,7 +77,7 @@ export default function SiteContentManager({
     setMessage('')
     try {
       const url = await uploadAdminImage(file, 'landing', {
-        label: key === 'landing_hero_background_url' ? 'Hero background' : 'CTA background',
+        label: key.includes('hero') ? 'Hero background' : 'CTA background',
         key: `landing_${key}`,
       })
       setImageSettings((current) => ({ ...current, [key]: url }))
@@ -118,6 +120,8 @@ export default function SiteContentManager({
           {[
             ['landing_hero_background_url', 'Hero background'],
             ['landing_cta_background_url', 'CTA background'],
+            ['landing_hero_background_dark_url', 'Dark mode hero background'],
+            ['landing_cta_background_dark_url', 'Dark mode CTA background'],
           ].map(([key, label]) => (
             <div key={key} className="space-y-2">
               <Label>{label}</Label>

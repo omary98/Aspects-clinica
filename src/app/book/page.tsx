@@ -37,7 +37,7 @@ export default async function BookPage({
 
     supabase
       .from('services')
-      .select('*, specialties (name_en, name_ar)')
+      .select('*, specialties (name_en, name_ar), service_doctors (doctor_id)')
       .eq('is_active', true)
       .eq('is_visible_to_patients', true)
       .order('display_order'),
@@ -45,7 +45,7 @@ export default async function BookPage({
     supabase
       .from('clinic_settings')
       .select('key, value')
-      .in('key', ['booking_window_days', 'min_notice_hours', 'default_appointment_duration_minutes', 'logo_url', 'header_logo_url']),
+      .in('key', ['booking_window_days', 'min_notice_hours', 'default_appointment_duration_minutes', 'logo_url', 'header_logo_url', 'logo_dark_url', 'header_logo_dark_url']),
   ])
 
   const settings = Object.fromEntries(
@@ -54,7 +54,10 @@ export default async function BookPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar logoUrl={settings.header_logo_url || settings.logo_url} />
+      <Navbar
+        logoUrl={settings.header_logo_url || settings.logo_url}
+        logoUrlDark={settings.header_logo_dark_url || settings.logo_dark_url || settings.header_logo_url || settings.logo_url}
+      />
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">{t.booking.pageTitle}</h1>

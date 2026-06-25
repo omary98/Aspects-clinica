@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import { addDays, eachDayOfInterval, endOfWeek, format, startOfWeek } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChevronRight, Filter } from 'lucide-react'
@@ -49,13 +49,41 @@ export default async function AppointmentsPage({
     if (params.date_to) query = query.lte('appointment_date', params.date_to)
   }
 
-  const { data: appointments } = await query.limit(200)
+  const calendarStart = startOfWeek(new Date())
+  const calendarEnd = endOfWeek(addDays(calendarStart, 27))
+
+  const [appointmentsRes, upcomingCalendarRes] = await Promise.all([
+    query.limit(200),
+    (supabase as any)
+      .from('appointments')
+      .select(`
+        *,
+        doctors (id, name_en),
+        specialties (id, name_en),
+        branches (id, name_en),
+        services (id, name_en, duration_minutes),
+        appointment_rooms (*, rooms (id, name_en))
+      `)
+      .gte('appointment_date', format(calendarStart, 'yyyy-MM-dd'))
+      .lte('appointment_date', format(calendarEnd, 'yyyy-MM-dd'))
+      .not('status', 'eq', 'cancelled')
+      .order('appointment_date')
+      .order('start_time'),
+  ])
+
+  const appointments = appointmentsRes.data
+  const upcomingAppointments = (upcomingCalendarRes.data || []) as AppointmentWithDetails[]
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
+  const appointmentsByDate = upcomingAppointments.reduce<Record<string, AppointmentWithDetails[]>>((acc, appointment) => {
+    acc[appointment.appointment_date] = [...(acc[appointment.appointment_date] || []), appointment]
+    return acc
+  }, {})
 
   const [doctorsRes, branchesRes, specialtiesRes, servicesRes] = await Promise.all([
     supabase.from('doctors').select('id, name_en, specialty_id, doctor_schedule_templates(id, branch_id, day_of_week, is_active, branches(id, name_en))').eq('is_active', true).order('display_order'),
     supabase.from('branches').select('id, name_en').eq('is_active', true).order('display_order'),
     supabase.from('specialties').select('*').eq('is_active', true).order('display_order'),
-    supabase.from('services').select('*, specialties(name_en)').eq('is_active', true).order('display_order'),
+    supabase.from('services').select('*, specialties(name_en), service_doctors(doctor_id)').eq('is_active', true).order('display_order'),
   ])
 
   const doctors = (doctorsRes.data || []) as Array<{ id: string; name_en: string; specialty_id: string; doctor_schedule_templates: unknown[] }>
@@ -165,6 +193,54 @@ export default async function AppointmentsPage({
               </Link>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Upcoming calendar */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Upcoming Reservations Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div key={day} className="py-1">{day}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+            {calendarDays.map((day) => {
+              const dayKey = format(day, 'yyyy-MM-dd')
+              const dayAppointments = appointmentsByDate[dayKey] || []
+              return (
+                <div key={dayKey} className="min-h-32 rounded-lg border bg-white p-2">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-sm font-semibold text-gray-900">{format(day, 'd')}</p>
+                    <p className="text-[11px] text-gray-400">{format(day, 'MMM')}</p>
+                  </div>
+                  {dayAppointments.length === 0 ? (
+                    <p className="text-xs text-gray-300 py-4 text-center">No bookings</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {dayAppointments.slice(0, 4).map((appointment) => (
+                        <Link
+                          key={appointment.id}
+                          href={`/admin/appointments/${appointment.id}`}
+                          className="block rounded-md border border-[#D8A83E]/30 bg-[#FFFDF7] p-1.5 hover:border-[#9A6A16] transition-colors"
+                        >
+                          <p className="text-[11px] font-semibold text-[#1B4F72]">{formatTime(appointment.start_time)}</p>
+                          <p className="text-xs text-gray-900 truncate">{appointment.patient_name}</p>
+                          <p className="text-[11px] text-gray-500 truncate">{appointment.doctors?.name_en}</p>
+                        </Link>
+                      ))}
+                      {dayAppointments.length > 4 && (
+                        <p className="text-[11px] text-gray-400">+{dayAppointments.length - 4} more</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </CardContent>
       </Card>
 

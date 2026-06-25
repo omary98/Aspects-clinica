@@ -6,6 +6,7 @@ import { ImageIcon, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { adminManage, uploadAdminImage } from '@/lib/admin/client-actions'
 
@@ -14,9 +15,16 @@ type BrandingValues = {
   header_logo_url: string
   footer_logo_url: string
   favicon_url: string
+  logo_dark_url: string
+  header_logo_dark_url: string
+  footer_logo_dark_url: string
   brand_primary_color: string
   brand_accent_color: string
   brand_background_color: string
+  brand_dark_primary_color: string
+  brand_dark_accent_color: string
+  brand_dark_background_color: string
+  site_theme_default: string
 }
 
 const defaults: BrandingValues = {
@@ -24,9 +32,16 @@ const defaults: BrandingValues = {
   header_logo_url: '',
   footer_logo_url: '',
   favicon_url: '',
+  logo_dark_url: '',
+  header_logo_dark_url: '',
+  footer_logo_dark_url: '',
   brand_primary_color: '#101010',
   brand_accent_color: '#D8A83E',
   brand_background_color: '#FFFDF7',
+  brand_dark_primary_color: '#070707',
+  brand_dark_accent_color: '#E1B84D',
+  brand_dark_background_color: '#080806',
+  site_theme_default: 'light',
 }
 
 const assetFields: Array<{ key: keyof BrandingValues; label: string; uploadLabel: string }> = [
@@ -34,6 +49,9 @@ const assetFields: Array<{ key: keyof BrandingValues; label: string; uploadLabel
   { key: 'header_logo_url', label: 'Header logo', uploadLabel: 'Header logo' },
   { key: 'footer_logo_url', label: 'Footer logo', uploadLabel: 'Footer logo' },
   { key: 'favicon_url', label: 'Favicon', uploadLabel: 'Favicon' },
+  { key: 'logo_dark_url', label: 'Dark mode main logo', uploadLabel: 'Dark mode main logo' },
+  { key: 'header_logo_dark_url', label: 'Dark mode header logo', uploadLabel: 'Dark mode header logo' },
+  { key: 'footer_logo_dark_url', label: 'Dark mode footer logo', uploadLabel: 'Dark mode footer logo' },
 ]
 
 export default function BrandingManager({ settings }: { settings: Record<string, string> }) {
@@ -121,10 +139,23 @@ export default function BrandingManager({ settings }: { settings: Record<string,
           <CardTitle className="text-base">Brand Colors</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Default public theme</Label>
+            <Select value={values.site_theme_default} onValueChange={(value) => setValues({ ...values, site_theme_default: value })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           {[
             ['brand_primary_color', 'Primary color'],
             ['brand_accent_color', 'Accent color'],
             ['brand_background_color', 'Background color'],
+            ['brand_dark_primary_color', 'Dark primary color'],
+            ['brand_dark_accent_color', 'Dark accent color'],
+            ['brand_dark_background_color', 'Dark background color'],
           ].map(([key, label]) => (
             <div key={key} className="space-y-2">
               <Label>{label}</Label>

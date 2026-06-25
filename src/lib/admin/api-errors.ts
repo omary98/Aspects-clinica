@@ -12,6 +12,15 @@ export function databaseErrorResponse(error: { message: string }) {
     )
   }
 
+  if (message.includes('service_doctors')) {
+    return NextResponse.json(
+      {
+        error: 'The service doctor assignment table is missing. Run supabase/migrations/006_service_doctors_theme_settings.sql in Supabase SQL Editor, then refresh this page.',
+      },
+      { status: 500 }
+    )
+  }
+
   if (message.includes('schema cache') && message.includes('specialties')) {
     return NextResponse.json(
       {

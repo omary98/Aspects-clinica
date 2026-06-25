@@ -129,6 +129,16 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['services']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['services']['Insert']>
       }
+      service_doctors: {
+        Row: {
+          id: string
+          service_id: string
+          doctor_id: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['service_doctors']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['service_doctors']['Insert']>
+      }
       doctor_schedule_templates: {
         Row: {
           id: string
@@ -326,6 +336,7 @@ export type Branch = Database['public']['Tables']['branches']['Row']
 export type Room = Database['public']['Tables']['rooms']['Row']
 export type Doctor = Database['public']['Tables']['doctors']['Row']
 export type Service = Database['public']['Tables']['services']['Row']
+export type ServiceDoctor = Database['public']['Tables']['service_doctors']['Row']
 export type ScheduleTemplate = Database['public']['Tables']['doctor_schedule_templates']['Row']
 export type ScheduleRoomAssignment = Database['public']['Tables']['schedule_room_assignments']['Row']
 export type BlockedTime = Database['public']['Tables']['blocked_times']['Row']

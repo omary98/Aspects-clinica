@@ -2,13 +2,23 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, Globe } from 'lucide-react'
+import { Menu, X, Globe, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLanguage } from '@/components/LanguageProvider'
+import { useTheme } from '@/components/ThemeProvider'
 
-export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
+export default function Navbar({
+  logoUrl,
+  logoUrlDark,
+}: {
+  logoUrl?: string | null
+  logoUrlDark?: string | null
+}) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { t, lang, toggleLang } = useLanguage()
+  const { theme, toggleTheme } = useTheme()
+  const currentLogoUrl = theme === 'dark' ? (logoUrlDark || logoUrl) : logoUrl
+  const brandName = lang === 'ar' ? 'يوروكيور' : 'EuroCure'
 
   const navLinks = [
     { href: '/#specialties', label: t.nav.specialties },
@@ -23,15 +33,15 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            {logoUrl ? (
+            {currentLogoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="EuroCure" className="w-8 h-8 rounded-full object-cover" />
+              <img src={currentLogoUrl} alt="EuroCure" className="w-8 h-8 rounded-full object-cover" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-[#101010] flex items-center justify-center">
                 <span className="text-[#D8A83E] font-bold text-sm">EC</span>
               </div>
             )}
-            <span className="eurocure-wordmark text-xl text-[#101010]">EuroCure</span>
+            <span className="eurocure-wordmark text-xl text-[#101010] dark:text-[#F7D775]">{brandName}</span>
           </Link>
 
           {/* Desktop nav */}
@@ -57,6 +67,14 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             >
               <Globe className="w-3.5 h-3.5" />
               <span>{lang === 'ar' ? 'EN' : 'عربي'}</span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="hidden md:flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-[#D8A83E]/60 hover:text-[#9A6A16] dark:border-white/15 dark:text-white/70 dark:hover:text-[#F7D775]"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
 
             <Link href="/book">
@@ -102,6 +120,13 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             >
               <Globe className="w-3.5 h-3.5" />
               {lang === 'ar' ? 'EN' : 'عربي'}
+            </button>
+            <button
+              onClick={() => { toggleTheme(); setMobileOpen(false) }}
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg px-3 py-2 dark:border-white/15 dark:text-white/70"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              {theme === 'dark' ? 'Light' : 'Dark'}
             </button>
           </div>
         </div>

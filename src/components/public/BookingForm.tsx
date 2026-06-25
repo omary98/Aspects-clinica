@@ -183,9 +183,14 @@ export default function BookingForm({
   }
   const availableDateSet = new Set(availableDates)
 
-  const relevantServices = services.filter(
-    (s) => s.specialty_id === specialtyId && (s.doctor_id === null || s.doctor_id === doctorId)
-  )
+  const relevantServices = services.filter((service) => {
+    if (service.specialty_id !== specialtyId) return false
+    const assignedDoctors = Array.isArray(service.service_doctors) ? service.service_doctors : []
+    if (assignedDoctors.length > 0) {
+      return assignedDoctors.some((row: { doctor_id: string }) => row.doctor_id === doctorId)
+    }
+    return service.doctor_id === null || service.doctor_id === doctorId
+  })
 
   const canProceedToDateTime = doctorId && branchId && specialtyId
   const canProceedToDetails = canProceedToDateTime && selectedDate && selectedSlot

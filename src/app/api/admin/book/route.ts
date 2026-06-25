@@ -69,11 +69,26 @@ export async function POST(request: NextRequest) {
     if (service_id) {
       const { data: svcRaw } = await supabase
         .from('services')
-        .select('duration_minutes, fee')
+        .select('duration_minutes, fee, doctor_id, specialty_id, service_doctors(doctor_id)')
         .eq('id', service_id)
         .single()
-      const svc = svcRaw as { duration_minutes: number; fee: number | null } | null
+      const svc = svcRaw as {
+        duration_minutes: number
+        fee: number | null
+        doctor_id: string | null
+        specialty_id: string
+        service_doctors?: Array<{ doctor_id: string }>
+      } | null
       if (svc) {
+        const assignedDoctors = Array.isArray(svc.service_doctors) ? svc.service_doctors : []
+        const doctorCanPerformService = assignedDoctors.length > 0
+          ? assignedDoctors.some((row) => row.doctor_id === doctor_id)
+          : (svc.doctor_id === null || svc.doctor_id === doctor_id)
+
+        if (svc.specialty_id !== specialty_id || !doctorCanPerformService) {
+          return NextResponse.json({ error: 'This service is not available for the selected doctor.' }, { status: 400 })
+        }
+
         durationMinutes = svc.duration_minutes
         feeAtBooking = svc.fee
       }

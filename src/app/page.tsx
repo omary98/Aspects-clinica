@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { CSSProperties } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getLang } from '@/lib/i18n/server'
 import { getT } from '@/lib/i18n'
@@ -76,12 +77,19 @@ export default async function HomePage() {
   const doctorsList = (doctors || []) as any[]
   const branchesList = (branches || []) as any[]
   const heroBackgroundUrl = settings.landing_hero_background_url
+  const heroBackgroundDarkUrl = settings.landing_hero_background_dark_url || heroBackgroundUrl
   const ctaBackgroundUrl = settings.landing_cta_background_url
+  const ctaBackgroundDarkUrl = settings.landing_cta_background_dark_url || ctaBackgroundUrl
   const logoUrl = settings.header_logo_url || settings.logo_url
+  const logoDarkUrl = settings.header_logo_dark_url || settings.logo_dark_url || logoUrl
   const footerLogoUrl = settings.footer_logo_url || settings.logo_url
+  const footerLogoDarkUrl = settings.footer_logo_dark_url || settings.logo_dark_url || footerLogoUrl
   const primaryColor = settings.brand_primary_color || '#101010'
   const accentColor = settings.brand_accent_color || '#D8A83E'
   const backgroundColor = settings.brand_background_color || '#FFFDF7'
+  const darkPrimaryColor = settings.brand_dark_primary_color || '#070707'
+  const darkAccentColor = settings.brand_dark_accent_color || '#E1B84D'
+  const darkBackgroundColor = settings.brand_dark_background_color || '#080806'
   const heroTagline = cmsText('hero', 'tagline', lang === 'en' ? settings.landing_hero_tagline_en || t.hero.tagline : t.hero.tagline)
   const heroTitle = cmsText('hero', 'title', lang === 'en' ? settings.landing_hero_title_en || t.hero.title : t.hero.title)
   const heroSubtitle = cmsText('hero', 'subtitle', lang === 'en' ? settings.landing_hero_subtitle_en || t.hero.subtitle : t.hero.subtitle)
@@ -97,13 +105,26 @@ export default async function HomePage() {
   const footerTagline = cmsText('footer', 'tagline', t.footer.tagline)
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor }}>
-      <Navbar logoUrl={logoUrl} />
+    <div
+      className="eurocure-page min-h-screen"
+      style={{
+        '--page-bg-light': backgroundColor,
+        '--page-bg-dark': darkBackgroundColor,
+        '--brand-primary-light': primaryColor,
+        '--brand-accent-light': accentColor,
+        '--brand-primary-dark': darkPrimaryColor,
+        '--brand-accent-dark': darkAccentColor,
+      } as CSSProperties}
+    >
+      <Navbar logoUrl={logoUrl} logoUrlDark={logoDarkUrl} />
 
       {/* Hero */}
       <section
-        className="relative text-white overflow-hidden"
-        style={heroBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(16, 16, 16, 0.74), rgba(16, 16, 16, 0.84)), url(${heroBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: `linear-gradient(135deg, ${primaryColor}, #2D2414)` }}
+        className="eurocure-hero relative text-white overflow-hidden"
+        style={{
+          '--hero-bg-light': heroBackgroundUrl ? `linear-gradient(rgba(16, 16, 16, 0.74), rgba(16, 16, 16, 0.84)), url(${heroBackgroundUrl})` : `linear-gradient(135deg, ${primaryColor}, #2D2414)`,
+          '--hero-bg-dark': heroBackgroundDarkUrl ? `linear-gradient(rgba(7, 7, 7, 0.68), rgba(7, 7, 7, 0.9)), url(${heroBackgroundDarkUrl})` : `linear-gradient(135deg, ${darkPrimaryColor}, #1F180B)`,
+        } as CSSProperties}
       >
         <div className={`absolute inset-0 ${heroBackgroundUrl ? 'opacity-0' : 'opacity-10'}`}>
           <div className="absolute top-0 end-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -187,7 +208,7 @@ export default async function HomePage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={specialty.image_url} alt={specialty[nameField] || specialty.name_en} className="h-28 w-full rounded-md object-cover mb-4" />
                 )}
-                <div className="w-14 h-14 rounded-lg bg-[#D8A83E]/15 flex items-center justify-center text-[#9A6A16] mb-4 group-hover:bg-[#101010] group-hover:text-white transition-colors">
+                <div className="w-14 h-14 rounded-lg bg-[#D8A83E]/15 flex items-center justify-center text-[#9A6A16] mb-4 group-hover:bg-[#101010] group-hover:text-white transition-colors duration-300">
                   {specialtyIcons[specialty.slug] || <Activity className="w-7 h-7" />}
                 </div>
                 <h3 className="font-semibold text-gray-900 text-lg mb-2">
@@ -302,8 +323,11 @@ export default async function HomePage() {
 
       {/* CTA Banner */}
       <section
-        className="py-16 bg-[#101010]"
-        style={ctaBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(16, 16, 16, 0.84), rgba(16, 16, 16, 0.84)), url(${ctaBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+        className="eurocure-cta py-16 bg-[#101010]"
+        style={{
+          '--cta-bg-light': ctaBackgroundUrl ? `linear-gradient(rgba(16, 16, 16, 0.84), rgba(16, 16, 16, 0.84)), url(${ctaBackgroundUrl})` : 'linear-gradient(135deg, #101010, #2D2414)',
+          '--cta-bg-dark': ctaBackgroundDarkUrl ? `linear-gradient(rgba(7, 7, 7, 0.82), rgba(7, 7, 7, 0.9)), url(${ctaBackgroundDarkUrl})` : 'linear-gradient(135deg, #070707, #211806)',
+        } as CSSProperties}
       >
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">{ctaTitle}</h2>
@@ -322,13 +346,17 @@ export default async function HomePage() {
           <div className="flex flex-col md:flex-row justify-between gap-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                {footerLogoUrl ? (
+                {(footerLogoUrl || footerLogoDarkUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={footerLogoUrl} alt="EuroCure" className="w-6 h-6 rounded-full object-cover" />
+                  <img src={footerLogoUrl || footerLogoDarkUrl} alt="EuroCure" className="footer-logo-light w-6 h-6 rounded-full object-cover" />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-[#D8A83E] flex items-center justify-center">
                     <span className="text-white font-bold text-xs">EC</span>
                   </div>
+                )}
+                {footerLogoDarkUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={footerLogoDarkUrl} alt="EuroCure" className="footer-logo-dark hidden w-6 h-6 rounded-full object-cover" />
                 )}
                 <span className="eurocure-wordmark text-white">EuroCure</span>
               </div>
