@@ -160,11 +160,15 @@ export default function BookingForm({
   )
   const activeDoctorSchedules = (selectedDoctor?.doctor_schedule_templates || [])
     .filter((tmpl: { is_active: boolean }) => tmpl.is_active)
+  const calendarGridStart = startOfWeek(startOfMonth(calendarMonth))
+  const calendarGridEnd = endOfWeek(endOfMonth(calendarMonth))
+  const monthDays = eachDayOfInterval({
+    start: calendarGridStart,
+    end: calendarGridEnd,
+  })
   const broadAvailability = new Map<string, Array<{ id: string; name_en: string; name_ar?: string }>>()
   if (selectedDoctor) {
-    const start = startOfMonth(calendarMonth)
-    const end = endOfMonth(calendarMonth)
-    eachDayOfInterval({ start, end }).forEach((day) => {
+    eachDayOfInterval({ start: calendarGridStart, end: calendarGridEnd }).forEach((day) => {
       const branchesForDay = activeDoctorSchedules
         .filter((tmpl: { day_of_week: number }) => tmpl.day_of_week === day.getDay())
         .map((tmpl: { branches: { id: string; name_en: string; name_ar?: string } }) => tmpl.branches)
@@ -177,10 +181,6 @@ export default function BookingForm({
       }
     })
   }
-  const monthDays = eachDayOfInterval({
-    start: startOfWeek(startOfMonth(calendarMonth)),
-    end: endOfWeek(endOfMonth(calendarMonth)),
-  })
   const availableDateSet = new Set(availableDates)
 
   const relevantServices = services.filter(
@@ -367,20 +367,25 @@ export default function BookingForm({
                   {monthDays.map((day) => {
                     const dayKey = format(day, 'yyyy-MM-dd')
                     const branches = broadAvailability.get(dayKey) || []
+                    const hasAvailability = branches.length > 0
                     return (
                       <button
                         type="button"
                         key={dayKey}
-                        disabled={branches.length === 0}
+                        disabled={!hasAvailability}
                         onClick={() => {
                           if (branches.length === 1) setBranchId(branches[0].id)
                         }}
                         className={`min-h-12 rounded-md border text-sm transition-colors ${
-                          isSameMonth(day, calendarMonth) ? 'bg-white' : 'bg-gray-50 text-gray-300'
-                        } ${isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'} ${branches.length > 0 ? 'hover:border-[#9A6A16]' : 'opacity-50'}`}
+                          hasAvailability
+                            ? 'bg-white text-gray-800 hover:border-[#9A6A16]'
+                            : isSameMonth(day, calendarMonth)
+                              ? 'bg-white text-gray-400 opacity-50'
+                              : 'bg-gray-50 text-gray-300 opacity-50'
+                        } ${isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'}`}
                       >
                         <span className="block">{format(day, 'd')}</span>
-                        {branches.length > 0 && (
+                        {hasAvailability && (
                           <span className="mt-1 flex justify-center gap-0.5">
                             {branches.slice(0, 4).map((branch) => (
                               <span key={branch.id} className="h-1.5 w-4 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#D8A83E' }} />
@@ -499,7 +504,7 @@ export default function BookingForm({
                             : selectable
                               ? 'bg-[#FFFDF7] text-gray-900 border-[#D8A83E]/30 hover:border-[#9A6A16]'
                               : 'bg-gray-50 text-gray-300 border-gray-100'
-                        } ${!isSameMonth(day, calendarMonth) ? 'opacity-50' : ''}`}
+                        } ${!selectable && !isSameMonth(day, calendarMonth) ? 'opacity-50' : ''}`}
                       >
                         {format(day, 'd')}
                       </button>
