@@ -146,7 +146,7 @@ export default async function HomePage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/book">
-                <Button size="lg" className="bg-white hover:bg-gray-100 font-semibold px-8" style={{ color: primaryColor }}>
+                <Button size="lg" className="eurocure-primary-cta bg-white hover:bg-gray-100 font-semibold px-8" style={{ color: primaryColor }}>
                   {heroPrimaryCta}
                   <ChevronRight className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180 ms-1' : 'ms-1'}`} />
                 </Button>
@@ -333,7 +333,7 @@ export default async function HomePage() {
           <h2 className="text-3xl font-bold text-white mb-4">{ctaTitle}</h2>
           <p className="text-white/70 mb-8 text-lg">{ctaSubtitle}</p>
           <Link href="/book">
-            <Button size="lg" className="bg-white hover:bg-gray-100 font-semibold px-10" style={{ color: primaryColor }}>
+            <Button size="lg" className="eurocure-primary-cta bg-white hover:bg-gray-100 font-semibold px-10" style={{ color: primaryColor }}>
               {ctaButton}
             </Button>
           </Link>

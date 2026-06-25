@@ -4,7 +4,7 @@ import SchedulesManager from '@/components/admin/SchedulesManager'
 export default async function SchedulesPage() {
   const supabase = await createAdminClient()
 
-  const [schedulesRes, doctorsRes, branchesRes, roomsRes] = await Promise.all([
+  const [schedulesRes, doctorsRes, branchesRes, roomsRes, firstComeDefaultRes] = await Promise.all([
     supabase
       .from('doctor_schedule_templates')
       .select(`
@@ -18,7 +18,9 @@ export default async function SchedulesPage() {
     supabase.from('doctors').select('id, name_en').eq('is_active', true).order('display_order'),
     supabase.from('branches').select('id, name_en').eq('is_active', true).order('display_order'),
     supabase.from('rooms').select('id, name_en, branch_id').eq('is_active', true),
+    supabase.from('clinic_settings').select('value').eq('key', 'first_come_default_daily_capacity').maybeSingle(),
   ])
+  const defaultFirstComeCapacity = parseInt((firstComeDefaultRes.data as { value?: string } | null)?.value || '10', 10) || 10
 
   return (
     <div className="p-6">
@@ -28,6 +30,7 @@ export default async function SchedulesPage() {
         doctors={doctorsRes.data || []}
         branches={branchesRes.data || []}
         rooms={roomsRes.data || []}
+        defaultFirstComeCapacity={defaultFirstComeCapacity}
       />
     </div>
   )

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { COUNTRY_CODES, formatTime } from '@/lib/utils'
+import { COUNTRY_CODES, formatTime, getPhoneValidationMessage, normalizePhoneNumber } from '@/lib/utils'
 import { Loader2, Plus } from 'lucide-react'
 
 interface ManualAppointmentDialogProps {
@@ -30,6 +30,9 @@ interface ManualAppointmentDialogProps {
 interface TimeSlot {
   time: string
   endTime: string
+  isFirstComeFirstServe?: boolean
+  capacity?: number
+  remainingCapacity?: number
 }
 
 export default function ManualAppointmentDialog({
@@ -62,6 +65,7 @@ export default function ManualAppointmentDialog({
   const [complaint, setComplaint] = useState('')
   const [isNewPatient, setIsNewPatient] = useState(true)
   const [notes, setNotes] = useState('')
+  const phoneValidationMessage = phone ? getPhoneValidationMessage(countryCode, phone) : ''
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectedDoctor = doctors.find((d) => d.id === doctorId) as any | undefined
@@ -117,7 +121,7 @@ export default function ManualAppointmentDialog({
   }, [fetchSlots])
 
   async function handleSubmit() {
-    if (!doctorId || !branchId || !specialtyId || !appointmentDate || !startTime || !patientName.trim() || !phone.trim()) return
+    if (!doctorId || !branchId || !specialtyId || !appointmentDate || !startTime || !patientName.trim() || phoneValidationMessage) return
     setSubmitting(true)
     setError('')
     try {
@@ -128,7 +132,7 @@ export default function ManualAppointmentDialog({
           patient_name: patientName.trim(),
           patient_age: patientAge ? parseInt(patientAge) : null,
           patient_phone_country_code: countryCode,
-          patient_phone: phone.trim(),
+          patient_phone: phone ? normalizePhoneNumber(phone) : null,
           patient_email: email.trim() || null,
           doctor_id: doctorId,
           specialty_id: specialtyId,
@@ -186,7 +190,7 @@ export default function ManualAppointmentDialog({
     return service.doctor_id === null || service.doctor_id === doctorId
   })
 
-  const canSubmit = doctorId && branchId && specialtyId && appointmentDate && startTime && patientName.trim() && phone.trim()
+  const canSubmit = doctorId && branchId && specialtyId && appointmentDate && startTime && patientName.trim() && !phoneValidationMessage
 
   return (
     <>
@@ -300,7 +304,9 @@ export default function ManualAppointmentDialog({
                     <SelectContent>
                       {slots.map((s) => (
                         <SelectItem key={s.time} value={s.time}>
-                          {formatTime(s.time)} – {formatTime(s.endTime)}
+                          {s.isFirstComeFirstServe
+                            ? `First-come first-serve · ${formatTime(s.time)} – ${formatTime(s.endTime)} · ${s.remainingCapacity ?? 0} spots left`
+                            : `${formatTime(s.time)} – ${formatTime(s.endTime)}`}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -374,7 +380,7 @@ export default function ManualAppointmentDialog({
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label>Phone <span className="text-red-500">*</span></Label>
+                <Label>Phone <span className="text-gray-400 text-xs">(optional)</span></Label>
                 <div className="flex gap-2">
                   <Select value={countryCode} onValueChange={setCountryCode}>
                     <SelectTrigger className="w-36 flex-shrink-0">
@@ -390,12 +396,15 @@ export default function ManualAppointmentDialog({
                   </Select>
                   <Input
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(normalizePhoneNumber(e.target.value))}
                     placeholder="01XX XXX XXXX"
                     type="tel"
                     className="flex-1"
                   />
                 </div>
+                {phoneValidationMessage && (
+                  <p className="text-xs text-red-600">{phoneValidationMessage}</p>
+                )}
               </div>
 
               <div className="space-y-2 sm:col-span-2">

@@ -21,7 +21,7 @@ export default async function BookPage({
         *,
         specialties (id, name_en, name_ar, slug),
         doctor_schedule_templates (
-          id, day_of_week, start_time, end_time, branch_id, is_active,
+          id, day_of_week, start_time, end_time, branch_id, is_active, first_come_first_serve, first_come_capacity,
           branches (id, name_en, name_ar, slug, is_public_branch),
           schedule_room_assignments (room_id, rooms (id, name_en))
         )

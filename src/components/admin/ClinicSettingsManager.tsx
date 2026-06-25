@@ -14,6 +14,7 @@ const SETTING_LABELS: Record<string, { label: string; description: string; type?
   booking_window_days: { label: 'Booking Window (days)', description: 'How many days ahead patients can book', type: 'number' },
   min_notice_hours: { label: 'Minimum Notice (hours)', description: 'Minimum notice for same-day bookings', type: 'number' },
   default_appointment_duration_minutes: { label: 'Default Slot Duration (minutes)', description: 'Default appointment duration when no service is selected', type: 'number' },
+  first_come_default_daily_capacity: { label: 'Default First-Come Capacity', description: 'Default number of patients for new first-come clinic sessions', type: 'number' },
   email_from: { label: 'From Email Address', description: 'Sender email for patient confirmations' },
   whatsapp_enabled: { label: 'WhatsApp Enabled', description: 'Set to "true" when provider is connected' },
   clinic_name_en: { label: 'Clinic Name (English)', description: 'Used in emails and notifications' },
@@ -73,7 +74,7 @@ export default function ClinicSettingsManager({ settings }: { settings: ClinicSe
   }
 
   const orderedKeys = [
-    'booking_window_days', 'min_notice_hours', 'default_appointment_duration_minutes',
+    'booking_window_days', 'min_notice_hours', 'default_appointment_duration_minutes', 'first_come_default_daily_capacity',
     'clinic_name_en', 'clinic_name_ar', 'clinic_phone',
     'email_from', 'whatsapp_enabled',
   ]

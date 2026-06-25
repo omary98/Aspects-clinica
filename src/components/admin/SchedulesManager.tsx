@@ -23,6 +23,7 @@ interface SchedulesManagerProps {
   branches: any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rooms: any[]
+  defaultFirstComeCapacity?: number
 }
 
 interface ScheduleForm {
@@ -31,6 +32,8 @@ interface ScheduleForm {
   day_of_week: string
   start_time: string
   end_time: string
+  first_come_first_serve: boolean
+  first_come_capacity: string
   is_active: boolean
   room_ids: string[]
 }
@@ -38,10 +41,11 @@ interface ScheduleForm {
 const emptyForm: ScheduleForm = {
   doctor_id: '', branch_id: '', day_of_week: '0',
   start_time: '09:00', end_time: '17:00',
+  first_come_first_serve: false, first_come_capacity: '10',
   is_active: true, room_ids: [],
 }
 
-export default function SchedulesManager({ schedules, doctors, branches, rooms }: SchedulesManagerProps) {
+export default function SchedulesManager({ schedules, doctors, branches, rooms, defaultFirstComeCapacity = 10 }: SchedulesManagerProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<ScheduleForm>(emptyForm)
@@ -59,7 +63,12 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
     return acc
   }, {})
 
-  function openNew() { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }
+  function openNew() {
+    setForm({ ...emptyForm, first_come_capacity: String(defaultFirstComeCapacity) })
+    setEditId(null)
+    setError('')
+    setOpen(true)
+  }
 
   function openEdit(s: typeof schedules[0]) {
     setError('')
@@ -69,6 +78,8 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
       day_of_week: String(s.day_of_week),
       start_time: s.start_time,
       end_time: s.end_time,
+      first_come_first_serve: s.first_come_first_serve === true,
+      first_come_capacity: String(s.first_come_capacity || 10),
       is_active: s.is_active,
       room_ids: (s.schedule_room_assignments || []).map((a: { room_id: string }) => a.room_id),
     })
@@ -85,6 +96,8 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
       day_of_week: parseInt(form.day_of_week),
       start_time: form.start_time,
       end_time: form.end_time,
+      first_come_first_serve: form.first_come_first_serve,
+      first_come_capacity: parseInt(form.first_come_capacity) || 1,
       is_active: form.is_active,
       room_ids: form.room_ids,
     }
@@ -141,6 +154,11 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
                         <span>{s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}</span>
                         <span className="text-gray-500 mx-2">·</span>
                         <span className="text-gray-600">{s.branches?.name_en}</span>
+                        {s.first_come_first_serve && (
+                          <span className="text-[#9A6A16] ml-2 text-xs font-medium">
+                            First-come · {s.first_come_capacity || 1} patients
+                          </span>
+                        )}
                         {s.schedule_room_assignments?.length > 0 && (
                           <span className="text-gray-400 ml-2 text-xs">
                             [{s.schedule_room_assignments.map((a: { rooms: { name_en: string } }) => a.rooms?.name_en).join(', ')}]
@@ -210,6 +228,32 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
                 <Label>End Time *</Label>
                 <Input type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
               </div>
+            </div>
+
+            <div className="rounded-md border border-amber-100 bg-[#FFFDF7] p-3 space-y-3">
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={form.first_come_first_serve}
+                  onCheckedChange={(v) => setForm({ ...form, first_come_first_serve: v })}
+                />
+                <div>
+                  <Label>First-Come First Serve</Label>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Patients reserve a place in this clinic session instead of choosing a specific hourly time.
+                  </p>
+                </div>
+              </div>
+              {form.first_come_first_serve && (
+                <div className="space-y-2">
+                  <Label>Maximum patients for this clinic session</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={form.first_come_capacity}
+                    onChange={(e) => setForm({ ...form, first_come_capacity: e.target.value })}
+                  />
+                </div>
+              )}
             </div>
 
             {branchRooms.length > 0 && (

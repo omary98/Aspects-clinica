@@ -95,6 +95,47 @@ export const COUNTRY_CODES = [
   { code: '+7', country: 'Russia', flag: '🇷🇺' },
 ]
 
+const PHONE_RULES: Record<string, { pattern: RegExp; example: string }> = {
+  '+20': { pattern: /^01[0-9]{9}$/, example: '01282344448' },
+  '+966': { pattern: /^5[0-9]{8}$/, example: '512345678' },
+  '+971': { pattern: /^5[0-9]{8}$/, example: '501234567' },
+  '+965': { pattern: /^[0-9]{8}$/, example: '51234567' },
+  '+974': { pattern: /^[0-9]{8}$/, example: '33123456' },
+  '+973': { pattern: /^[0-9]{8}$/, example: '36123456' },
+  '+968': { pattern: /^[0-9]{8}$/, example: '91234567' },
+  '+962': { pattern: /^7[0-9]{8}$/, example: '791234567' },
+  '+961': { pattern: /^[0-9]{7,8}$/, example: '71123456' },
+  '+963': { pattern: /^9[0-9]{8}$/, example: '931234567' },
+  '+964': { pattern: /^7[0-9]{9}$/, example: '7712345678' },
+  '+1': { pattern: /^[0-9]{10}$/, example: '2125550198' },
+  '+44': { pattern: /^(7[0-9]{9}|[0-9]{10,11})$/, example: '7123456789' },
+  '+49': { pattern: /^[0-9]{10,12}$/, example: '15123456789' },
+  '+33': { pattern: /^([67][0-9]{8}|[0-9]{9})$/, example: '612345678' },
+  '+39': { pattern: /^[0-9]{9,10}$/, example: '3123456789' },
+  '+34': { pattern: /^[67][0-9]{8}$/, example: '612345678' },
+  '+31': { pattern: /^6[0-9]{8}$/, example: '612345678' },
+  '+90': { pattern: /^5[0-9]{9}$/, example: '5321234567' },
+  '+7': { pattern: /^9[0-9]{9}$/, example: '9123456789' },
+}
+
+export function normalizePhoneNumber(value: string): string {
+  return value.replace(/\D/g, '')
+}
+
+export function validatePhoneNumberForCountry(countryCode: string, value: string): boolean {
+  const digits = normalizePhoneNumber(value)
+  const rule = PHONE_RULES[countryCode]
+  if (rule) return rule.pattern.test(digits)
+  return /^[0-9]{7,15}$/.test(digits)
+}
+
+export function getPhoneValidationMessage(countryCode: string, value: string): string {
+  if (!value) return ''
+  if (validatePhoneNumberForCountry(countryCode, value)) return ''
+  const rule = PHONE_RULES[countryCode]
+  return `Enter a valid ${countryCode} phone number${rule ? `, e.g. ${rule.example}` : ''}.`
+}
+
 export const REFERRAL_SOURCES = [
   'Social Media',
   'Google Search',

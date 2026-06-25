@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   const { data: settingsRaw } = await supabase
     .from('clinic_settings')
     .select('key, value')
-    .in('key', ['default_appointment_duration_minutes', 'min_notice_hours', 'booking_window_days'])
+    .in('key', ['default_appointment_duration_minutes', 'min_notice_hours', 'booking_window_days', 'first_come_default_daily_capacity'])
 
   const settings = Object.fromEntries(
     ((settingsRaw || []) as { key: string; value: string }[]).map((s) => [s.key, s.value])
@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
   const bookingWindowDays = parseInt(settings['booking_window_days'] || '90', 10)
   const minNoticeHours = parseInt(settings['min_notice_hours'] || '6', 10)
   const defaultDuration = parseInt(settings['default_appointment_duration_minutes'] || '20', 10)
+  const defaultFirstComeCapacity = Math.max(1, parseInt(settings['first_come_default_daily_capacity'] || '10', 10) || 10)
 
   // Date range validation
   const now = new Date()
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
   const [schedulesRes, bookingsRes, blockedRes, serviceRes] = await Promise.all([
     supabase
       .from('doctor_schedule_templates')
-      .select('doctor_id, branch_id, day_of_week, start_time, end_time')
+      .select('doctor_id, branch_id, day_of_week, start_time, end_time, first_come_first_serve, first_come_capacity')
       .eq('doctor_id', doctorId)
       .eq('branch_id', branchId)
       .eq('is_active', true),
@@ -89,7 +90,18 @@ export async function GET(request: NextRequest) {
     branchId,
     date,
     durationMinutes,
-    schedules: schedulesRes.data || [],
+    schedules: ((schedulesRes.data || []) as Array<{
+      doctor_id: string
+      branch_id: string
+      day_of_week: number
+      start_time: string
+      end_time: string
+      first_come_first_serve?: boolean
+      first_come_capacity?: number
+    }>).map((schedule) => ({
+      ...schedule,
+      first_come_capacity: schedule.first_come_capacity || defaultFirstComeCapacity,
+    })),
     bookedAppointments: bookingsRes.data || [],
     blockedTimes: blockedRes.data || [],
     minNoticeHours,

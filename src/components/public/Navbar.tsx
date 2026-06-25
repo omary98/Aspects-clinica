@@ -41,7 +41,7 @@ export default function Navbar({
                 <span className="text-[#D8A83E] font-bold text-sm">EC</span>
               </div>
             )}
-            <span className="eurocure-wordmark text-xl text-[#101010] dark:text-[#F7D775]">{brandName}</span>
+            <span className="eurocure-wordmark eurocure-nav-wordmark text-2xl font-bold text-[#101010]">{brandName}</span>
           </Link>
 
           {/* Desktop nav */}
@@ -78,10 +78,19 @@ export default function Navbar({
             </button>
 
             <Link href="/book">
-              <Button size="sm" className="bg-[#101010] hover:bg-black text-white">
+              <Button size="sm" className="eurocure-nav-cta bg-[#101010] hover:bg-black text-white">
                 {t.nav.bookNow}
               </Button>
             </Link>
+
+            <button
+              onClick={toggleTheme}
+              className="flex md:hidden h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:border-[#D8A83E]/60 hover:text-[#9A6A16]"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
 
             {/* Mobile menu toggle */}
             <button

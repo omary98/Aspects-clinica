@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { COUNTRY_CODES, formatTime } from '@/lib/utils'
+import { COUNTRY_CODES, formatTime, getPhoneValidationMessage, normalizePhoneNumber } from '@/lib/utils'
 import { getAvailableDates } from '@/lib/availability'
 import { Loader2, Clock, Calendar, User, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageProvider'
@@ -29,6 +29,9 @@ interface BookingFormProps {
 interface TimeSlot {
   time: string
   endTime: string
+  isFirstComeFirstServe?: boolean
+  capacity?: number
+  remainingCapacity?: number
 }
 
 type Step = 'select' | 'datetime' | 'details' | 'review'
@@ -182,6 +185,14 @@ export default function BookingForm({
     })
   }
   const availableDateSet = new Set(availableDates)
+  const firstComeNotice = isRtl
+    ? 'ملحوظة: بعض مواعيد الطبيب تعمل بنظام أولوية الحضور. الحجز يؤكد مكانك في قائمة اليوم، والحضور يكون حسب أولوية الوصول إلا إذا أوضح فريق الميديا/السنتر غير ذلك.'
+    : 'Note: Some doctor sessions are first-come first-serve. Your booking confirms your place for that clinic day; arrival order applies unless the Media/Center Team specifies otherwise.'
+  const hasFirstComeForSelectedBranch = !!branchId && activeDoctorSchedules.some(
+    (tmpl: { branch_id: string; first_come_first_serve?: boolean }) =>
+      tmpl.branch_id === branchId && tmpl.first_come_first_serve === true
+  )
+  const phoneValidationMessage = getPhoneValidationMessage(countryCode, phone)
 
   const relevantServices = services.filter((service) => {
     if (service.specialty_id !== specialtyId) return false
@@ -194,10 +205,11 @@ export default function BookingForm({
 
   const canProceedToDateTime = doctorId && branchId && specialtyId
   const canProceedToDetails = canProceedToDateTime && selectedDate && selectedSlot
-  const canSubmit = canProceedToDetails && patientName.trim() && phone.trim()
+  const canSubmit = canProceedToDetails && patientName.trim() && phone.trim() && !phoneValidationMessage
 
   async function handleSubmit() {
     if (!canSubmit || !selectedSlot) return
+    const normalizedPhone = normalizePhoneNumber(phone)
     setSubmitting(true)
     setError('')
     try {
@@ -208,7 +220,7 @@ export default function BookingForm({
           patient_name: patientName.trim(),
           patient_age: patientAge ? parseInt(patientAge) : null,
           patient_phone_country_code: countryCode,
-          patient_phone: phone.trim(),
+          patient_phone: normalizedPhone,
           patient_email: email.trim() || null,
           doctor_id: doctorId,
           specialty_id: specialtyId,
@@ -255,7 +267,7 @@ export default function BookingForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="eurocure-booking-flow space-y-6">
       {/* Progress */}
       <div className="flex items-center gap-2">
         {steps.map((s, i) => (
@@ -283,7 +295,7 @@ export default function BookingForm({
 
       {/* Step 1: Doctor & Service Selection */}
       {step === 'select' && (
-        <Card>
+        <Card className="eurocure-booking-card">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <User className="w-5 h-5 text-[#1B4F72]" />
@@ -297,7 +309,7 @@ export default function BookingForm({
                 value={specialtyId}
                 onValueChange={(v) => { setSpecialtyId(v); setDoctorId(''); setBranchId('') }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="booking-select-trigger min-h-12 h-auto">
                   <SelectValue placeholder={t.booking.step1.selectSpecialty} />
                 </SelectTrigger>
                 <SelectContent>
@@ -313,7 +325,7 @@ export default function BookingForm({
             <div className="space-y-2">
               <Label>{t.booking.step1.doctor}</Label>
               <Select value={doctorId} onValueChange={setDoctorId}>
-                <SelectTrigger>
+                <SelectTrigger className="booking-select-trigger min-h-12 h-auto">
                   <SelectValue placeholder={t.booking.step1.selectDoctor} />
                 </SelectTrigger>
                 <SelectContent>
@@ -348,6 +360,7 @@ export default function BookingForm({
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-gray-500">{firstComeNotice}</p>
               </div>
             )}
 
@@ -373,6 +386,7 @@ export default function BookingForm({
                     const dayKey = format(day, 'yyyy-MM-dd')
                     const branches = broadAvailability.get(dayKey) || []
                     const hasAvailability = branches.length > 0
+                    const hasSelectedBranch = !!branchId && branches.some((branch) => branch.id === branchId)
                     return (
                       <button
                         type="button"
@@ -387,7 +401,7 @@ export default function BookingForm({
                             : isSameMonth(day, calendarMonth)
                               ? 'eurocure-calendar-day-muted bg-white text-gray-400 opacity-50'
                               : 'eurocure-calendar-day-muted bg-gray-50 text-gray-300 opacity-50'
-                        } ${isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'}`}
+                        } ${hasSelectedBranch ? 'ring-2 ring-[#D8A83E] border-[#D8A83E] bg-[#FFF3C7]' : isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'}`}
                       >
                         <span className="block">{format(day, 'd')}</span>
                         {hasAvailability && (
@@ -401,6 +415,13 @@ export default function BookingForm({
                     )
                   })}
                 </div>
+                {branchId && (
+                  <p className="text-xs text-gray-500">
+                    {isRtl
+                      ? 'الأيام المحددة بإطار ذهبي متاحة في الفرع الذي اخترته. الأيام الأخرى التي بها علامات ملوّنة متاحة في فروع أخرى.'
+                      : 'Gold-outlined days are available at your selected branch. Other marked days remain visible for the doctor at other branches.'}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {(doctorBranches as Array<{ id: string; name_en: string; name_ar?: string }>).map((branch) => (
                     <span key={branch.id} className="inline-flex items-center gap-1 text-xs text-gray-600">
@@ -450,7 +471,7 @@ export default function BookingForm({
 
       {/* Step 2: Date & Time */}
       {step === 'datetime' && (
-        <Card>
+        <Card className="eurocure-booking-card">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#1B4F72]" />
@@ -478,6 +499,12 @@ export default function BookingForm({
                 {t.booking.step2.changeDoctor}
               </button>
             </div>
+
+            {hasFirstComeForSelectedBranch && (
+              <div className="rounded-lg border border-[#D8A83E]/30 bg-[#FFFDF7] p-3 text-sm text-gray-700">
+                {firstComeNotice}
+              </div>
+            )}
 
             {/* Date selection */}
             <div className="space-y-2">
@@ -555,11 +582,25 @@ export default function BookingForm({
                         className={`p-2.5 rounded-lg border text-sm font-medium transition-all ${
                           selectedSlot?.time === slot.time
                             ? 'bg-[#1B4F72] text-white border-[#1B4F72]'
-                            : 'eurocure-calendar-day bg-white text-gray-700 border-gray-200 hover:border-[#1B4F72] hover:text-[#1B4F72]'
+                            : 'eurocure-slot-button eurocure-calendar-day bg-white text-gray-700 border-gray-200 hover:border-[#1B4F72] hover:text-[#1B4F72]'
                         }`}
                         dir="ltr"
                       >
-                        {formatTime(slot.time)}
+                        {slot.isFirstComeFirstServe
+                          ? (
+                            <span className="flex flex-col gap-0.5" dir={isRtl ? 'rtl' : 'ltr'}>
+                              <span>{isRtl ? 'أولوية الحضور' : 'First-come'}</span>
+                              <span className="text-xs opacity-80">
+                                {formatTime(slot.time)} – {formatTime(slot.endTime)}
+                              </span>
+                              {typeof slot.remainingCapacity === 'number' && (
+                                <span className="text-xs opacity-80">
+                                  {isRtl ? `${slot.remainingCapacity} أماكن متاحة` : `${slot.remainingCapacity} spots left`}
+                                </span>
+                              )}
+                            </span>
+                          )
+                          : formatTime(slot.time)}
                       </button>
                     ))}
                   </div>
@@ -587,7 +628,7 @@ export default function BookingForm({
 
       {/* Step 3: Patient Details */}
       {step === 'details' && (
-        <Card>
+        <Card className="eurocure-booking-card">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <User className="w-5 h-5 text-[#1B4F72]" />
@@ -661,12 +702,15 @@ export default function BookingForm({
                   </Select>
                   <Input
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(normalizePhoneNumber(e.target.value))}
                     placeholder={t.booking.step3.phonePlaceholder}
                     type="tel"
                     className="flex-1"
                   />
                 </div>
+                {phoneValidationMessage && (
+                  <p className="text-xs text-red-600">{phoneValidationMessage}</p>
+                )}
               </div>
 
               <div className="space-y-2 sm:col-span-2">
@@ -731,7 +775,7 @@ export default function BookingForm({
               </Button>
               <Button
                 onClick={() => setStep('review')}
-                disabled={!patientName.trim() || !phone.trim()}
+                disabled={!patientName.trim() || !phone.trim() || !!phoneValidationMessage}
                 className="flex-1 bg-[#1B4F72] hover:bg-[#154360] text-white"
               >
                 {t.booking.step3.reviewBooking}
@@ -744,7 +788,7 @@ export default function BookingForm({
 
       {/* Step 4: Review */}
       {step === 'review' && selectedSlot && (
-        <Card>
+        <Card className="eurocure-booking-card">
           <CardHeader>
             <CardTitle className="text-lg">{t.booking.step4.title}</CardTitle>
           </CardHeader>
@@ -763,8 +807,12 @@ export default function BookingForm({
               />
               <Row
                 label={t.booking.step4.time}
-                value={`${formatTime(selectedSlot.time)} – ${formatTime(selectedSlot.endTime)}`}
-                ltr
+                value={selectedSlot.isFirstComeFirstServe
+                  ? (isRtl
+                    ? `أولوية الحضور (${formatTime(selectedSlot.time)} – ${formatTime(selectedSlot.endTime)})`
+                    : `First-come first-serve (${formatTime(selectedSlot.time)} – ${formatTime(selectedSlot.endTime)})`)
+                  : `${formatTime(selectedSlot.time)} – ${formatTime(selectedSlot.endTime)}`}
+                ltr={!selectedSlot.isFirstComeFirstServe}
               />
             </div>
 

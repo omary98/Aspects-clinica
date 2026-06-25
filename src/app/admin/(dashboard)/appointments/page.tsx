@@ -85,7 +85,7 @@ export default async function AppointmentsPage({
   }, {})
 
   const [doctorsRes, branchesRes, specialtiesRes, servicesRes] = await Promise.all([
-    supabase.from('doctors').select('id, name_en, specialty_id, doctor_schedule_templates(id, branch_id, day_of_week, is_active, branches(id, name_en))').eq('is_active', true).order('display_order'),
+    supabase.from('doctors').select('id, name_en, specialty_id, doctor_schedule_templates(id, branch_id, day_of_week, start_time, end_time, is_active, first_come_first_serve, first_come_capacity, branches(id, name_en))').eq('is_active', true).order('display_order'),
     supabase.from('branches').select('id, name_en').eq('is_active', true).order('display_order'),
     supabase.from('specialties').select('*').eq('is_active', true).order('display_order'),
     supabase.from('services').select('*, specialties(name_en), service_doctors(doctor_id)').eq('is_active', true).order('display_order'),

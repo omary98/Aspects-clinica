@@ -204,6 +204,8 @@ async function saveSchedule(supabase: any, body: AdminManageBody) {
     day_of_week: payload.day_of_week,
     start_time: payload.start_time,
     end_time: payload.end_time,
+    first_come_first_serve: payload.first_come_first_serve === true,
+    first_come_capacity: Math.max(1, parseInt(String(payload.first_come_capacity || 1), 10) || 1),
     is_active: payload.is_active !== false,
   }
   const roomIds = Array.isArray(payload.room_ids) ? payload.room_ids : []

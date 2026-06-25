@@ -147,6 +147,8 @@ export type Database = {
           day_of_week: number
           start_time: string
           end_time: string
+          first_come_first_serve: boolean
+          first_come_capacity: number
           is_active: boolean
           created_at: string
           updated_at: string

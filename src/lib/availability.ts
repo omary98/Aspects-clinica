@@ -4,6 +4,9 @@ import { generateTimeSlots, getSlotEndTime } from './utils'
 export interface AvailableSlot {
   time: string
   endTime: string
+  isFirstComeFirstServe?: boolean
+  capacity?: number
+  remainingCapacity?: number
 }
 
 export interface AvailabilityParams {
@@ -17,6 +20,8 @@ export interface AvailabilityParams {
     end_time: string
     branch_id: string
     doctor_id: string
+    first_come_first_serve?: boolean
+    first_come_capacity?: number
   }>
   bookedAppointments: Array<{
     start_time: string
@@ -91,11 +96,47 @@ export function getAvailableSlots(params: AvailabilityParams): AvailableSlot[] {
       activeStatuses.includes(a.status)
   )
 
-  // Generate all possible slots
-  const allSlots = generateTimeSlots(schedule.start_time, schedule.end_time, durationMinutes)
-
   const now = new Date()
   const cutoff = addHours(now, minNoticeHours)
+
+  if (schedule.first_come_first_serve) {
+    const capacity = Math.max(1, schedule.first_come_capacity || 1)
+    const scheduleStart = schedule.start_time.slice(0, 5)
+    const scheduleEnd = schedule.end_time.slice(0, 5)
+    const [endH, endM] = scheduleEnd.split(':').map(Number)
+    const scheduleEndDateTime = new Date(targetDate)
+    scheduleEndDateTime.setHours(endH, endM, 0, 0)
+
+    if (isBefore(scheduleEndDateTime, cutoff) || isBefore(scheduleEndDateTime, now)) {
+      return []
+    }
+
+    const isBlocked = partialBlocks.some((b) => {
+      if (!b.start_time || !b.end_time) return false
+      return scheduleStart < b.end_time && scheduleEnd > b.start_time
+    })
+    if (isBlocked) return []
+
+    const bookedCount = existingBookings.filter(
+      (a) =>
+        a.branch_id === branchId &&
+        a.start_time.slice(0, 5) >= scheduleStart &&
+        a.end_time.slice(0, 5) <= scheduleEnd
+    ).length
+    const remainingCapacity = capacity - bookedCount
+    if (remainingCapacity <= 0) return []
+
+    return [{
+      time: scheduleStart,
+      endTime: scheduleEnd,
+      isFirstComeFirstServe: true,
+      capacity,
+      remainingCapacity,
+    }]
+  }
+
+  // Generate all possible slots
+  const allSlots = generateTimeSlots(schedule.start_time, schedule.end_time, durationMinutes)
 
   return allSlots
     .map((slotTime) => ({
