@@ -4,7 +4,7 @@ export function databaseErrorResponse(error: { message: string }) {
   if (error.message.toLowerCase().includes('permission denied')) {
     return NextResponse.json(
       {
-        error: 'The server database key cannot write admin data. Check SUPABASE_SERVICE_ROLE_KEY in .env.local.',
+        error: 'The database API roles do not have table privileges yet. Run supabase/migrations/004_api_grants.sql in Supabase SQL Editor.',
       },
       { status: 500 }
     )
