@@ -177,21 +177,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="about" className="py-14 bg-white">
+      <section id="about" className="eurocure-section py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="rounded-lg border border-amber-100 bg-[#FFFDF7] p-7">
+          <div className="eurocure-surface rounded-lg border border-amber-100 bg-[#FFFDF7] p-7">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">{aboutTitle}</h2>
             <p className="text-gray-600 leading-relaxed">{aboutBody}</p>
           </div>
-          <div className="rounded-lg border border-amber-100 bg-[#101010] p-7 text-white">
-            <h2 className="text-2xl font-bold mb-3" style={{ color: accentColor }}>{whyTitle}</h2>
+          <div className="eurocure-premium-panel rounded-lg border border-amber-100 bg-[#101010] p-7 text-white">
+            <h2 className="text-2xl font-bold mb-3" style={{ color: darkAccentColor || accentColor }}>{whyTitle}</h2>
             <p className="text-white/75 leading-relaxed">{whyBody}</p>
           </div>
         </div>
       </section>
 
       {/* Specialties */}
-      <section id="specialties" className="py-16 bg-[#FFFDF7]">
+      <section id="specialties" className="eurocure-section-soft py-16 bg-[#FFFDF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.specialties.sectionTitle}</h2>
@@ -202,7 +202,7 @@ export default async function HomePage() {
               <a
                 key={specialty.id}
                 href={`#${specialty.slug}`}
-                className="group bg-white rounded-lg p-6 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                className="eurocure-specialty-card group bg-white rounded-lg p-6 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
               >
                 {specialty.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -228,7 +228,7 @@ export default async function HomePage() {
       </section>
 
       {/* Doctors by Specialty */}
-      <section id="doctors" className="py-16">
+      <section id="doctors" className="eurocure-section py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {specialtiesList.map((specialty: any) => {
             const specialtyDoctors = doctorsList.filter(
@@ -278,7 +278,7 @@ export default async function HomePage() {
       </section>
 
       {/* Locations */}
-      <section id="locations" className="py-16 bg-[#FFFDF7]">
+      <section id="locations" className="eurocure-section-soft py-16 bg-[#FFFDF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.locations.sectionTitle}</h2>
@@ -286,7 +286,7 @@ export default async function HomePage() {
           </div>
           <div className="max-w-2xl mx-auto">
             {branchesList.map((branch: any) => (
-              <div key={branch.id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+              <div key={branch.id} className="eurocure-location-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
                 <h3 className="font-semibold text-gray-900 text-lg mb-2">
                   {branch[nameField] || branch.name_en}
                 </h3>

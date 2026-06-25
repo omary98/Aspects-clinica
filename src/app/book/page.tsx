@@ -53,7 +53,7 @@ export default async function BookPage({
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="eurocure-page eurocure-section-soft min-h-screen bg-gray-50">
       <Navbar
         logoUrl={settings.header_logo_url || settings.logo_url}
         logoUrlDark={settings.header_logo_dark_url || settings.logo_dark_url || settings.header_logo_url || settings.logo_url}

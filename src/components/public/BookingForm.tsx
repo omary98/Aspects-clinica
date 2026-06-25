@@ -352,7 +352,7 @@ export default function BookingForm({
             )}
 
             {selectedDoctor && broadAvailability.size > 0 && (
-              <div className="space-y-3 rounded-lg border border-amber-100 bg-[#FFFDF7] p-4">
+              <div className="eurocure-booking-panel space-y-3 rounded-lg border border-amber-100 bg-[#FFFDF7] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{format(calendarMonth, 'MMMM yyyy')}</p>
@@ -383,10 +383,10 @@ export default function BookingForm({
                         }}
                         className={`min-h-12 rounded-md border text-sm transition-colors ${
                           hasAvailability
-                            ? 'bg-white text-gray-800 hover:border-[#9A6A16]'
+                            ? 'eurocure-calendar-day bg-white text-gray-800 hover:border-[#9A6A16]'
                             : isSameMonth(day, calendarMonth)
-                              ? 'bg-white text-gray-400 opacity-50'
-                              : 'bg-gray-50 text-gray-300 opacity-50'
+                              ? 'eurocure-calendar-day-muted bg-white text-gray-400 opacity-50'
+                              : 'eurocure-calendar-day-muted bg-gray-50 text-gray-300 opacity-50'
                         } ${isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'}`}
                       >
                         <span className="block">{format(day, 'd')}</span>
@@ -459,7 +459,7 @@ export default function BookingForm({
           </CardHeader>
           <CardContent className="space-y-5">
             {/* Doctor summary */}
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg text-sm">
+            <div className="eurocure-booking-panel flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-transparent text-sm">
               <div className="w-8 h-8 rounded-full bg-[#1B4F72] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                 {(selectedDoctor?.name_en?.split(' ')?.[1]?.[0] || 'D').toUpperCase()}
               </div>
@@ -482,7 +482,7 @@ export default function BookingForm({
             {/* Date selection */}
             <div className="space-y-2">
               <Label>{t.booking.step2.date}</Label>
-              <div className="rounded-lg border border-gray-100 bg-white p-3">
+              <div className="eurocure-booking-panel rounded-lg border border-gray-100 bg-white p-3">
                 <div className="flex items-center justify-between mb-3">
                   <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, -1))}>
                     <BackIcon className="w-4 h-4" />
@@ -505,10 +505,10 @@ export default function BookingForm({
                         onClick={() => setSelectedDate(dayKey)}
                         className={`min-h-11 rounded-md border text-sm transition-colors ${
                           selectedDate === dayKey
-                            ? 'bg-[#101010] text-white border-[#101010]'
+                            ? 'eurocure-calendar-day-selected bg-[#101010] text-white border-[#101010]'
                             : selectable
-                              ? 'bg-[#FFFDF7] text-gray-900 border-[#D8A83E]/30 hover:border-[#9A6A16]'
-                              : 'bg-gray-50 text-gray-300 border-gray-100'
+                              ? 'eurocure-calendar-day bg-[#FFFDF7] text-gray-900 border-[#D8A83E]/30 hover:border-[#9A6A16]'
+                              : 'eurocure-calendar-day-muted bg-gray-50 text-gray-300 border-gray-100'
                         } ${!selectable && !isSameMonth(day, calendarMonth) ? 'opacity-50' : ''}`}
                       >
                         {format(day, 'd')}
@@ -555,7 +555,7 @@ export default function BookingForm({
                         className={`p-2.5 rounded-lg border text-sm font-medium transition-all ${
                           selectedSlot?.time === slot.time
                             ? 'bg-[#1B4F72] text-white border-[#1B4F72]'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-[#1B4F72] hover:text-[#1B4F72]'
+                            : 'eurocure-calendar-day bg-white text-gray-700 border-gray-200 hover:border-[#1B4F72] hover:text-[#1B4F72]'
                         }`}
                         dir="ltr"
                       >
@@ -749,7 +749,7 @@ export default function BookingForm({
             <CardTitle className="text-lg">{t.booking.step4.title}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="bg-blue-50 rounded-xl p-5 space-y-3">
+            <div className="eurocure-review-panel bg-blue-50 rounded-xl border border-transparent p-5 space-y-3">
               <h3 className="font-semibold text-[#1B4F72] mb-3">{t.booking.step4.appointmentDetails}</h3>
               <Row label={t.booking.step4.doctor} value={selectedDoctor ? getDoctorDisplayName(selectedDoctor) : undefined} />
               <Row label={t.booking.step4.specialty} value={selectedSpecialty ? (selectedSpecialty[nameField] || selectedSpecialty.name_en) : undefined} />
@@ -768,7 +768,7 @@ export default function BookingForm({
               />
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-5 space-y-3">
+            <div className="eurocure-review-panel bg-gray-50 rounded-xl border border-transparent p-5 space-y-3">
               <h3 className="font-semibold text-gray-800 mb-3">{t.booking.step4.patientInfo}</h3>
               <Row label={t.booking.step4.name} value={patientName} />
               {patientAge && <Row label={t.booking.step4.type} value={patientAge} />}
