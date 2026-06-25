@@ -3,11 +3,49 @@ import './globals.css'
 import { getLang } from '@/lib/i18n/server'
 import { LanguageProvider } from '@/components/LanguageProvider'
 
+const siteUrl = 'https://eurocure-clinic.vercel.app'
+const siteTitle = 'EuroCure Clinic — No Pain Just Comfort'
+const siteDescription =
+  'Book your appointment at EuroCure Clinic with trusted specialists in interventional radiology, surgery, dermatology, and aesthetics.'
+const socialImageUrl = `${siteUrl}/eurocure-og.png?v=2`
+
 export const metadata: Metadata = {
-  title: 'يوروكيور — حجز مواعيد العيادة | EuroCure Polyclinic',
-  description:
-    'احجز موعدك في عيادة يوروكيور. متخصصون في الأشعة التداخلية والجراحة وأمراض الجلد والتجميل — مصر الجديدة، القاهرة.',
+  metadataBase: new URL(siteUrl),
+  title: siteTitle,
+  description: siteDescription,
   keywords: 'EuroCure, يوروكيور, polyclinic, Nasr City, مصر الجديدة, interventional radiology, dermatology',
+  alternates: {
+    canonical: siteUrl,
+  },
+  icons: {
+    icon: [
+      { url: '/eurocure-logo.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/eurocure-logo.png', type: 'image/png' },
+    ],
+  },
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    url: siteUrl,
+    siteName: 'EuroCure Clinic',
+    type: 'website',
+    images: [
+      {
+        url: socialImageUrl,
+        width: 1200,
+        height: 630,
+        alt: 'EuroCure Clinic logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteTitle,
+    description: siteDescription,
+    images: [socialImageUrl],
+  },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
