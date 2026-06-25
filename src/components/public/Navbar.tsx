@@ -6,7 +6,7 @@ import { Menu, X, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLanguage } from '@/components/LanguageProvider'
 
-export default function Navbar() {
+export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { t, lang, toggleLang } = useLanguage()
 
@@ -23,9 +23,14 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 rounded-full bg-[#1B4F72] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">EC</span>
-            </div>
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="EuroCure" className="w-8 h-8 rounded-full object-cover" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[#1B4F72] flex items-center justify-center">
+                <span className="text-white font-bold text-sm">EC</span>
+              </div>
+            )}
             <span className="font-bold text-xl text-[#1B4F72]">EuroCure</span>
           </Link>
 

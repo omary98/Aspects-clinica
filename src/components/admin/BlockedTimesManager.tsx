@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -34,39 +34,48 @@ const emptyForm: BlockedForm = {
 
 export default function BlockedTimesManager({ blocked, doctors, rooms, branches }: BlockedTimesManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<BlockedForm>(emptyForm)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSave() {
     if (!form.block_date) return
     setLoading(true)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('blocked_times').insert({
-      block_date: form.block_date,
-      start_time: form.is_full_day ? null : (form.start_time || null),
-      end_time: form.is_full_day ? null : (form.end_time || null),
-      doctor_id: form.doctor_id || null,
-      room_id: form.room_id || null,
-      branch_id: form.branch_id || null,
-      reason: form.reason || null,
-      is_full_day: form.is_full_day,
-    })
+    setError('')
+    try {
+      await adminManage({
+        resource: 'blocked-times',
+        action: 'create',
+        payload: {
+          block_date: form.block_date,
+          start_time: form.start_time,
+          end_time: form.end_time,
+          doctor_id: form.doctor_id,
+          room_id: form.room_id,
+          branch_id: form.branch_id,
+          reason: form.reason,
+          is_full_day: form.is_full_day,
+        },
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not block time.')
+      setLoading(false)
+      return
+    }
     setLoading(false); setOpen(false); router.refresh()
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Remove this block?')) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('blocked_times').delete().eq('id', id)
+    await adminManage({ resource: 'blocked-times', action: 'delete', id })
     router.refresh()
   }
 
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setForm(emptyForm); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+        <Button onClick={() => { setForm(emptyForm); setError(''); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
           <Plus className="w-4 h-4 mr-1.5" />Block Time
         </Button>
       </div>
@@ -150,6 +159,11 @@ export default function BlockedTimesManager({ blocked, doctors, rooms, branches 
               </Select>
             </div>
             <div className="space-y-2"><Label>Reason</Label><Input value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} placeholder="Holiday, doctor unavailable, etc." /></div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

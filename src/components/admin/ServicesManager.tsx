@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,15 +35,16 @@ const emptyForm: ServiceForm = {
 
 export default function ServicesManager({ services, specialties, doctors }: ServicesManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<ServiceForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const filteredDoctors = doctors.filter((d) => !form.specialty_id || d.specialty_id === form.specialty_id)
 
   function openEdit(svc: typeof services[0]) {
+    setError('')
     setForm({
       specialty_id: svc.specialty_id, doctor_id: svc.doctor_id || '',
       name_en: svc.name_en, name_ar: svc.name_ar || '',
@@ -60,6 +61,7 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
 
   async function handleSave() {
     setLoading(true)
+    setError('')
     const payload = {
       specialty_id: form.specialty_id,
       doctor_id: form.doctor_id || null,
@@ -72,12 +74,17 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
       is_active: form.is_active,
       display_order: parseInt(form.display_order) || 0,
     }
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('services').update(payload).eq('id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('services').insert(payload)
+    try {
+      await adminManage({
+        resource: 'services',
+        action: editId ? 'update' : 'create',
+        id: editId || undefined,
+        payload,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save service.')
+      setLoading(false)
+      return
     }
     setLoading(false); setOpen(false); router.refresh()
   }
@@ -92,7 +99,7 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setForm(emptyForm); setEditId(null); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+        <Button onClick={() => { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
           <Plus className="w-4 h-4 mr-1.5" />Add Service
         </Button>
       </div>
@@ -166,6 +173,11 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
             </div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

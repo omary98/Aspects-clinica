@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage, uploadAdminImage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,22 +19,37 @@ const SETTING_LABELS: Record<string, { label: string; description: string; type?
   clinic_name_en: { label: 'Clinic Name (English)', description: 'Used in emails and notifications' },
   clinic_name_ar: { label: 'Clinic Name (Arabic)', description: 'Used in Arabic communications' },
   clinic_phone: { label: 'Clinic Phone', description: 'Main phone number displayed on the site' },
+  logo_url: { label: 'EuroCure Logo URL', description: 'Logo displayed in the navigation and footer' },
+  landing_hero_background_url: { label: 'Landing Hero Background URL', description: 'Main landing page background image' },
+  landing_cta_background_url: { label: 'CTA Background URL', description: 'Optional background image for the booking call-to-action section' },
+  landing_hero_tagline_en: { label: 'Hero Tagline (English)', description: 'Optional custom landing page tagline' },
+  landing_hero_title_en: { label: 'Hero Title (English)', description: 'Optional custom landing page title' },
+  landing_hero_subtitle_en: { label: 'Hero Subtitle (English)', description: 'Optional custom landing page subtitle' },
 }
 
 export default function ClinicSettingsManager({ settings }: { settings: ClinicSetting[] }) {
   const router = useRouter()
-  const supabase = createClient()
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(settings.map((s) => [s.key, s.value]))
   )
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null)
 
   async function handleSave() {
     setLoading(true)
-    for (const [key, value] of Object.entries(values)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('clinic_settings').upsert({ key, value }, { onConflict: 'key' })
+    setError('')
+    try {
+      await adminManage({
+        resource: 'clinic-settings',
+        action: 'upsert',
+        values,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save settings.')
+      setLoading(false)
+      return
     }
     setLoading(false)
     setSaved(true)
@@ -42,10 +57,34 @@ export default function ClinicSettingsManager({ settings }: { settings: ClinicSe
     router.refresh()
   }
 
+  async function handleSettingImageUpload(key: string, file: File | null) {
+    if (!file) return
+
+    setUploadingKey(key)
+    setError('')
+    try {
+      const url = await uploadAdminImage(file, key)
+      setValues((current) => ({ ...current, [key]: url }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not upload image.')
+    } finally {
+      setUploadingKey(null)
+    }
+  }
+
   const orderedKeys = [
     'booking_window_days', 'min_notice_hours', 'default_appointment_duration_minutes',
     'clinic_name_en', 'clinic_name_ar', 'clinic_phone',
     'email_from', 'whatsapp_enabled',
+  ]
+
+  const contentKeys = [
+    'logo_url',
+    'landing_hero_background_url',
+    'landing_cta_background_url',
+    'landing_hero_tagline_en',
+    'landing_hero_title_en',
+    'landing_hero_subtitle_en',
   ]
 
   return (
@@ -65,6 +104,49 @@ export default function ClinicSettingsManager({ settings }: { settings: ClinicSe
                   onChange={(e) => setValues({ ...values, [key]: e.target.value })}
                 />
                 <p className="text-xs text-gray-400">{meta.description}</p>
+                {key.endsWith('_url') && (
+                  <div className="space-y-1.5">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingKey === key}
+                      onChange={(e) => handleSettingImageUpload(key, e.target.files?.[0] || null)}
+                    />
+                    {uploadingKey === key && <p className="text-xs text-gray-400">Uploading image...</p>}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-5 space-y-5">
+          <h3 className="font-semibold text-gray-900">Branding and Landing Page</h3>
+          {contentKeys.map((key) => {
+            const meta = SETTING_LABELS[key]
+            return (
+              <div key={key} className="space-y-1.5">
+                <Label htmlFor={key}>{meta.label}</Label>
+                <Input
+                  id={key}
+                  value={values[key] || ''}
+                  onChange={(e) => setValues({ ...values, [key]: e.target.value })}
+                  placeholder={key.endsWith('_url') ? 'https://...' : undefined}
+                />
+                <p className="text-xs text-gray-400">{meta.description}</p>
+                {key.endsWith('_url') && (
+                  <div className="space-y-1.5">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingKey === key}
+                      onChange={(e) => handleSettingImageUpload(key, e.target.files?.[0] || null)}
+                    />
+                    {uploadingKey === key && <p className="text-xs text-gray-400">Uploading image...</p>}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -102,6 +184,11 @@ export default function ClinicSettingsManager({ settings }: { settings: ClinicSe
       </Card>
 
       <div className="flex justify-end">
+        {error && (
+          <div className="mr-auto p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+            {error}
+          </div>
+        )}
         <Button
           onClick={handleSave}
           disabled={loading}

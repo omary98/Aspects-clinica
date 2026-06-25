@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -30,13 +30,14 @@ const emptyForm: BranchForm = {
 
 export default function BranchesManager({ branches }: BranchesManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<BranchForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   function openEdit(b: Branch) {
+    setError('')
     setForm({
       name_en: b.name_en, name_ar: b.name_ar, slug: b.slug,
       address_en: b.address_en || '', address_ar: b.address_ar || '',
@@ -50,6 +51,7 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
 
   async function handleSave() {
     setLoading(true)
+    setError('')
     const payload = {
       name_en: form.name_en, name_ar: form.name_ar,
       slug: form.slug || form.name_en.toLowerCase().replace(/\s+/g, '-'),
@@ -58,12 +60,17 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
       is_public_branch: form.is_public_branch, is_active: form.is_active,
       display_order: parseInt(form.display_order) || 0,
     }
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('branches').update(payload).eq('id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('branches').insert(payload)
+    try {
+      await adminManage({
+        resource: 'branches',
+        action: editId ? 'update' : 'create',
+        id: editId || undefined,
+        payload,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save branch.')
+      setLoading(false)
+      return
     }
     setLoading(false); setOpen(false); router.refresh()
   }
@@ -71,7 +78,7 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setForm(emptyForm); setEditId(null); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+        <Button onClick={() => { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
           <Plus className="w-4 h-4 mr-1.5" />Add Branch
         </Button>
       </div>
@@ -131,6 +138,11 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
             </div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,13 +25,14 @@ const emptyForm: RoomForm = { branch_id: '', name_en: '', name_ar: '', room_type
 
 export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<RoomForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   function openEdit(r: Room) {
+    setError('')
     setForm({ branch_id: r.branch_id, name_en: r.name_en, name_ar: r.name_ar, room_type: r.room_type, is_active: r.is_active })
     setEditId(r.id)
     setOpen(true)
@@ -39,13 +40,19 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
 
   async function handleSave() {
     setLoading(true)
+    setError('')
     const payload = { ...form }
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('rooms').update(payload).eq('id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('rooms').insert(payload)
+    try {
+      await adminManage({
+        resource: 'rooms',
+        action: editId ? 'update' : 'create',
+        id: editId || undefined,
+        payload,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save room.')
+      setLoading(false)
+      return
     }
     setLoading(false); setOpen(false); router.refresh()
   }
@@ -60,7 +67,7 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setForm(emptyForm); setEditId(null); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+        <Button onClick={() => { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
           <Plus className="w-4 h-4 mr-1.5" />Add Room
         </Button>
       </div>
@@ -121,6 +128,11 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
             </div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

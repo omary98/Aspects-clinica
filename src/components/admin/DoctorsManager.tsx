@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Card, CardContent } from '@/components/ui/card'
 import { Plus, Edit2, Loader2, User } from 'lucide-react'
 import type { Doctor, Specialty } from '@/types/database'
+import { uploadAdminImage } from '@/lib/admin/client-actions'
 
 interface DoctorsManagerProps {
   doctors: (Doctor & { specialties: { id: string; name_en: string } | null })[]
@@ -45,6 +46,7 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   function openNew() {
     setForm(emptyForm)
@@ -124,6 +126,21 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
       body: JSON.stringify({ id: doc.id, is_active: !doc.is_active }),
     })
     router.refresh()
+  }
+
+  async function handlePhotoUpload(file: File | null) {
+    if (!file) return
+
+    setUploadingPhoto(true)
+    setError('')
+    try {
+      const url = await uploadAdminImage(file, 'doctors')
+      setForm((current) => ({ ...current, photo_url: url }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not upload doctor photo.')
+    } finally {
+      setUploadingPhoto(false)
+    }
   }
 
   return (
@@ -224,6 +241,16 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
             <div className="space-y-2">
               <Label>Photo URL</Label>
               <Input value={form.photo_url} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} placeholder="https://..." />
+            </div>
+            <div className="space-y-2">
+              <Label>Upload Doctor Photo</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                disabled={uploadingPhoto}
+                onChange={(e) => handlePhotoUpload(e.target.files?.[0] || null)}
+              />
+              {uploadingPhoto && <p className="text-xs text-gray-400">Uploading photo...</p>}
             </div>
             <div className="space-y-2">
               <Label>Consultation Fee (EGP) — leave blank to hide from patients</Label>

@@ -70,8 +70,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) for the patient site.  
-Admin dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)
+Open [http://localhost:4000](http://localhost:4000) for the patient site.  
+Admin dashboard: [http://localhost:4000/admin](http://localhost:4000/admin)
 
 ---
 

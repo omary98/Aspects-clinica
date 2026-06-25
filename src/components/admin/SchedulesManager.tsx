@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -43,11 +43,11 @@ const emptyForm: ScheduleForm = {
 
 export default function SchedulesManager({ schedules, doctors, branches, rooms }: SchedulesManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<ScheduleForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const branchRooms = rooms.filter((r) => r.branch_id === form.branch_id)
 
@@ -59,9 +59,10 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
     return acc
   }, {})
 
-  function openNew() { setForm(emptyForm); setEditId(null); setOpen(true) }
+  function openNew() { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }
 
   function openEdit(s: typeof schedules[0]) {
+    setError('')
     setForm({
       doctor_id: s.doctor_id,
       branch_id: s.branch_id,
@@ -77,6 +78,7 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
 
   async function handleSave() {
     setLoading(true)
+    setError('')
     const payload = {
       doctor_id: form.doctor_id,
       branch_id: form.branch_id,
@@ -84,25 +86,20 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
       start_time: form.start_time,
       end_time: form.end_time,
       is_active: form.is_active,
+      room_ids: form.room_ids,
     }
 
-    let scheduleId = editId
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('doctor_schedule_templates').update(payload).eq('id', editId)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('schedule_room_assignments').delete().eq('schedule_template_id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any).from('doctor_schedule_templates').insert(payload).select('id').single()
-      scheduleId = (data as { id: string } | null)?.id || null
-    }
-
-    if (scheduleId && form.room_ids.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('schedule_room_assignments').insert(
-        form.room_ids.map((rid) => ({ schedule_template_id: scheduleId!, room_id: rid }))
-      )
+    try {
+      await adminManage({
+        resource: 'schedules',
+        action: editId ? 'update' : 'create',
+        id: editId || undefined,
+        payload,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save schedule.')
+      setLoading(false)
+      return
     }
 
     setLoading(false)
@@ -112,8 +109,7 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this schedule?')) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('doctor_schedule_templates').delete().eq('id', id)
+    await adminManage({ resource: 'schedules', action: 'delete', id })
     router.refresh()
   }
 
@@ -245,6 +241,11 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms }
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
             </div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

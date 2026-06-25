@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -22,7 +22,6 @@ export default function AppointmentActions({ appointment }: AppointmentActionsPr
   const [cancelOpen, setCancelOpen] = useState(false)
   const [patientConfirmed, setPatientConfirmed] = useState(false)
   const [cancelNote, setCancelNote] = useState('')
-  const supabase = createClient()
 
   const { status } = appointment
 
@@ -34,25 +33,24 @@ export default function AppointmentActions({ appointment }: AppointmentActionsPr
     try {
       const prevStatus = status
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase as any)
-        .from('appointments')
-        .update({
-          status: newStatus,
-          ...(extra?.patient_confirmed_change !== undefined && {
-            patient_confirmed_change: extra.patient_confirmed_change,
-          }),
-        })
-        .eq('id', appointment.id)
-
-      if (error) throw error
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('appointment_status_history').insert({
-        appointment_id: appointment.id,
-        previous_status: prevStatus,
-        new_status: newStatus,
-        notes: extra?.notes || null,
+      await adminManage({
+        resource: 'appointment-status',
+        action: 'update',
+        id: appointment.id,
+        payload: {
+          appointment: {
+            status: newStatus,
+            ...(extra?.patient_confirmed_change !== undefined && {
+              patient_confirmed_change: extra.patient_confirmed_change,
+            }),
+          },
+          history: {
+            appointment_id: appointment.id,
+            previous_status: prevStatus,
+            new_status: newStatus,
+            notes: extra?.notes || null,
+          },
+        },
       })
 
       router.refresh()

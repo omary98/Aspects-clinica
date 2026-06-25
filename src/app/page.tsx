@@ -48,17 +48,34 @@ export default async function HomePage() {
     .eq('is_public_branch', true)
     .order('display_order')
 
+  const { data: settingsRaw } = await (supabase as any)
+    .from('clinic_settings')
+    .select('key, value')
+
+  const settings = Object.fromEntries(
+    ((settingsRaw || []) as Array<{ key: string; value: string }>).map((setting) => [setting.key, setting.value])
+  )
+
   const specialtiesList = (specialties || []) as any[]
   const doctorsList = (doctors || []) as any[]
   const branchesList = (branches || []) as any[]
+  const heroBackgroundUrl = settings.landing_hero_background_url
+  const ctaBackgroundUrl = settings.landing_cta_background_url
+  const logoUrl = settings.logo_url
+  const heroTagline = lang === 'en' ? settings.landing_hero_tagline_en || t.hero.tagline : t.hero.tagline
+  const heroTitle = lang === 'en' ? settings.landing_hero_title_en || t.hero.title : t.hero.title
+  const heroSubtitle = lang === 'en' ? settings.landing_hero_subtitle_en || t.hero.subtitle : t.hero.subtitle
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar logoUrl={logoUrl} />
 
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-[#1B4F72] via-[#2471A3] to-[#1B4F72] text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      <section
+        className="relative bg-gradient-to-br from-[#1B4F72] via-[#2471A3] to-[#1B4F72] text-white overflow-hidden"
+        style={heroBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(27, 79, 114, 0.72), rgba(27, 79, 114, 0.72)), url(${heroBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
+        <div className={`absolute inset-0 ${heroBackgroundUrl ? 'opacity-0' : 'opacity-10'}`}>
           <div className="absolute top-0 end-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 start-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
         </div>
@@ -66,15 +83,15 @@ export default async function HomePage() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-1.5 text-sm mb-6">
               <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-              <span>{t.hero.tagline}</span>
+              <span>{heroTagline}</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              {t.hero.title}
+              {heroTitle}
               <br />
               <span className="text-blue-200">{t.hero.titleHighlight}</span>
             </h1>
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
-              {t.hero.subtitle}
+              {heroSubtitle}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/book">
@@ -237,7 +254,10 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Banner */}
-      <section className="py-16 bg-[#1B4F72]">
+      <section
+        className="py-16 bg-[#1B4F72]"
+        style={ctaBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(27, 79, 114, 0.82), rgba(27, 79, 114, 0.82)), url(${ctaBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">{t.cta.title}</h2>
           <p className="text-white/70 mb-8 text-lg">{t.cta.subtitle}</p>
@@ -255,9 +275,14 @@ export default async function HomePage() {
           <div className="flex flex-col md:flex-row justify-between gap-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-[#1B4F72] flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">EC</span>
-                </div>
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logoUrl} alt="EuroCure" className="w-6 h-6 rounded-full object-cover" />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-[#1B4F72] flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">EC</span>
+                  </div>
+                )}
                 <span className="font-bold text-white">EuroCure</span>
               </div>
               <p className="text-sm max-w-xs">{t.footer.tagline}</p>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { adminManage } from '@/lib/admin/client-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -32,13 +32,14 @@ const emptyForm: ProfileForm = {
 
 export default function AdminUsersManager({ profiles }: AdminUsersManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<ProfileForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   function openEdit(p: AdminProfile) {
+    setError('')
     setForm({
       full_name: p.full_name, role: p.role, email: p.email,
       whatsapp_number: p.whatsapp_number || '', notifications_enabled: p.notifications_enabled,
@@ -49,17 +50,23 @@ export default function AdminUsersManager({ profiles }: AdminUsersManagerProps) 
 
   async function handleSave() {
     setLoading(true)
+    setError('')
     const payload = {
-      full_name: form.full_name, role: form.role, email: form.email,
+      user_id: form.user_id, full_name: form.full_name, role: form.role, email: form.email,
       whatsapp_number: form.whatsapp_number || null, notifications_enabled: form.notifications_enabled,
       is_active: form.is_active,
     }
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('admin_profiles').update(payload).eq('id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('admin_profiles').insert({ ...payload, user_id: form.user_id })
+    try {
+      await adminManage({
+        resource: 'admin-profiles',
+        action: editId ? 'update' : 'create',
+        id: editId || undefined,
+        payload,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save admin profile.')
+      setLoading(false)
+      return
     }
     setLoading(false); setOpen(false); router.refresh()
   }
@@ -67,7 +74,7 @@ export default function AdminUsersManager({ profiles }: AdminUsersManagerProps) 
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setForm(emptyForm); setEditId(null); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+        <Button onClick={() => { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
           Add Admin Profile
         </Button>
       </div>
@@ -132,6 +139,11 @@ export default function AdminUsersManager({ profiles }: AdminUsersManagerProps) 
             <div className="space-y-2"><Label>WhatsApp Number</Label><Input value={form.whatsapp_number} onChange={(e) => setForm({ ...form, whatsapp_number: e.target.value })} placeholder="+20 1XX XXX XXXX" /></div>
             <div className="flex items-center gap-3"><Switch checked={form.notifications_enabled} onCheckedChange={(v) => setForm({ ...form, notifications_enabled: v })} /><Label>Receive notifications</Label></div>
             <div className="flex items-center gap-3"><Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} /><Label>Active</Label></div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
