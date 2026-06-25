@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import SchedulesManager from '@/components/admin/SchedulesManager'
 
 export default async function SchedulesPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const [schedulesRes, doctorsRes, branchesRes, roomsRes] = await Promise.all([
     supabase

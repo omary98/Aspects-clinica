@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import RoomsManager from '@/components/admin/RoomsManager'
 
 export default async function RoomsPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const [roomsRes, branchesRes] = await Promise.all([
     supabase.from('rooms').select('*, branches (id, name_en)').order('branch_id'),
     supabase.from('branches').select('id, name_en').eq('is_active', true).order('display_order'),

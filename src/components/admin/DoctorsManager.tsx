@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -41,19 +40,21 @@ const emptyForm: DoctorForm = {
 
 export default function DoctorsManager({ doctors, specialties }: DoctorsManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<DoctorForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   function openNew() {
     setForm(emptyForm)
     setEditId(null)
+    setError('')
     setOpen(true)
   }
 
   function openEdit(doc: Doctor) {
+    setError('')
     setForm({
       name_en: doc.name_en,
       name_ar: doc.name_ar,
@@ -74,6 +75,7 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
   async function handleSave() {
     if (!form.name_en || !form.specialty_id || !form.title_en) return
     setLoading(true)
+    setError('')
 
     const payload = {
       name_en: form.name_en,
@@ -89,12 +91,21 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
       display_order: parseInt(form.display_order) || 0,
     }
 
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('doctors').update(payload).eq('id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('doctors').insert(payload)
+    const response = await fetch('/api/admin/doctors', {
+      method: editId ? 'PATCH' : 'POST',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editId ? { id: editId, ...payload } : payload),
+    })
+    const result = await response.json() as { error?: string }
+
+    if (!response.ok) {
+      setError(result.error || 'Could not save doctor.')
+      setLoading(false)
+      return
     }
 
     setLoading(false)
@@ -103,8 +114,15 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
   }
 
   async function toggleActive(doc: Doctor) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('doctors').update({ is_active: !doc.is_active }).eq('id', doc.id)
+    await fetch('/api/admin/doctors', {
+      method: 'PATCH',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: doc.id, is_active: !doc.is_active }),
+    })
     router.refresh()
   }
 
@@ -219,6 +237,11 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
             </div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

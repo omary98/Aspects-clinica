@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Calendar, Users, Stethoscope, Building2,
-  DoorOpen, ClipboardList, Clock, BanIcon, Bell, Settings,
+  DoorOpen, ClipboardList, Clock, BanIcon, Settings,
   LogOut, ChevronRight, X, Menu
 } from 'lucide-react'
 import { useState } from 'react'
@@ -40,7 +40,12 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
+    await fetch('/api/admin/session', {
+      method: 'DELETE',
+      credentials: 'include',
+    })
     router.push('/admin/login')
+    router.refresh()
   }
 
   const isActive = (href: string, exact?: boolean) => {
@@ -48,7 +53,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
     return pathname.startsWith(href)
   }
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-5 border-b border-gray-100">
@@ -118,7 +123,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-gray-100 h-screen sticky top-0 flex-shrink-0">
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
 
       {/* Mobile top bar */}
@@ -145,7 +150,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
             >
               <X className="w-5 h-5" />
             </button>
-            <SidebarContent />
+            {renderSidebarContent()}
           </aside>
         </div>
       )}

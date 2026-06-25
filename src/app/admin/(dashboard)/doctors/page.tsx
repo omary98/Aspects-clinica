@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import DoctorsManager from '@/components/admin/DoctorsManager'
 
 export default async function DoctorsPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const [doctorsRes, specialtiesRes] = await Promise.all([
     supabase

@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import BranchesManager from '@/components/admin/BranchesManager'
 
 export default async function BranchesPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: branches } = await supabase
     .from('branches')
     .select('*')

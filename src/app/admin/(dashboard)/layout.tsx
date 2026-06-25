@@ -1,9 +1,26 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
+import { createAdminClient } from '@/lib/supabase/server'
+import { getAdminOverrideSession } from '@/lib/admin/override-session'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
+  const overrideSession = await getAdminOverrideSession(await cookies())
+
+  if (overrideSession) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <AdminSidebar adminName={overrideSession.fullName} adminRole={overrideSession.role} />
+        <main className="flex-1 min-w-0 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const supabase = await createAdminClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 

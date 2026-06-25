@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import BlockedTimesManager from '@/components/admin/BlockedTimesManager'
 
 export default async function BlockedTimesPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const [blockedRes, doctorsRes, roomsRes, branchesRes] = await Promise.all([
     supabase

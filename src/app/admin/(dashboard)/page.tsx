@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,7 @@ import { STATUS_COLORS, STATUS_LABELS, formatTime } from '@/lib/utils'
 import type { AppointmentWithDetails } from '@/types/database'
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const today = format(new Date(), 'yyyy-MM-dd')
 
   const [todayAppts, recentAppts, counts] = await Promise.all([

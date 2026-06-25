@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,7 @@ export default async function AppointmentsPage({
   }>
 }) {
   const params = await searchParams
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const today = format(new Date(), 'yyyy-MM-dd')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,31 +22,42 @@ const emptyForm: SpecialtyForm = { name_en: '', name_ar: '', slug: '', descripti
 
 export default function SpecialtiesManager({ specialties }: SpecialtiesManagerProps) {
   const router = useRouter()
-  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<SpecialtyForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   function openEdit(s: Specialty) {
+    setError('')
     setForm({ name_en: s.name_en, name_ar: s.name_ar, slug: s.slug, description_en: s.description_en || '', icon: s.icon || '', display_order: String(s.display_order), is_active: s.is_active })
     setEditId(s.id); setOpen(true)
   }
 
   async function handleSave() {
     setLoading(true)
+    setError('')
     const payload = {
       name_en: form.name_en, name_ar: form.name_ar,
       slug: form.slug || form.name_en.toLowerCase().replace(/\s+/g, '-'),
       description_en: form.description_en || null, icon: form.icon || null,
       display_order: parseInt(form.display_order) || 0, is_active: form.is_active,
     }
-    if (editId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('specialties').update(payload).eq('id', editId)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('specialties').insert(payload)
+    const response = await fetch('/api/admin/specialties', {
+      method: editId ? 'PATCH' : 'POST',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editId ? { id: editId, ...payload } : payload),
+    })
+    const result = await response.json() as { error?: string }
+
+    if (!response.ok) {
+      setError(result.error || 'Could not save specialty.')
+      setLoading(false)
+      return
     }
     setLoading(false); setOpen(false); router.refresh()
   }
@@ -55,7 +65,7 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => { setForm(emptyForm); setEditId(null); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+        <Button onClick={() => { setForm(emptyForm); setEditId(null); setError(''); setOpen(true) }} className="bg-[#1B4F72] hover:bg-[#154360] text-white">
           <Plus className="w-4 h-4 mr-1.5" />Add Specialty
         </Button>
       </div>
@@ -87,6 +97,11 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
             <div className="space-y-2"><Label>Icon name (lucide-react)</Label><Input value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="activity" /></div>
             <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: e.target.value })} /></div>
             <div className="flex items-center gap-3"><Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} /><Label>Active</Label></div>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import ClinicSettingsManager from '@/components/admin/ClinicSettingsManager'
 
 export default async function SettingsPage() {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: settings } = await supabase.from('clinic_settings').select('*').order('key')
 
   return (

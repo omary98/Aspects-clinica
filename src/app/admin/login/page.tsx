@@ -9,6 +9,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2, Lock } from 'lucide-react'
 
+type AdminSessionResponse = {
+  ok: boolean
+  error?: string
+}
+
 export default function AdminLoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -20,6 +25,22 @@ export default function AdminLoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    const overrideResponse = await fetch('/api/admin/session', {
+      method: 'POST',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (overrideResponse.ok) {
+      router.replace('/admin')
+      router.refresh()
+      return
+    }
 
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signInWithPassword({
@@ -33,7 +54,20 @@ export default function AdminLoginPage() {
       return
     }
 
-    router.push('/admin')
+    const sessionResponse = await fetch('/api/admin/session', {
+      credentials: 'include',
+      cache: 'no-store',
+    })
+    const sessionResult = (await sessionResponse.json()) as AdminSessionResponse
+
+    if (!sessionResponse.ok || !sessionResult.ok) {
+      await supabase.auth.signOut()
+      setError(sessionResult.error || 'You do not have access to the admin dashboard.')
+      setLoading(false)
+      return
+    }
+
+    router.replace('/admin')
     router.refresh()
   }
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getAdminOverrideSession } from '@/lib/admin/override-session'
 import { getSlotEndTime } from '@/lib/utils'
 import { sendAdminNotification } from '@/lib/email/resend'
 import type { AppointmentWithDetails } from '@/types/database'
@@ -8,19 +9,31 @@ import type { AppointmentWithDetails } from '@/types/database'
 export async function POST(request: NextRequest) {
   try {
     // Auth check — must be admin
-    const authSupabase = await createClient()
-    const { data: { user } } = await authSupabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    const { data: profile } = await (authSupabase as any)
-      .from('admin_profiles')
-      .select('id, role, is_active')
-      .eq('user_id', user.id)
-      .single()
+    const overrideSession = await getAdminOverrideSession(request.cookies)
+    let profile: { role: string; is_active: boolean } | null = overrideSession
+      ? { role: overrideSession.role, is_active: true }
+      : null
+    let currentUserId: string | null = null
 
-    if (!profile || !profile.is_active) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!profile) {
+      const authSupabase = await createClient()
+      const { data: { user } } = await authSupabase.auth.getUser()
+      if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      currentUserId = user.id
+
+      const { data: supabaseProfile } = await (authSupabase as any)
+        .from('admin_profiles')
+        .select('id, role, is_active')
+        .eq('user_id', user.id)
+        .single()
+
+      profile = supabaseProfile as { role: string; is_active: boolean } | null
+
+      if (!profile || !profile.is_active) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const body = await request.json()
@@ -187,13 +200,16 @@ export async function POST(request: NextRequest) {
       const apptWithDetails = fullAppt as AppointmentWithDetails
       const { data: adminRecipients } = await (supabase as any)
         .from('admin_profiles')
-        .select('email')
+        .select('email, user_id')
         .eq('is_active', true)
         .eq('notifications_enabled', true)
-        .neq('user_id', user.id)
 
-      if (adminRecipients && adminRecipients.length > 0) {
-        const adminEmails = (adminRecipients as any[]).map((a: any) => a.email)
+      const recipients = currentUserId
+        ? (adminRecipients as any[] | null)?.filter((admin) => admin.user_id !== currentUserId)
+        : adminRecipients
+
+      if (recipients && recipients.length > 0) {
+        const adminEmails = (recipients as any[]).map((a: any) => a.email)
         const emailResult = await sendAdminNotification(apptWithDetails, adminEmails)
         await (supabase as any).from('notification_logs').insert({
           appointment_id: appt.id,
