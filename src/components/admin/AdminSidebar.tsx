@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Calendar, Users, Stethoscope, Building2,
   DoorOpen, ClipboardList, Clock, BanIcon, Settings,
-  LogOut, ChevronRight, X, Menu, ImageIcon, FileText, Library
+  LogOut, ChevronRight, X, Menu, ImageIcon, FileText, Library, Home
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -107,6 +107,14 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
 
       {/* User & logout */}
       <div className="p-4 border-t border-gray-100">
+        <Link
+          href="/"
+          onClick={() => setMobileOpen(false)}
+          className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-[#D8A83E]/40 bg-[#FFFDF7] px-3 py-2 text-sm font-medium text-[#9A6A16] transition-colors hover:bg-[#D8A83E]/15"
+        >
+          <Home className="w-4 h-4" />
+          Back to Website
+        </Link>
         <div className="mb-3 px-1">
           <p className="text-sm font-medium text-gray-900 truncate">{adminName || 'Admin User'}</p>
           <p className="text-xs text-gray-400 capitalize">
