@@ -10,7 +10,9 @@ type SpecialtyPayload = {
   name_ar?: string
   slug?: string
   description_en?: string | null
+  description_ar?: string | null
   icon?: string | null
+  image_url?: string | null
   display_order?: number
   is_active?: boolean
 }
@@ -32,7 +34,9 @@ function buildPayload(body: SpecialtyPayload) {
     name_ar: nameAr,
     slug: normalizeSlug(body.slug || nameEn),
     description_en: body.description_en || null,
+    description_ar: body.description_ar || null,
     icon: body.icon || null,
+    image_url: body.image_url || null,
     display_order: typeof body.display_order === 'number' && Number.isFinite(body.display_order) ? body.display_order : 0,
     is_active: body.is_active !== false,
   }

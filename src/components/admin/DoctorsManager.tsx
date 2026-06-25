@@ -27,6 +27,8 @@ interface DoctorForm {
   title_ar: string
   bio_en: string
   bio_ar: string
+  description_en: string
+  description_ar: string
   photo_url: string
   consultation_fee: string
   is_active: boolean
@@ -35,7 +37,7 @@ interface DoctorForm {
 
 const emptyForm: DoctorForm = {
   name_en: '', name_ar: '', specialty_id: '', title_en: '', title_ar: '',
-  bio_en: '', bio_ar: '', photo_url: '', consultation_fee: '',
+  bio_en: '', bio_ar: '', description_en: '', description_ar: '', photo_url: '', consultation_fee: '',
   is_active: true, display_order: '0',
 }
 
@@ -65,6 +67,8 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
       title_ar: doc.title_ar,
       bio_en: doc.bio_en || '',
       bio_ar: doc.bio_ar || '',
+      description_en: doc.description_en || '',
+      description_ar: doc.description_ar || '',
       photo_url: doc.photo_url || '',
       consultation_fee: doc.consultation_fee?.toString() || '',
       is_active: doc.is_active,
@@ -87,6 +91,8 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
       title_ar: form.title_ar,
       bio_en: form.bio_en || null,
       bio_ar: form.bio_ar || null,
+      description_en: form.description_en || null,
+      description_ar: form.description_ar || null,
       photo_url: form.photo_url || null,
       consultation_fee: form.consultation_fee ? parseFloat(form.consultation_fee) : null,
       is_active: form.is_active,
@@ -134,7 +140,11 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
     setUploadingPhoto(true)
     setError('')
     try {
-      const url = await uploadAdminImage(file, 'doctors')
+      const url = await uploadAdminImage(file, 'doctors', {
+        label: `${form.name_en || 'Doctor'} photo`,
+        altTextEn: form.name_en || 'EuroCure doctor',
+        altTextAr: form.name_ar || undefined,
+      })
       setForm((current) => ({ ...current, photo_url: url }))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not upload doctor photo.')
@@ -239,9 +249,27 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
               <Textarea value={form.bio_en} onChange={(e) => setForm({ ...form, bio_en: e.target.value })} rows={2} />
             </div>
             <div className="space-y-2">
+              <Label>Bio (Arabic)</Label>
+              <Textarea value={form.bio_ar} onChange={(e) => setForm({ ...form, bio_ar: e.target.value })} rows={2} dir="rtl" />
+            </div>
+            <div className="space-y-2">
+              <Label>Detailed Description (English)</Label>
+              <Textarea value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} rows={3} />
+            </div>
+            <div className="space-y-2">
+              <Label>Detailed Description (Arabic)</Label>
+              <Textarea value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} rows={3} dir="rtl" />
+            </div>
+            <div className="space-y-2">
               <Label>Photo URL</Label>
               <Input value={form.photo_url} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} placeholder="https://..." />
             </div>
+            {form.photo_url && (
+              <div className="rounded-md border bg-gray-50 p-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.photo_url} alt="Doctor preview" className="h-24 w-24 rounded-full object-cover border" />
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Upload Doctor Photo</Label>
               <Input

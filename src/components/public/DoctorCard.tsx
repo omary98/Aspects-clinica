@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Clock, ChevronRight, User } from 'lucide-react'
+import { MapPin, Clock, ChevronRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Doctor, Specialty, Branch, ScheduleTemplate } from '@/types/database'
@@ -43,11 +43,11 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
               <img
                 src={doctor.photo_url}
                 alt={doctor.name_en}
-                className="w-16 h-16 rounded-full object-cover border-2 border-[#1B4F72]/20"
+                className="w-16 h-16 rounded-full object-cover border-2 border-[#D8A83E]/40"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1B4F72]/10 to-[#1B4F72]/20 flex items-center justify-center border border-[#1B4F72]/10">
-                <span className="text-[#1B4F72] font-bold text-xl">{initials.toUpperCase()}</span>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFF3C7] to-[#D8A83E]/20 flex items-center justify-center border border-[#D8A83E]/30">
+                <span className="text-[#9A6A16] font-bold text-xl">{initials.toUpperCase()}</span>
               </div>
             )}
           </div>
@@ -55,7 +55,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
           {/* Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-gray-900 text-base leading-snug">{doctorName}</h3>
-            <p className="text-sm text-[#1B4F72] font-medium mt-0.5">{doctorTitle}</p>
+            <p className="text-sm text-[#9A6A16] font-medium mt-0.5">{doctorTitle}</p>
             <p className="text-xs text-gray-500 mt-1">{specialtyName}</p>
 
             {/* Consultation fee */}
@@ -78,7 +78,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
             {uniqueBranches.map((b) => (
               <span
                 key={b.id}
-                className="inline-flex items-center gap-1 text-xs bg-blue-50 text-[#1B4F72] px-2 py-0.5 rounded-full border border-blue-100"
+                className="inline-flex items-center gap-1 text-xs bg-[#FFF3C7] text-[#9A6A16] px-2 py-0.5 rounded-full border border-[#D8A83E]/30"
               >
                 <MapPin className="w-3 h-3" />
                 {lang === 'ar' ? (b as any).name_ar || b.name_en : b.name_en}
@@ -91,7 +91,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
         <div className="mt-3 space-y-1 flex-1">
           {doctor.schedules.slice(0, 3).map((s, i) => (
             <div key={i} className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Clock className="w-3 h-3 flex-shrink-0 text-[#1B4F72]" />
+              <Clock className="w-3 h-3 flex-shrink-0 text-[#9A6A16]" />
               <span>
                 {t.dayNames[s.day_of_week]}
                 {' · '}
@@ -115,7 +115,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
         {/* CTA */}
         <div className="mt-5">
           <Link href={`/book?doctor=${doctor.id}`}>
-            <Button className="w-full bg-[#1B4F72] hover:bg-[#154360] text-white" size="sm">
+            <Button className="w-full bg-[#101010] hover:bg-black text-white" size="sm">
               {t.doctors.bookWith}{' '}
               {doctor.name_en.split(' ').slice(0, 2).join(' ')}
               <ChevronRight className={`w-4 h-4 ${lang === 'ar' ? 'rotate-180 me-1' : 'ms-1'}`} />

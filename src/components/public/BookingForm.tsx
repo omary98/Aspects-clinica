@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { format, parseISO } from 'date-fns'
+import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, parseISO, startOfMonth, startOfWeek } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -61,6 +61,7 @@ export default function BookingForm({
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [availableDates, setAvailableDates] = useState<string[]>([])
+  const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()))
 
   // Step 3: Patient details
   const [patientName, setPatientName] = useState('')
@@ -153,6 +154,34 @@ export default function BookingForm({
         ).values()
       ).filter(Boolean)
     : []
+  const branchPalette = ['#D8A83E', '#2E8B57', '#9A6A16', '#326B8C', '#7C4D9E']
+  const branchColorMap = new Map(
+    (doctorBranches as Array<{ id: string }>).map((branch, index) => [branch.id, branchPalette[index % branchPalette.length]])
+  )
+  const activeDoctorSchedules = (selectedDoctor?.doctor_schedule_templates || [])
+    .filter((tmpl: { is_active: boolean }) => tmpl.is_active)
+  const broadAvailability = new Map<string, Array<{ id: string; name_en: string; name_ar?: string }>>()
+  if (selectedDoctor) {
+    const start = startOfMonth(calendarMonth)
+    const end = endOfMonth(calendarMonth)
+    eachDayOfInterval({ start, end }).forEach((day) => {
+      const branchesForDay = activeDoctorSchedules
+        .filter((tmpl: { day_of_week: number }) => tmpl.day_of_week === day.getDay())
+        .map((tmpl: { branches: { id: string; name_en: string; name_ar?: string } }) => tmpl.branches)
+        .filter(Boolean)
+      if (branchesForDay.length > 0) {
+        broadAvailability.set(
+          format(day, 'yyyy-MM-dd'),
+          Array.from(new Map(branchesForDay.map((branch: { id: string }) => [branch.id, branch])).values()) as Array<{ id: string; name_en: string; name_ar?: string }>
+        )
+      }
+    })
+  }
+  const monthDays = eachDayOfInterval({
+    start: startOfWeek(startOfMonth(calendarMonth)),
+    end: endOfWeek(endOfMonth(calendarMonth)),
+  })
+  const availableDateSet = new Set(availableDates)
 
   const relevantServices = services.filter(
     (s) => s.specialty_id === specialtyId && (s.doctor_id === null || s.doctor_id === doctorId)
@@ -317,6 +346,62 @@ export default function BookingForm({
               </div>
             )}
 
+            {selectedDoctor && broadAvailability.size > 0 && (
+              <div className="space-y-3 rounded-lg border border-amber-100 bg-[#FFFDF7] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{format(calendarMonth, 'MMMM yyyy')}</p>
+                    <p className="text-xs text-gray-500">{isRtl ? 'توافر الطبيب حسب الفروع' : 'Doctor availability by branch'}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, -1))}>
+                      <BackIcon className="w-4 h-4" />
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}>
+                      <FwdIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-500">
+                  {t.dayNames.map((day) => <div key={day} className="truncate">{day.slice(0, 3)}</div>)}
+                  {monthDays.map((day) => {
+                    const dayKey = format(day, 'yyyy-MM-dd')
+                    const branches = broadAvailability.get(dayKey) || []
+                    return (
+                      <button
+                        type="button"
+                        key={dayKey}
+                        disabled={branches.length === 0}
+                        onClick={() => {
+                          if (branches.length === 1) setBranchId(branches[0].id)
+                        }}
+                        className={`min-h-12 rounded-md border text-sm transition-colors ${
+                          isSameMonth(day, calendarMonth) ? 'bg-white' : 'bg-gray-50 text-gray-300'
+                        } ${isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'} ${branches.length > 0 ? 'hover:border-[#9A6A16]' : 'opacity-50'}`}
+                      >
+                        <span className="block">{format(day, 'd')}</span>
+                        {branches.length > 0 && (
+                          <span className="mt-1 flex justify-center gap-0.5">
+                            {branches.slice(0, 4).map((branch) => (
+                              <span key={branch.id} className="h-1.5 w-4 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#D8A83E' }} />
+                            ))}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(doctorBranches as Array<{ id: string; name_en: string; name_ar?: string }>).map((branch) => (
+                    <span key={branch.id} className="inline-flex items-center gap-1 text-xs text-gray-600">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#D8A83E' }} />
+                      {getBranchDisplayName(branch)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {relevantServices.length > 0 && (
               <div className="space-y-2">
                 <Label>
@@ -387,21 +472,46 @@ export default function BookingForm({
             {/* Date selection */}
             <div className="space-y-2">
               <Label>{t.booking.step2.date}</Label>
-              <select
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              >
-                <option value="">{t.booking.step2.chooseDate}</option>
-                {availableDates.map((d) => {
-                  const parsed = parseISO(d)
-                  return (
-                    <option key={d} value={d}>
-                      {t.dayNames[parsed.getDay()]}، {format(parsed, 'd/M/yyyy')}
-                    </option>
-                  )
-                })}
-              </select>
+              <div className="rounded-lg border border-gray-100 bg-white p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, -1))}>
+                    <BackIcon className="w-4 h-4" />
+                  </Button>
+                  <p className="text-sm font-semibold text-gray-900">{format(calendarMonth, 'MMMM yyyy')}</p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}>
+                    <FwdIcon className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-500">
+                  {t.dayNames.map((day) => <div key={day} className="truncate">{day.slice(0, 3)}</div>)}
+                  {monthDays.map((day) => {
+                    const dayKey = format(day, 'yyyy-MM-dd')
+                    const selectable = availableDateSet.has(dayKey)
+                    return (
+                      <button
+                        type="button"
+                        key={dayKey}
+                        disabled={!selectable}
+                        onClick={() => setSelectedDate(dayKey)}
+                        className={`min-h-11 rounded-md border text-sm transition-colors ${
+                          selectedDate === dayKey
+                            ? 'bg-[#101010] text-white border-[#101010]'
+                            : selectable
+                              ? 'bg-[#FFFDF7] text-gray-900 border-[#D8A83E]/30 hover:border-[#9A6A16]'
+                              : 'bg-gray-50 text-gray-300 border-gray-100'
+                        } ${!isSameMonth(day, calendarMonth) ? 'opacity-50' : ''}`}
+                      >
+                        {format(day, 'd')}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              {selectedDate && (
+                <p className="text-xs text-gray-500">
+                  {t.dayNames[parseISO(selectedDate).getDay()]}، {format(parseISO(selectedDate), 'd/M/yyyy')}
+                </p>
+              )}
               {availableDates.length === 0 && (
                 <p className="text-xs text-gray-500">{t.booking.step2.noAvailableDates}</p>
               )}

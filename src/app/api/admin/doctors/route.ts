@@ -13,6 +13,8 @@ type DoctorPayload = {
   title_ar?: string
   bio_en?: string | null
   bio_ar?: string | null
+  description_en?: string | null
+  description_ar?: string | null
   photo_url?: string | null
   consultation_fee?: number | null
   is_active?: boolean
@@ -31,6 +33,8 @@ function buildPayload(body: DoctorPayload) {
     title_ar: body.title_ar?.trim() || titleEn,
     bio_en: body.bio_en || null,
     bio_ar: body.bio_ar || null,
+    description_en: body.description_en || null,
+    description_ar: body.description_ar || null,
     photo_url: body.photo_url || null,
     consultation_fee: body.consultation_fee ?? null,
     is_active: body.is_active !== false,

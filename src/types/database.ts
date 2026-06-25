@@ -45,6 +45,7 @@ export type Database = {
           description_en: string | null
           description_ar: string | null
           icon: string | null
+          image_url: string | null
           display_order: number
           is_active: boolean
           created_at: string
@@ -96,6 +97,8 @@ export type Database = {
           title_ar: string
           bio_en: string | null
           bio_ar: string | null
+          description_en: string | null
+          description_ar: string | null
           photo_url: string | null
           consultation_fee: number | null
           is_active: boolean
@@ -261,6 +264,44 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['clinic_settings']['Row'], 'id' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['clinic_settings']['Insert']>
       }
+      site_assets: {
+        Row: {
+          id: string
+          key: string | null
+          label: string
+          bucket: string
+          path: string
+          public_url: string
+          asset_type: string
+          folder: string
+          mime_type: string | null
+          size_bytes: number | null
+          alt_text_ar: string | null
+          alt_text_en: string | null
+          uploaded_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['site_assets']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['site_assets']['Insert']>
+      }
+      site_content: {
+        Row: {
+          id: string
+          section_key: string
+          field_key: string
+          value_ar: string | null
+          value_en: string | null
+          content_type: string
+          asset_id: string | null
+          is_active: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['site_content']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['site_content']['Insert']>
+      }
       audit_logs: {
         Row: {
           id: string
@@ -292,6 +333,8 @@ export type Appointment = Database['public']['Tables']['appointments']['Row']
 export type AppointmentRoom = Database['public']['Tables']['appointment_rooms']['Row']
 export type AdminProfile = Database['public']['Tables']['admin_profiles']['Row']
 export type ClinicSetting = Database['public']['Tables']['clinic_settings']['Row']
+export type SiteAsset = Database['public']['Tables']['site_assets']['Row']
+export type SiteContent = Database['public']['Tables']['site_content']['Row']
 export type NotificationLog = Database['public']['Tables']['notification_logs']['Row']
 
 // Extended types for joins

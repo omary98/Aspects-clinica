@@ -12,6 +12,7 @@ type AdminResource =
   | 'blocked-times'
   | 'admin-profiles'
   | 'clinic-settings'
+  | 'site-content'
   | 'appointment-status'
 
 type AdminAction = 'create' | 'update' | 'delete' | 'upsert'
@@ -103,7 +104,10 @@ async function getAdminSupabase(request: NextRequest) {
   const admin = await getAdminRequestContext(request)
   if (!admin) return null
 
-  return admin.userId ? await createClient() : await createServiceClient()
+  return {
+    admin,
+    supabase: admin.userId ? await createClient() : await createServiceClient(),
+  }
 }
 
 async function saveSimpleResource(supabase: any, body: AdminManageBody) {
@@ -224,6 +228,33 @@ async function saveClinicSettings(supabase: any, body: AdminManageBody) {
   return NextResponse.json({ ok: true })
 }
 
+async function saveSiteContent(supabase: any, body: AdminManageBody) {
+  if (body.action !== 'upsert') {
+    return NextResponse.json({ error: 'Unsupported action.' }, { status: 400 })
+  }
+
+  const rows = Array.isArray(body.payload?.rows) ? body.payload.rows : []
+  if (rows.length === 0) return NextResponse.json({ ok: true })
+
+  const normalized = rows.map((row: Record<string, any>) => ({
+    section_key: String(row.section_key || '').trim(),
+    field_key: String(row.field_key || '').trim(),
+    value_en: row.value_en || null,
+    value_ar: row.value_ar || null,
+    content_type: row.content_type || 'text',
+    asset_id: row.asset_id || null,
+    is_active: row.is_active !== false,
+    display_order: Number.isFinite(row.display_order) ? row.display_order : 0,
+  })).filter((row: { section_key: string; field_key: string }) => row.section_key && row.field_key)
+
+  const { error } = await supabase
+    .from('site_content')
+    .upsert(normalized, { onConflict: 'section_key,field_key' })
+
+  if (error) return databaseErrorResponse(error)
+  return NextResponse.json({ ok: true })
+}
+
 async function updateAppointmentStatus(supabase: any, body: AdminManageBody) {
   if (body.action !== 'update' || !body.id) {
     return NextResponse.json({ error: 'Appointment ID is required.' }, { status: 400 })
@@ -246,15 +277,21 @@ async function updateAppointmentStatus(supabase: any, body: AdminManageBody) {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await getAdminSupabase(request)
-  if (!supabase) return forbiddenResponse()
+  const context = await getAdminSupabase(request)
+  if (!context) return forbiddenResponse()
 
   const body = await request.json() as AdminManageBody
+  const { admin, supabase } = context
+
+  if (['clinic-settings', 'site-content'].includes(body.resource) && admin.role !== 'medical_director') {
+    return forbiddenResponse()
+  }
 
   if (simpleTables[body.resource]) return saveSimpleResource(supabase, body)
   if (body.resource === 'schedules') return saveSchedule(supabase, body)
   if (body.resource === 'blocked-times') return saveBlockedTime(supabase, body)
   if (body.resource === 'clinic-settings') return saveClinicSettings(supabase, body)
+  if (body.resource === 'site-content') return saveSiteContent(supabase, body)
   if (body.resource === 'appointment-status') return updateAppointmentStatus(supabase, body)
 
   return NextResponse.json({ error: 'Unsupported admin resource.' }, { status: 400 })

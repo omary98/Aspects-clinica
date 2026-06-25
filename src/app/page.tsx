@@ -52,28 +52,58 @@ export default async function HomePage() {
     .from('clinic_settings')
     .select('key, value')
 
+  const { data: siteContentRaw } = await (supabase as any)
+    .from('site_content')
+    .select('section_key, field_key, value_en, value_ar, is_active')
+    .eq('is_active', true)
+
   const settings = Object.fromEntries(
     ((settingsRaw || []) as Array<{ key: string; value: string }>).map((setting) => [setting.key, setting.value])
   )
+  const contentMap = new Map(
+    ((siteContentRaw || []) as Array<{ section_key: string; field_key: string; value_en: string | null; value_ar: string | null }>).map((row) => [
+      `${row.section_key}.${row.field_key}`,
+      row,
+    ])
+  )
+  const cmsText = (section: string, field: string, fallback: string) => {
+    const row = contentMap.get(`${section}.${field}`)
+    const value = lang === 'ar' ? row?.value_ar : row?.value_en
+    return value || fallback
+  }
 
   const specialtiesList = (specialties || []) as any[]
   const doctorsList = (doctors || []) as any[]
   const branchesList = (branches || []) as any[]
   const heroBackgroundUrl = settings.landing_hero_background_url
   const ctaBackgroundUrl = settings.landing_cta_background_url
-  const logoUrl = settings.logo_url
-  const heroTagline = lang === 'en' ? settings.landing_hero_tagline_en || t.hero.tagline : t.hero.tagline
-  const heroTitle = lang === 'en' ? settings.landing_hero_title_en || t.hero.title : t.hero.title
-  const heroSubtitle = lang === 'en' ? settings.landing_hero_subtitle_en || t.hero.subtitle : t.hero.subtitle
+  const logoUrl = settings.header_logo_url || settings.logo_url
+  const footerLogoUrl = settings.footer_logo_url || settings.logo_url
+  const primaryColor = settings.brand_primary_color || '#101010'
+  const accentColor = settings.brand_accent_color || '#D8A83E'
+  const backgroundColor = settings.brand_background_color || '#FFFDF7'
+  const heroTagline = cmsText('hero', 'tagline', lang === 'en' ? settings.landing_hero_tagline_en || t.hero.tagline : t.hero.tagline)
+  const heroTitle = cmsText('hero', 'title', lang === 'en' ? settings.landing_hero_title_en || t.hero.title : t.hero.title)
+  const heroSubtitle = cmsText('hero', 'subtitle', lang === 'en' ? settings.landing_hero_subtitle_en || t.hero.subtitle : t.hero.subtitle)
+  const heroPrimaryCta = cmsText('hero', 'primary_cta', t.hero.bookCta)
+  const heroSecondaryCta = cmsText('hero', 'secondary_cta', t.hero.viewSpecialties)
+  const aboutTitle = cmsText('about', 'title', lang === 'ar' ? 'عن يورو كيور' : 'About EuroCure')
+  const aboutBody = cmsText('about', 'body', lang === 'ar' ? 'رعاية متخصصة وتجربة حجز مريحة وواضحة.' : 'Specialist care with a clear, comfortable booking experience.')
+  const whyTitle = cmsText('why_choose', 'title', lang === 'ar' ? 'لماذا تختار يورو كيور' : 'Why choose EuroCure')
+  const whyBody = cmsText('why_choose', 'body', lang === 'ar' ? 'مواعيد واضحة، أطباء متخصصون، وفروع متعددة.' : 'Clear availability, coordinated specialists, and multiple branches.')
+  const ctaTitle = cmsText('cta', 'title', t.cta.title)
+  const ctaSubtitle = cmsText('cta', 'subtitle', t.cta.subtitle)
+  const ctaButton = cmsText('cta', 'button', t.cta.bookNow)
+  const footerTagline = cmsText('footer', 'tagline', t.footer.tagline)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor }}>
       <Navbar logoUrl={logoUrl} />
 
       {/* Hero */}
       <section
-        className="relative bg-gradient-to-br from-[#1B4F72] via-[#2471A3] to-[#1B4F72] text-white overflow-hidden"
-        style={heroBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(27, 79, 114, 0.72), rgba(27, 79, 114, 0.72)), url(${heroBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+        className="relative text-white overflow-hidden"
+        style={heroBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(16, 16, 16, 0.74), rgba(16, 16, 16, 0.84)), url(${heroBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: `linear-gradient(135deg, ${primaryColor}, #2D2414)` }}
       >
         <div className={`absolute inset-0 ${heroBackgroundUrl ? 'opacity-0' : 'opacity-10'}`}>
           <div className="absolute top-0 end-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -82,27 +112,27 @@ export default async function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-1.5 text-sm mb-6">
-              <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+              <Star className="w-4 h-4 fill-current" style={{ color: accentColor }} />
               <span>{heroTagline}</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
               {heroTitle}
               <br />
-              <span className="text-blue-200">{t.hero.titleHighlight}</span>
+              <span style={{ color: accentColor }}>{t.hero.titleHighlight}</span>
             </h1>
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
               {heroSubtitle}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/book">
-                <Button size="lg" className="bg-white text-[#1B4F72] hover:bg-gray-100 font-semibold px-8">
-                  {t.hero.bookCta}
+                <Button size="lg" className="bg-white hover:bg-gray-100 font-semibold px-8" style={{ color: primaryColor }}>
+                  {heroPrimaryCta}
                   <ChevronRight className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180 ms-1' : 'ms-1'}`} />
                 </Button>
               </Link>
               <Link href="/#specialties">
                 <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 bg-transparent">
-                  {t.hero.viewSpecialties}
+                  {heroSecondaryCta}
                 </Button>
               </Link>
             </div>
@@ -126,8 +156,21 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section id="about" className="py-14 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="rounded-lg border border-amber-100 bg-[#FFFDF7] p-7">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">{aboutTitle}</h2>
+            <p className="text-gray-600 leading-relaxed">{aboutBody}</p>
+          </div>
+          <div className="rounded-lg border border-amber-100 bg-[#101010] p-7 text-white">
+            <h2 className="text-2xl font-bold mb-3" style={{ color: accentColor }}>{whyTitle}</h2>
+            <p className="text-white/75 leading-relaxed">{whyBody}</p>
+          </div>
+        </div>
+      </section>
+
       {/* Specialties */}
-      <section id="specialties" className="py-16 bg-gray-50">
+      <section id="specialties" className="py-16 bg-[#FFFDF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.specialties.sectionTitle}</h2>
@@ -138,9 +181,13 @@ export default async function HomePage() {
               <a
                 key={specialty.id}
                 href={`#${specialty.slug}`}
-                className="group bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md hover:border-[#1B4F72]/20 transition-all duration-200"
+                className="group bg-white rounded-lg p-6 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
               >
-                <div className="w-14 h-14 rounded-xl bg-[#1B4F72]/10 flex items-center justify-center text-[#1B4F72] mb-4 group-hover:bg-[#1B4F72] group-hover:text-white transition-colors">
+                {specialty.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={specialty.image_url} alt={specialty[nameField] || specialty.name_en} className="h-28 w-full rounded-md object-cover mb-4" />
+                )}
+                <div className="w-14 h-14 rounded-lg bg-[#D8A83E]/15 flex items-center justify-center text-[#9A6A16] mb-4 group-hover:bg-[#101010] group-hover:text-white transition-colors">
                   {specialtyIcons[specialty.slug] || <Activity className="w-7 h-7" />}
                 </div>
                 <h3 className="font-semibold text-gray-900 text-lg mb-2">
@@ -149,7 +196,7 @@ export default async function HomePage() {
                 {specialty[descField] && (
                   <p className="text-sm text-gray-500 leading-relaxed">{specialty[descField]}</p>
                 )}
-                <div className="mt-4 flex items-center text-[#1B4F72] text-sm font-medium gap-1">
+                <div className="mt-4 flex items-center text-[#9A6A16] text-sm font-medium gap-1">
                   <span>{t.specialties.viewDoctors}</span>
                   <ChevronRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${lang === 'ar' ? 'rotate-180' : ''}`} />
                 </div>
@@ -180,7 +227,7 @@ export default async function HomePage() {
                     )}
                   </div>
                   <Link href={`/book?specialty=${specialty.id}`} className="hidden md:block">
-                    <Button variant="outline" size="sm" className="border-[#1B4F72] text-[#1B4F72] hover:bg-[#1B4F72] hover:text-white">
+                    <Button variant="outline" size="sm" className="border-[#9A6A16] text-[#9A6A16] hover:bg-[#101010] hover:text-white">
                       {t.specialties.bookIn} {specialty[nameField] || specialty.name_en}
                     </Button>
                   </Link>
@@ -210,7 +257,7 @@ export default async function HomePage() {
       </section>
 
       {/* Locations */}
-      <section id="locations" className="py-16 bg-gray-50">
+      <section id="locations" className="py-16 bg-[#FFFDF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.locations.sectionTitle}</h2>
@@ -224,14 +271,14 @@ export default async function HomePage() {
                 </h3>
                 {branch[addressField] && (
                   <div className="flex items-start gap-2 text-sm text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#1B4F72]" />
+                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9A6A16]" />
                     <span>{branch[addressField]}</span>
                   </div>
                 )}
                 {branch.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                    <Phone className="w-4 h-4 text-[#1B4F72]" />
-                    <a href={`tel:${branch.phone}`} className="hover:text-[#1B4F72]" dir="ltr">
+                    <Phone className="w-4 h-4 text-[#9A6A16]" />
+                    <a href={`tel:${branch.phone}`} className="hover:text-[#9A6A16]" dir="ltr">
                       {branch.phone}
                     </a>
                   </div>
@@ -241,7 +288,7 @@ export default async function HomePage() {
                     href={branch.google_maps_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-[#1B4F72] font-medium hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-[#9A6A16] font-medium hover:underline"
                   >
                     <MapPin className="w-4 h-4" />
                     {t.locations.viewOnMaps}
@@ -255,37 +302,37 @@ export default async function HomePage() {
 
       {/* CTA Banner */}
       <section
-        className="py-16 bg-[#1B4F72]"
-        style={ctaBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(27, 79, 114, 0.82), rgba(27, 79, 114, 0.82)), url(${ctaBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+        className="py-16 bg-[#101010]"
+        style={ctaBackgroundUrl ? { backgroundImage: `linear-gradient(rgba(16, 16, 16, 0.84), rgba(16, 16, 16, 0.84)), url(${ctaBackgroundUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
       >
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">{t.cta.title}</h2>
-          <p className="text-white/70 mb-8 text-lg">{t.cta.subtitle}</p>
+          <h2 className="text-3xl font-bold text-white mb-4">{ctaTitle}</h2>
+          <p className="text-white/70 mb-8 text-lg">{ctaSubtitle}</p>
           <Link href="/book">
-            <Button size="lg" className="bg-white text-[#1B4F72] hover:bg-gray-100 font-semibold px-10">
-              {t.cta.bookNow}
+            <Button size="lg" className="bg-white hover:bg-gray-100 font-semibold px-10" style={{ color: primaryColor }}>
+              {ctaButton}
             </Button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="bg-gray-900 text-gray-400 py-10">
+      <footer id="contact" className="bg-[#101010] text-gray-400 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between gap-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                {logoUrl ? (
+                {footerLogoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={logoUrl} alt="EuroCure" className="w-6 h-6 rounded-full object-cover" />
+                  <img src={footerLogoUrl} alt="EuroCure" className="w-6 h-6 rounded-full object-cover" />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-[#1B4F72] flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-[#D8A83E] flex items-center justify-center">
                     <span className="text-white font-bold text-xs">EC</span>
                   </div>
                 )}
                 <span className="font-bold text-white">EuroCure</span>
               </div>
-              <p className="text-sm max-w-xs">{t.footer.tagline}</p>
+              <p className="text-sm max-w-xs">{footerTagline}</p>
             </div>
             <div className="flex flex-col gap-2 text-sm">
               <p className="font-medium text-white">{t.footer.quickLinks}</p>

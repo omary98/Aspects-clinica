@@ -25,6 +25,7 @@
     --eurocure-blue: #1B4F72;
     --eurocure-blue-light: #2E86C1;
     --eurocure-gold: #D4AC0D;
+    --font-cairo: 'Cairo';
   }
 
   * {

@@ -27,11 +27,11 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logoUrl} alt="EuroCure" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-[#1B4F72] flex items-center justify-center">
-                <span className="text-white font-bold text-sm">EC</span>
+              <div className="w-8 h-8 rounded-full bg-[#101010] flex items-center justify-center">
+                <span className="text-[#D8A83E] font-bold text-sm">EC</span>
               </div>
             )}
-            <span className="font-bold text-xl text-[#1B4F72]">EuroCure</span>
+            <span className="font-bold text-xl text-[#101010]">EuroCure</span>
           </Link>
 
           {/* Desktop nav */}
@@ -40,7 +40,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-gray-600 hover:text-[#1B4F72] transition-colors"
+                className="text-sm text-gray-600 hover:text-[#9A6A16] transition-colors"
               >
                 {link.label}
               </Link>
@@ -52,7 +52,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             {/* Language toggle */}
             <button
               onClick={toggleLang}
-              className="hidden md:flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-[#1B4F72] transition-colors border border-gray-200 hover:border-[#1B4F72]/40 rounded-full px-3 py-1.5"
+              className="hidden md:flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-[#9A6A16] transition-colors border border-gray-200 hover:border-[#D8A83E]/60 rounded-full px-3 py-1.5"
               title={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
             >
               <Globe className="w-3.5 h-3.5" />
@@ -60,7 +60,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             </button>
 
             <Link href="/book">
-              <Button size="sm" className="bg-[#1B4F72] hover:bg-[#154360] text-white">
+              <Button size="sm" className="bg-[#101010] hover:bg-black text-white">
                 {t.nav.bookNow}
               </Button>
             </Link>
@@ -84,7 +84,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             <Link
               key={link.href}
               href={link.href}
-              className="block text-sm text-gray-700 hover:text-[#1B4F72] py-1"
+              className="block text-sm text-gray-700 hover:text-[#9A6A16] py-1"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
@@ -92,7 +92,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
           ))}
           <div className="flex gap-2 pt-2">
             <Link href="/book" className="flex-1" onClick={() => setMobileOpen(false)}>
-              <Button size="sm" className="w-full bg-[#1B4F72] hover:bg-[#154360] text-white">
+              <Button size="sm" className="w-full bg-[#101010] hover:bg-black text-white">
                 {t.nav.bookNow}
               </Button>
             </Link>

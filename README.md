@@ -38,6 +38,7 @@ A production-ready appointment booking system for EuroCure Polyclinic (Nasr City
 - Status management: Reserve → Confirm → Attended / No Show / Rescheduled / Cancelled
 - Manual appointment creation (walk-in / phone bookings)
 - Role-based access: Medical Director (full) vs Reception Head (operational)
+- Mini-CMS for branding, homepage copy, landing backgrounds, doctor photos, specialty images, and media library uploads
 
 ### Booking Safety
 - DB triggers enforce zero doctor overlap and zero room double-booking
@@ -106,8 +107,35 @@ Run each file below **in order** — paste the full contents and click **Run**:
 1. `supabase/migrations/001_initial_schema.sql` — all tables, triggers, and RLS policies
 2. `supabase/migrations/002_seed_data.sql` — branches, rooms, doctors, services, and schedules
 3. `supabase/migrations/003_production_hardening.sql` — security patches and performance indexes
+4. `supabase/migrations/004_api_grants.sql` — grants required for Supabase REST/API writes
+5. `supabase/migrations/005_cms_media.sql` — mini-CMS tables, media library, and Storage policies
 
 > **Important:** Run them in this order. Each file depends on the previous one.
+
+### Step 3b — Supabase Storage for CMS media
+
+Migration `005_cms_media.sql` creates the public bucket automatically:
+
+| Bucket | Purpose |
+|---|---|
+| `site-assets` | Public logos, doctor photos, landing backgrounds, specialty images, and general CMS media |
+
+The app stores files in these folders:
+
+- `branding/`
+- `doctors/`
+- `landing/`
+- `specialties/`
+- `general/`
+
+The migration also adds Storage policies:
+
+- Public read access for files in `site-assets`
+- Admin-only upload, update, and delete access
+- A 5 MB file limit
+- Allowed image types: PNG, JPG/JPEG, WEBP, GIF
+
+If Supabase reports a storage policy or bucket error, rerun only `005_cms_media.sql` in the SQL Editor.
 
 ### Step 4 — Create the first admin user
 
@@ -255,6 +283,61 @@ This section is for clinic staff. No coding knowledge is needed.
 Go to `https://your-domain.com/admin/login` and enter your email and password. If you forget your password, contact your IT administrator to reset it in Supabase.
 
 ---
+
+### Website Content and Media
+
+Medical Directors can edit the public website from the admin dashboard:
+
+| Page | URL | What it controls |
+|---|---|---|
+| Branding | `/admin/branding` | Main logo, header logo, footer logo, favicon URL, primary/accent/background colors |
+| Site Content | `/admin/site-content` | Hero text, CTA text, about section, why-choose-us section, contact/footer text, landing backgrounds |
+| Media Library | `/admin/media-library` | Upload, preview, copy URLs, and delete unused images |
+| Specialties Content | `/admin/specialties-content` | Specialty names, Arabic/English descriptions, icons, images, visibility, display order |
+| Doctors | `/admin/doctors` | Doctor names, titles, bios, detailed descriptions, fees, photos, visibility, display order |
+
+Reception Head users should continue using operational pages such as appointments, schedules, branches, services, and blocked times. Branding, site content, and media uploads are enforced server-side for Medical Director access.
+
+### Uploading EuroCure Logos
+
+1. Log in as a Medical Director.
+2. Open `/admin/branding`.
+3. Upload the main, header, or footer logo.
+4. Click **Save Branding**.
+
+The public homepage and booking page use the uploaded header logo when available. The footer uses the uploaded footer logo when available.
+
+### Uploading Doctor Photos
+
+1. Open `/admin/doctors`.
+2. Add or edit a doctor.
+3. Upload the doctor photo.
+4. Save the doctor.
+
+Doctor photos are uploaded to `site-assets/doctors/` and the public doctor cards use the saved database URL. If no photo exists, the site shows a clean initials placeholder.
+
+### Editing Homepage Content and Background Images
+
+1. Open `/admin/site-content`.
+2. Edit English and Arabic fields for hero, about, why choose us, CTA, contact, and footer sections.
+3. Upload the hero or CTA background image if needed.
+4. Click **Save Site Content**.
+
+The public homepage falls back to built-in text if a content field is blank or inactive.
+
+### Managing the Media Library
+
+Use `/admin/media-library` to upload images into a category, copy public URLs, or delete unused images. Deletion is blocked if the image is currently used as a logo, doctor photo, or specialty image.
+
+### Troubleshooting CMS / Upload Errors
+
+| Symptom | Fix |
+|---|---|
+| `Could not find the table 'public.site_assets'` | Run `supabase/migrations/005_cms_media.sql` |
+| `Could not find the table 'public.specialties' in the schema cache` | Run migrations `001` through `005`, then refresh the Supabase API schema cache by waiting ~1 minute or restarting the local server |
+| `server database key cannot write admin data` | Confirm `SUPABASE_SERVICE_ROLE_KEY` is the service role JWT for the same project, then run `004_api_grants.sql` |
+| Upload says only certain images are supported | Use PNG, JPG/JPEG, WEBP, or GIF under 5 MB |
+| Media delete is blocked | Remove the image from Branding, Doctors, or Specialties first |
 
 ### How to Add a Doctor
 

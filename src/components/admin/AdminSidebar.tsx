@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Calendar, Users, Stethoscope, Building2,
   DoorOpen, ClipboardList, Clock, BanIcon, Settings,
-  LogOut, ChevronRight, X, Menu
+  LogOut, ChevronRight, X, Menu, ImageIcon, FileText, Library
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -22,6 +22,11 @@ const navItems = [
   { href: '/admin/services', label: 'Services', icon: ClipboardList },
   { href: '/admin/schedules', label: 'Schedules', icon: Clock },
   { href: '/admin/blocked-times', label: 'Blocked Times', icon: BanIcon },
+  { section: 'Content' },
+  { href: '/admin/branding', label: 'Branding', icon: ImageIcon },
+  { href: '/admin/site-content', label: 'Site Content', icon: FileText },
+  { href: '/admin/specialties-content', label: 'Specialties Content', icon: ClipboardList },
+  { href: '/admin/media-library', label: 'Media Library', icon: Library },
   { section: 'System' },
   { href: '/admin/users', label: 'Admin Users', icon: Users },
   { href: '/admin/settings', label: 'Clinic Settings', icon: Settings },
