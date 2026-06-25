@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Edit2, Loader2 } from 'lucide-react'
+import { Plus, Edit2, Loader2, Trash2 } from 'lucide-react'
 
 interface ServicesManagerProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,6 +40,7 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
   const [form, setForm] = useState<ServiceForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   const filteredDoctors = doctors.filter((d) => !form.specialty_id || d.specialty_id === form.specialty_id)
@@ -93,6 +94,25 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
     setLoading(false); setOpen(false); router.refresh()
   }
 
+  async function handleDelete(svc: typeof services[0]) {
+    if (!window.confirm(`Delete ${svc.name_en}? This cannot be undone.`)) return
+
+    setDeletingId(svc.id)
+    setError('')
+    try {
+      await adminManage({
+        resource: 'services',
+        action: 'delete',
+        id: svc.id,
+      })
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete service.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const grouped = services.reduce<Record<string, typeof services>>((acc, s) => {
     const key = s.specialty_id
     if (!acc[key]) acc[key] = []
@@ -128,6 +148,11 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
           <Plus className="w-4 h-4 mr-1.5" />Add Service
         </Button>
       </div>
+      {error && !open && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-6">
         {Object.entries(grouped).map(([specId, specServices]) => {
@@ -151,6 +176,14 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
                     </span>
                     <button onClick={() => openEdit(svc)} className="p-1 text-gray-400 hover:text-[#1B4F72]">
                       <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(svc)}
+                      disabled={deletingId === svc.id}
+                      className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-50"
+                      aria-label={`Delete ${svc.name_en}`}
+                    >
+                      {deletingId === svc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </button>
                   </div>
                 ))}

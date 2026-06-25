@@ -1,7 +1,16 @@
 import { NextResponse } from 'next/server'
 
-export function databaseErrorResponse(error: { message: string }) {
+export function databaseErrorResponse(error: { message: string; code?: string }) {
   const message = error.message.toLowerCase()
+
+  if (error.code === '23503' || message.includes('foreign key')) {
+    return NextResponse.json(
+      {
+        error: 'This item is already connected to appointments, schedules, doctors, or other records. Deactivate it instead, or remove the linked records first.',
+      },
+      { status: 409 }
+    )
+  }
 
   if (message.includes('site_assets') || message.includes('site_content')) {
     return NextResponse.json(

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Edit2, Loader2, ImageIcon } from 'lucide-react'
+import { Plus, Edit2, Loader2, ImageIcon, Trash2 } from 'lucide-react'
 import type { Specialty } from '@/types/database'
 import { uploadAdminImage } from '@/lib/admin/client-actions'
 
@@ -27,6 +27,7 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
   const [form, setForm] = useState<SpecialtyForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState('')
 
@@ -67,6 +68,32 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
     setLoading(false); setOpen(false); router.refresh()
   }
 
+  async function handleDelete(specialty: Specialty) {
+    if (!window.confirm(`Delete ${specialty.name_en}? This cannot be undone.`)) return
+
+    setDeletingId(specialty.id)
+    setError('')
+    const response = await fetch('/api/admin/specialties', {
+      method: 'DELETE',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: specialty.id }),
+    })
+    const result = await response.json() as { error?: string }
+
+    if (!response.ok) {
+      setError(result.error || 'Could not delete specialty.')
+      setDeletingId(null)
+      return
+    }
+
+    setDeletingId(null)
+    router.refresh()
+  }
+
   async function handleImageUpload(file: File | null) {
     if (!file) return
 
@@ -93,6 +120,11 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
           <Plus className="w-4 h-4 mr-1.5" />Add Specialty
         </Button>
       </div>
+      {error && !open && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <div className="space-y-2">
         {specialties.map((s) => (
           <div key={s.id} className={`flex items-center gap-4 p-4 bg-white rounded-lg border ${!s.is_active ? 'opacity-60' : ''}`}>
@@ -113,6 +145,14 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
             </span>
             <button onClick={() => openEdit(s)} className="p-1 text-gray-400 hover:text-[#1B4F72]">
               <Edit2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleDelete(s)}
+              disabled={deletingId === s.id}
+              className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-50"
+              aria-label={`Delete ${s.name_en}`}
+            >
+              {deletingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
             </button>
           </div>
         ))}

@@ -1,7 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { format } from 'date-fns'
-import { Badge } from '@/components/ui/badge'
+import { addDays, format } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar, Clock, Users, AlertCircle, CheckCircle, ChevronRight } from 'lucide-react'
@@ -11,8 +10,9 @@ import type { AppointmentWithDetails } from '@/types/database'
 export default async function AdminDashboardPage() {
   const supabase = await createAdminClient()
   const today = format(new Date(), 'yyyy-MM-dd')
+  const nextWeek = format(addDays(new Date(), 7), 'yyyy-MM-dd')
 
-  const [todayAppts, recentAppts, counts] = await Promise.all([
+  const [todayAppts, recentAppts, upcomingAppts, counts] = await Promise.all([
     // Today's appointments
     supabase
       .from('appointments')
@@ -42,6 +42,15 @@ export default async function AdminDashboardPage() {
       .order('created_at', { ascending: false })
       .limit(20),
 
+    // Upcoming reservations that the operations team needs visibility on
+    supabase
+      .from('appointments')
+      .select('id, status')
+      .gte('appointment_date', today)
+      .lte('appointment_date', nextWeek)
+      .not('status', 'in', '(cancelled)')
+      .limit(1000),
+
     // Status counts
     supabase
       .from('appointments')
@@ -52,6 +61,14 @@ export default async function AdminDashboardPage() {
     acc[a.status] = (acc[a.status] || 0) + 1
     return acc
   }, {})
+  const todayByDoctor = ((todayAppts.data || []) as AppointmentWithDetails[]).reduce<Record<string, number>>((acc, appt) => {
+    const name = appt.doctors?.name_en || 'Unassigned'
+    acc[name] = (acc[name] || 0) + 1
+    return acc
+  }, {})
+  const todayCount = todayAppts.data?.length || 0
+  const upcomingCount = upcomingAppts.data?.length || 0
+  const waitingConfirmation = statusCounts.reserved || 0
 
   return (
     <div className="p-6 space-y-6">
@@ -71,18 +88,69 @@ export default async function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {Object.entries(STATUS_LABELS).map(([status, label]) => (
-          <div
-            key={status}
-            className={`rounded-lg border p-4 ${STATUS_COLORS[status]}`}
-          >
-            <p className="text-xs font-medium opacity-80">{label}</p>
-            <p className="text-2xl font-bold mt-1">{statusCounts[status] || 0}</p>
-          </div>
-        ))}
+      {/* Key operations */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {[
+          { label: 'Today', value: todayCount, detail: 'active appointments', icon: Clock, href: `/admin/appointments?date=${today}` },
+          { label: 'Next 7 Days', value: upcomingCount, detail: 'scheduled reservations', icon: Calendar, href: `/admin/appointments?date_from=${today}&date_to=${nextWeek}` },
+          { label: 'Needs Confirmation', value: waitingConfirmation, detail: 'reserved appointments', icon: AlertCircle, href: '/admin/appointments?status=reserved' },
+          { label: 'Recent Activity', value: recentAppts.data?.length || 0, detail: 'latest reservations loaded', icon: Users, href: '/admin/appointments' },
+        ].map((item) => {
+          const Icon = item.icon
+          return (
+            <Link key={item.label} href={item.href}>
+              <div className="rounded-lg border bg-white p-4 hover:border-[#1B4F72]/30 hover:bg-blue-50/30 transition-all">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">{item.label}</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">{item.value}</p>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-[#1B4F72]/10 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-[#1B4F72]" />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">{item.detail}</p>
+              </div>
+            </Link>
+          )
+        })}
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Status Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {Object.entries(STATUS_LABELS).map(([status, label]) => (
+              <Link key={status} href={`/admin/appointments?status=${status}`}>
+                <div className={`rounded-lg border p-3 ${STATUS_COLORS[status]}`}>
+                  <p className="text-xs font-medium opacity-80">{label}</p>
+                  <p className="text-xl font-bold mt-1">{statusCounts[status] || 0}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {Object.keys(todayByDoctor).length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Today by Doctor</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {Object.entries(todayByDoctor).map(([doctor, count]) => (
+                <div key={doctor} className="rounded-lg border border-gray-100 p-3">
+                  <p className="text-sm font-medium text-gray-900 truncate">{doctor}</p>
+                  <p className="text-xs text-gray-500 mt-1">{count} appointment{count === 1 ? '' : 's'} today</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Today's appointments */}

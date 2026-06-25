@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Edit2, Loader2 } from 'lucide-react'
+import { Plus, Edit2, Loader2, Trash2 } from 'lucide-react'
 import type { Room, Branch } from '@/types/database'
 
 interface RoomsManagerProps {
@@ -29,6 +29,7 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
   const [form, setForm] = useState<RoomForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   function openEdit(r: Room) {
@@ -57,6 +58,25 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
     setLoading(false); setOpen(false); router.refresh()
   }
 
+  async function handleDelete(room: Room) {
+    if (!window.confirm(`Delete ${room.name_en}? This cannot be undone.`)) return
+
+    setDeletingId(room.id)
+    setError('')
+    try {
+      await adminManage({
+        resource: 'rooms',
+        action: 'delete',
+        id: room.id,
+      })
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete room.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const grouped = rooms.reduce<Record<string, typeof rooms>>((acc, r) => {
     const key = r.branch_id
     if (!acc[key]) acc[key] = []
@@ -71,6 +91,11 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
           <Plus className="w-4 h-4 mr-1.5" />Add Room
         </Button>
       </div>
+      {error && !open && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <div className="space-y-6">
         {Object.entries(grouped).map(([branchId, branchRooms]) => {
           const branch = branches.find((b) => b.id === branchId)
@@ -89,6 +114,14 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
                     </span>
                     <button onClick={() => openEdit(r)} className="p-1 text-gray-400 hover:text-[#1B4F72]">
                       <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(r)}
+                      disabled={deletingId === r.id}
+                      className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-50"
+                      aria-label={`Delete ${r.name_en}`}
+                    >
+                      {deletingId === r.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </button>
                   </div>
                 ))}

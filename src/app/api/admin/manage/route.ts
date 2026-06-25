@@ -120,6 +120,13 @@ async function saveSimpleResource(supabase: any, body: AdminManageBody) {
   const table = simpleTables[body.resource]
   if (!table) return NextResponse.json({ error: 'Unsupported admin resource.' }, { status: 400 })
 
+  if (body.action === 'delete') {
+    if (!body.id) return NextResponse.json({ error: 'ID is required.' }, { status: 400 })
+    const { error } = await supabase.from(table).delete().eq('id', body.id)
+    if (error) return databaseErrorResponse(error)
+    return NextResponse.json({ ok: true })
+  }
+
   const payload = normalizeSimplePayload(body.resource, body.payload || {})
 
   if (body.action === 'create') {
@@ -139,6 +146,16 @@ async function saveSimpleResource(supabase: any, body: AdminManageBody) {
 }
 
 async function saveService(supabase: any, body: AdminManageBody) {
+  if (body.action === 'delete') {
+    if (!body.id) return NextResponse.json({ error: 'ID is required.' }, { status: 400 })
+    const removeAssignments = await supabase.from('service_doctors').delete().eq('service_id', body.id)
+    if (removeAssignments.error) return databaseErrorResponse(removeAssignments.error)
+
+    const { error } = await supabase.from('services').delete().eq('id', body.id)
+    if (error) return databaseErrorResponse(error)
+    return NextResponse.json({ ok: true })
+  }
+
   if (!['create', 'update'].includes(body.action)) {
     return NextResponse.json({ error: 'Unsupported action.' }, { status: 400 })
   }

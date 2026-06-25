@@ -95,3 +95,25 @@ export async function PATCH(request: NextRequest) {
 
   return NextResponse.json({ ok: true, specialty: data })
 }
+
+export async function DELETE(request: NextRequest) {
+  const admin = await getAdminRequestContext(request)
+  if (!admin) return forbiddenResponse()
+
+  const body = await request.json() as { id?: string }
+  if (!body.id) {
+    return NextResponse.json({ error: 'Specialty id is required.' }, { status: 400 })
+  }
+
+  const supabase = admin.userId ? await createClient() : await createServiceClient()
+  const { error } = await (supabase as any)
+    .from('specialties')
+    .delete()
+    .eq('id', body.id)
+
+  if (error) {
+    return databaseErrorResponse(error)
+  }
+
+  return NextResponse.json({ ok: true })
+}

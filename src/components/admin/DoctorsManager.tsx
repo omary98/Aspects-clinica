@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
-import { Plus, Edit2, Loader2, User } from 'lucide-react'
+import { Plus, Edit2, Loader2, User, Trash2 } from 'lucide-react'
 import type { Doctor, Specialty } from '@/types/database'
 import { uploadAdminImage } from '@/lib/admin/client-actions'
 
@@ -47,6 +47,7 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
   const [form, setForm] = useState<DoctorForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
@@ -121,6 +122,32 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
     router.refresh()
   }
 
+  async function handleDelete(doc: Doctor) {
+    if (!window.confirm(`Delete ${doc.name_en}? This cannot be undone.`)) return
+
+    setDeletingId(doc.id)
+    setError('')
+    const response = await fetch('/api/admin/doctors', {
+      method: 'DELETE',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: doc.id }),
+    })
+    const result = await response.json() as { error?: string }
+
+    if (!response.ok) {
+      setError(result.error || 'Could not delete doctor.')
+      setDeletingId(null)
+      return
+    }
+
+    setDeletingId(null)
+    router.refresh()
+  }
+
   async function toggleActive(doc: Doctor) {
     await fetch('/api/admin/doctors', {
       method: 'PATCH',
@@ -161,6 +188,11 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
           Add Doctor
         </Button>
       </div>
+      {error && !open && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {doctors.map((doc) => (
@@ -194,15 +226,27 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
                   />
                   <span className="text-xs text-gray-500">{doc.is_active ? 'Active' : 'Inactive'}</span>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => openEdit(doc)}
-                  className="h-7 px-2 text-xs"
-                >
-                  <Edit2 className="w-3 h-3 mr-1" />
-                  Edit
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openEdit(doc)}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Edit2 className="w-3 h-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(doc)}
+                    disabled={deletingId === doc.id}
+                    className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
+                    aria-label={`Delete ${doc.name_en}`}
+                  >
+                    {deletingId === doc.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

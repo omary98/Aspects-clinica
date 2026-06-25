@@ -1,9 +1,9 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { addDays, eachDayOfInterval, endOfWeek, format, startOfWeek } from 'date-fns'
+import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChevronRight, Filter } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import { STATUS_COLORS, STATUS_LABELS, formatTime } from '@/lib/utils'
 import type { AppointmentWithDetails } from '@/types/database'
 import ManualAppointmentDialog from '@/components/admin/ManualAppointmentDialog'
@@ -18,6 +18,7 @@ export default async function AppointmentsPage({
     date?: string
     date_from?: string
     date_to?: string
+    cal_month?: string
     view?: string
   }>
 }) {
@@ -49,8 +50,12 @@ export default async function AppointmentsPage({
     if (params.date_to) query = query.lte('appointment_date', params.date_to)
   }
 
-  const calendarStart = startOfWeek(new Date())
-  const calendarEnd = endOfWeek(addDays(calendarStart, 27))
+  const selectedCalendarMonth = params.cal_month && /^\d{4}-\d{2}$/.test(params.cal_month)
+    ? params.cal_month
+    : today.slice(0, 7)
+  const calendarMonth = new Date(`${selectedCalendarMonth}-01T00:00:00`)
+  const calendarStart = startOfWeek(startOfMonth(calendarMonth))
+  const calendarEnd = endOfWeek(endOfMonth(calendarMonth))
 
   const [appointmentsRes, upcomingCalendarRes] = await Promise.all([
     query.limit(200),
@@ -94,6 +99,14 @@ export default async function AppointmentsPage({
   const statuses = ['reserved', 'confirmed', 'attended', 'no_show', 'cancelled', 'rescheduled']
 
   const hasDateFilter = !!(params.date || params.date_from || params.date_to || params.status || params.doctor || params.branch)
+  const calendarHref = (month: Date) => {
+    const queryParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(params)) {
+      if (value && key !== 'cal_month') queryParams.set(key, value)
+    }
+    queryParams.set('cal_month', format(month, 'yyyy-MM'))
+    return `/admin/appointments?${queryParams.toString()}`
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -199,47 +212,74 @@ export default async function AppointmentsPage({
       {/* Upcoming calendar */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Upcoming Reservations Calendar</CardTitle>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="text-base">Reservations Calendar</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">{format(calendarMonth, 'MMMM yyyy')}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link href={calendarHref(addMonths(calendarMonth, -1))}>
+                <Button type="button" size="sm" variant="outline" aria-label="Previous month">
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link href={calendarHref(new Date())}>
+                <Button type="button" size="sm" variant="ghost" className="text-[#1B4F72]">
+                  This Month
+                </Button>
+              </Link>
+              <Link href={calendarHref(addMonths(calendarMonth, 1))}>
+                <Button type="button" size="sm" variant="outline" aria-label="Next month">
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div key={day} className="py-1">{day}</div>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
-            {calendarDays.map((day) => {
-              const dayKey = format(day, 'yyyy-MM-dd')
-              const dayAppointments = appointmentsByDate[dayKey] || []
-              return (
-                <div key={dayKey} className="min-h-32 rounded-lg border bg-white p-2">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <p className="text-sm font-semibold text-gray-900">{format(day, 'd')}</p>
-                    <p className="text-[11px] text-gray-400">{format(day, 'MMM')}</p>
-                  </div>
-                  {dayAppointments.length === 0 ? (
-                    <p className="text-xs text-gray-300 py-4 text-center">No bookings</p>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {dayAppointments.slice(0, 4).map((appointment) => (
-                        <Link
-                          key={appointment.id}
-                          href={`/admin/appointments/${appointment.id}`}
-                          className="block rounded-md border border-[#D8A83E]/30 bg-[#FFFDF7] p-1.5 hover:border-[#9A6A16] transition-colors"
-                        >
-                          <p className="text-[11px] font-semibold text-[#1B4F72]">{formatTime(appointment.start_time)}</p>
-                          <p className="text-xs text-gray-900 truncate">{appointment.patient_name}</p>
-                          <p className="text-[11px] text-gray-500 truncate">{appointment.doctors?.name_en}</p>
-                        </Link>
-                      ))}
-                      {dayAppointments.length > 4 && (
-                        <p className="text-[11px] text-gray-400">+{dayAppointments.length - 4} more</p>
+          <div className="overflow-x-auto pb-2">
+            <div className="min-w-[760px]">
+              <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-2">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                  <div key={day} className="py-1">{day}</div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-2">
+                {calendarDays.map((day) => {
+                  const dayKey = format(day, 'yyyy-MM-dd')
+                  const dayAppointments = appointmentsByDate[dayKey] || []
+                  const isOutsideMonth = format(day, 'yyyy-MM') !== format(calendarMonth, 'yyyy-MM')
+                  return (
+                    <div key={dayKey} className={`min-h-32 rounded-lg border p-2 ${isOutsideMonth ? 'bg-gray-50/70' : 'bg-white'}`}>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <p className={`text-sm font-semibold ${isOutsideMonth ? 'text-gray-400' : 'text-gray-900'}`}>{format(day, 'd')}</p>
+                        <p className="text-[11px] text-gray-400">{format(day, 'MMM')}</p>
+                      </div>
+                      {dayAppointments.length === 0 ? (
+                        <p className="text-xs text-gray-300 py-4 text-center">No bookings</p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {dayAppointments.slice(0, 4).map((appointment) => (
+                            <Link
+                              key={appointment.id}
+                              href={`/admin/appointments/${appointment.id}`}
+                              className="block rounded-md border border-[#D8A83E]/30 bg-[#FFFDF7] p-1.5 hover:border-[#9A6A16] transition-colors"
+                            >
+                              <p className="text-[11px] font-semibold text-[#1B4F72]">{formatTime(appointment.start_time)}</p>
+                              <p className="text-xs text-gray-900 truncate">{appointment.patient_name}</p>
+                              <p className="text-[11px] text-gray-500 truncate">{appointment.doctors?.name_en}</p>
+                            </Link>
+                          ))}
+                          {dayAppointments.length > 4 && (
+                            <p className="text-[11px] text-gray-400">+{dayAppointments.length - 4} more</p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              )
-            })}
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

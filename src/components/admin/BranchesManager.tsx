@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
-import { Plus, Edit2, Loader2, MapPin } from 'lucide-react'
+import { Plus, Edit2, Loader2, MapPin, Trash2 } from 'lucide-react'
 import type { Branch } from '@/types/database'
 
 interface BranchesManagerProps {
@@ -34,6 +34,7 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
   const [form, setForm] = useState<BranchForm>(emptyForm)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   function openEdit(b: Branch) {
@@ -75,6 +76,25 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
     setLoading(false); setOpen(false); router.refresh()
   }
 
+  async function handleDelete(branch: Branch) {
+    if (!window.confirm(`Delete ${branch.name_en}? This cannot be undone.`)) return
+
+    setDeletingId(branch.id)
+    setError('')
+    try {
+      await adminManage({
+        resource: 'branches',
+        action: 'delete',
+        id: branch.id,
+      })
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not delete branch.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <>
       <div className="flex justify-end mb-4">
@@ -82,6 +102,11 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
           <Plus className="w-4 h-4 mr-1.5" />Add Branch
         </Button>
       </div>
+      {error && !open && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {branches.map((b) => (
           <Card key={b.id} className={`border ${!b.is_active ? 'opacity-60' : ''}`}>
@@ -100,9 +125,19 @@ export default function BranchesManager({ branches }: BranchesManagerProps) {
                   )}
                   {b.phone && <p className="text-xs text-gray-500 mt-1">📞 {b.phone}</p>}
                 </div>
-                <button onClick={() => openEdit(b)} className="p-1 text-gray-400 hover:text-[#1B4F72]">
-                  <Edit2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => openEdit(b)} className="p-1 text-gray-400 hover:text-[#1B4F72]" aria-label={`Edit ${b.name_en}`}>
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(b)}
+                    disabled={deletingId === b.id}
+                    className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-50"
+                    aria-label={`Delete ${b.name_en}`}
+                  >
+                    {deletingId === b.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div className="mt-3 pt-3 border-t flex items-center gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full ${b.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
