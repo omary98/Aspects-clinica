@@ -13,7 +13,10 @@ INSERT INTO clinic_settings (key, value, description) VALUES
   ('whatsapp_enabled', 'false', 'Whether WhatsApp notifications are active'),
   ('clinic_name_en', 'EuroCure Polyclinic', 'Clinic name in English'),
   ('clinic_name_ar', 'يوروكيور', 'Clinic name in Arabic'),
-  ('clinic_phone', '+20 123 456 7890', 'Main clinic phone number');
+  ('clinic_phone', '+20 123 456 7890', 'Main clinic phone number')
+ON CONFLICT (key) DO UPDATE SET
+  value = EXCLUDED.value,
+  description = EXCLUDED.description;
 
 -- =============================================
 -- SPECIALTIES
@@ -31,7 +34,15 @@ INSERT INTO specialties (id, name_en, name_ar, slug, description_en, description
   ('a1000000-0000-0000-0000-000000000003', 'Dermatology & Aesthetics', 'الجلدية والتجميل', 'dermatology-aesthetics',
    'Comprehensive skin care, dermatology, and aesthetic treatments.',
    'رعاية شاملة للبشرة وعلاجات جلدية وتجميلية.',
-   'sparkles', 3);
+   'sparkles', 3)
+ON CONFLICT (id) DO UPDATE SET
+  name_en = EXCLUDED.name_en,
+  name_ar = EXCLUDED.name_ar,
+  slug = EXCLUDED.slug,
+  description_en = EXCLUDED.description_en,
+  description_ar = EXCLUDED.description_ar,
+  icon = EXCLUDED.icon,
+  display_order = EXCLUDED.display_order;
 
 -- =============================================
 -- BRANCHES
@@ -61,16 +72,31 @@ INSERT INTO branches (id, name_en, name_ar, slug, address_en, address_ar, google
    'الشيخ زايد — إن كابيتال (يُضاف العنوان لاحقاً)',
    NULL,
    NULL,
-   FALSE, 3);
+   FALSE, 3)
+ON CONFLICT (id) DO UPDATE SET
+  name_en = EXCLUDED.name_en,
+  name_ar = EXCLUDED.name_ar,
+  slug = EXCLUDED.slug,
+  address_en = EXCLUDED.address_en,
+  address_ar = EXCLUDED.address_ar,
+  google_maps_url = EXCLUDED.google_maps_url,
+  phone = EXCLUDED.phone,
+  is_public_branch = EXCLUDED.is_public_branch,
+  display_order = EXCLUDED.display_order;
 
 -- =============================================
 -- ROOMS (EuroCure Nasr City only)
 -- =============================================
 
 INSERT INTO rooms (id, branch_id, name_en, name_ar, room_type) VALUES
-  ('r1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'Clinic 1', 'عيادة ١', 'clinic'),
-  ('r1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000001', 'Clinic 2', 'عيادة ٢', 'clinic'),
-  ('r1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000001', 'Procedure Room', 'غرفة الإجراءات', 'procedure_room');
+  ('c1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'Clinic 1', 'عيادة ١', 'clinic'),
+  ('c1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000001', 'Clinic 2', 'عيادة ٢', 'clinic'),
+  ('c1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000001', 'Procedure Room', 'غرفة الإجراءات', 'procedure_room')
+ON CONFLICT (id) DO UPDATE SET
+  branch_id = EXCLUDED.branch_id,
+  name_en = EXCLUDED.name_en,
+  name_ar = EXCLUDED.name_ar,
+  room_type = EXCLUDED.room_type;
 
 -- =============================================
 -- DOCTORS
@@ -101,7 +127,14 @@ INSERT INTO doctors (id, name_en, name_ar, specialty_id, title_en, title_ar, dis
    'Dr. Malak', 'د. ملك',
    'a1000000-0000-0000-0000-000000000003',
    'Skin Specialist', 'أخصائية الجلدية',
-   3);
+   3)
+ON CONFLICT (id) DO UPDATE SET
+  name_en = EXCLUDED.name_en,
+  name_ar = EXCLUDED.name_ar,
+  specialty_id = EXCLUDED.specialty_id,
+  title_en = EXCLUDED.title_en,
+  title_ar = EXCLUDED.title_ar,
+  display_order = EXCLUDED.display_order;
 
 -- =============================================
 -- SERVICES
@@ -158,50 +191,74 @@ INSERT INTO services (specialty_id, name_en, name_ar, duration_minutes, is_visib
 -- Dr. Ahmad Ghait
 INSERT INTO doctor_schedule_templates (id, doctor_id, branch_id, day_of_week, start_time, end_time) VALUES
   -- Sunday 4PM–10PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000001',
+  ('e1000000-0000-0000-0000-000000000001',
    'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001',
    0, '16:00', '22:00'),
   -- Tuesday 4PM–7PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000002',
+  ('e1000000-0000-0000-0000-000000000002',
    'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001',
    2, '16:00', '19:00'),
   -- Wednesday 4PM–10PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000003',
+  ('e1000000-0000-0000-0000-000000000003',
    'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001',
    3, '16:00', '22:00'),
   -- Tuesday 7PM–9PM, Aspects Clinica Fifth Settlement
-  ('s1000000-0000-0000-0000-000000000004',
+  ('e1000000-0000-0000-0000-000000000004',
    'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000002',
    2, '19:00', '21:00'),
   -- Monday 6PM–9PM, Sheikh Zayed
-  ('s1000000-0000-0000-0000-000000000005',
+  ('e1000000-0000-0000-0000-000000000005',
    'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000003',
-   1, '18:00', '21:00');
+   1, '18:00', '21:00')
+ON CONFLICT (id) DO UPDATE SET
+  doctor_id = EXCLUDED.doctor_id,
+  branch_id = EXCLUDED.branch_id,
+  day_of_week = EXCLUDED.day_of_week,
+  start_time = EXCLUDED.start_time,
+  end_time = EXCLUDED.end_time;
 
 -- Dr. Huda Ezzat
 INSERT INTO doctor_schedule_templates (id, doctor_id, branch_id, day_of_week, start_time, end_time) VALUES
   -- Sunday 6PM–8PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000006',
+  ('e1000000-0000-0000-0000-000000000006',
    'd1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000001',
-   0, '18:00', '20:00');
+   0, '18:00', '20:00')
+ON CONFLICT (id) DO UPDATE SET
+  doctor_id = EXCLUDED.doctor_id,
+  branch_id = EXCLUDED.branch_id,
+  day_of_week = EXCLUDED.day_of_week,
+  start_time = EXCLUDED.start_time,
+  end_time = EXCLUDED.end_time;
 
 -- Dr. Monica
 INSERT INTO doctor_schedule_templates (id, doctor_id, branch_id, day_of_week, start_time, end_time) VALUES
   -- Saturday 6PM–8PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000007',
+  ('e1000000-0000-0000-0000-000000000007',
    'd1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000001',
    6, '18:00', '20:00'),
   -- Wednesday 6PM–8PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000008',
+  ('e1000000-0000-0000-0000-000000000008',
    'd1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000001',
-   3, '18:00', '20:00');
+   3, '18:00', '20:00')
+ON CONFLICT (id) DO UPDATE SET
+  doctor_id = EXCLUDED.doctor_id,
+  branch_id = EXCLUDED.branch_id,
+  day_of_week = EXCLUDED.day_of_week,
+  start_time = EXCLUDED.start_time,
+  end_time = EXCLUDED.end_time;
 
 -- Dr. Shaimaa
 INSERT INTO doctor_schedule_templates (id, doctor_id, branch_id, day_of_week, start_time, end_time) VALUES
   -- Monday 6PM–8PM, EuroCure Nasr City
-  ('s1000000-0000-0000-0000-000000000009',
+  ('e1000000-0000-0000-0000-000000000009',
    'd1000000-0000-0000-0000-000000000004', 'b1000000-0000-0000-0000-000000000001',
-   1, '18:00', '20:00');
+   1, '18:00', '20:00')
+ON CONFLICT (id) DO UPDATE SET
+  doctor_id = EXCLUDED.doctor_id,
+  branch_id = EXCLUDED.branch_id,
+  day_of_week = EXCLUDED.day_of_week,
+  start_time = EXCLUDED.start_time,
+  end_time = EXCLUDED.end_time;
 
 -- Dr. Malak: no fixed schedule seeded — admin will add shifts
 
@@ -211,21 +268,25 @@ INSERT INTO doctor_schedule_templates (id, doctor_id, branch_id, day_of_week, st
 
 -- Dr. Ahmad Ghait → Clinic 1 (Sunday at EuroCure)
 INSERT INTO schedule_room_assignments (schedule_template_id, room_id) VALUES
-  ('s1000000-0000-0000-0000-000000000001', 'r1000000-0000-0000-0000-000000000001'),
+  ('e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001'),
   -- Tuesday at EuroCure
-  ('s1000000-0000-0000-0000-000000000002', 'r1000000-0000-0000-0000-000000000001'),
+  ('e1000000-0000-0000-0000-000000000002', 'c1000000-0000-0000-0000-000000000001'),
   -- Wednesday at EuroCure
-  ('s1000000-0000-0000-0000-000000000003', 'r1000000-0000-0000-0000-000000000001');
+  ('e1000000-0000-0000-0000-000000000003', 'c1000000-0000-0000-0000-000000000001')
+ON CONFLICT (schedule_template_id, room_id) DO NOTHING;
 
 -- Dr. Huda Ezzat → Clinic 2
 INSERT INTO schedule_room_assignments (schedule_template_id, room_id) VALUES
-  ('s1000000-0000-0000-0000-000000000006', 'r1000000-0000-0000-0000-000000000002');
+  ('e1000000-0000-0000-0000-000000000006', 'c1000000-0000-0000-0000-000000000002')
+ON CONFLICT (schedule_template_id, room_id) DO NOTHING;
 
 -- Dr. Monica → Clinic 2 (default assignment; can be changed to Procedure Room)
 INSERT INTO schedule_room_assignments (schedule_template_id, room_id) VALUES
-  ('s1000000-0000-0000-0000-000000000007', 'r1000000-0000-0000-0000-000000000002'),
-  ('s1000000-0000-0000-0000-000000000008', 'r1000000-0000-0000-0000-000000000002');
+  ('e1000000-0000-0000-0000-000000000007', 'c1000000-0000-0000-0000-000000000002'),
+  ('e1000000-0000-0000-0000-000000000008', 'c1000000-0000-0000-0000-000000000002')
+ON CONFLICT (schedule_template_id, room_id) DO NOTHING;
 
 -- Dr. Shaimaa → Clinic 2
 INSERT INTO schedule_room_assignments (schedule_template_id, room_id) VALUES
-  ('s1000000-0000-0000-0000-000000000009', 'r1000000-0000-0000-0000-000000000002');
+  ('e1000000-0000-0000-0000-000000000009', 'c1000000-0000-0000-0000-000000000002')
+ON CONFLICT (schedule_template_id, room_id) DO NOTHING;
