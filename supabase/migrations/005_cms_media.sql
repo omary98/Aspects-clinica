@@ -51,15 +51,23 @@ ALTER TABLE doctors ADD COLUMN IF NOT EXISTS description_en TEXT;
 ALTER TABLE doctors ADD COLUMN IF NOT EXISTS description_ar TEXT;
 ALTER TABLE specialties ADD COLUMN IF NOT EXISTS image_url TEXT;
 
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 DROP TRIGGER IF EXISTS update_site_assets_updated_at ON site_assets;
 CREATE TRIGGER update_site_assets_updated_at
   BEFORE UPDATE ON site_assets
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 DROP TRIGGER IF EXISTS update_site_content_updated_at ON site_content;
 CREATE TRIGGER update_site_content_updated_at
   BEFORE UPDATE ON site_content
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 ALTER TABLE site_assets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
