@@ -41,7 +41,7 @@ const defaults: BrandingValues = {
   brand_dark_primary_color: '#070707',
   brand_dark_accent_color: '#E1B84D',
   brand_dark_background_color: '#080806',
-  site_theme_default: 'light',
+  site_theme_default: 'dark',
 }
 
 const assetFields: Array<{ key: keyof BrandingValues; label: string; uploadLabel: string }> = [

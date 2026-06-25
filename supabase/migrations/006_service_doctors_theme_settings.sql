@@ -33,7 +33,7 @@ ON CONFLICT (service_id, doctor_id) DO NOTHING;
 
 INSERT INTO clinic_settings (key, value, description)
 VALUES
-  ('site_theme_default', 'light', 'Default public website theme: light or dark'),
+  ('site_theme_default', 'dark', 'Default public website theme: light or dark'),
   ('logo_dark_url', '', 'Main logo URL for dark mode'),
   ('header_logo_dark_url', '', 'Header logo URL for dark mode'),
   ('footer_logo_dark_url', '', 'Footer logo URL for dark mode'),

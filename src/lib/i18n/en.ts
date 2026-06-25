@@ -6,7 +6,7 @@ export const en: Translations = {
     specialties: 'Specialties',
     doctors: 'Doctors',
     locations: 'Locations',
-    contact: 'Contact',
+    contact: 'Contact Us',
     bookNow: 'Book Appointment',
     adminLogin: 'Admin Login',
   },

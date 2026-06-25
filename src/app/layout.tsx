@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     .select('value')
     .eq('key', 'site_theme_default')
     .maybeSingle()
-  const defaultTheme = (themeSetting as { value?: string } | null)?.value === 'dark' ? 'dark' : 'light'
+  const defaultTheme = (themeSetting as { value?: string } | null)?.value === 'light' ? 'light' : 'dark'
 
   return (
     <html lang={lang} dir={dir} className="h-full">

@@ -7,7 +7,7 @@ import Navbar from '@/components/public/Navbar'
 import DoctorCard from '@/components/public/DoctorCard'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Activity, Scissors, Sparkles, ChevronRight, Star, Shield, Clock } from 'lucide-react'
+import { MapPin, Phone, Activity, Scissors, Sparkles, ChevronRight, Star, Shield, Clock, Mail } from 'lucide-react'
 
 const specialtyIcons: Record<string, React.ReactNode> = {
   'interventional-radiology': <Activity className="w-7 h-7" />,
@@ -46,7 +46,6 @@ export default async function HomePage() {
     .from('branches')
     .select('*')
     .eq('is_active', true)
-    .eq('is_public_branch', true)
     .order('display_order')
 
   const { data: settingsRaw } = await (supabase as any)
@@ -76,6 +75,7 @@ export default async function HomePage() {
   const specialtiesList = (specialties || []) as any[]
   const doctorsList = (doctors || []) as any[]
   const branchesList = (branches || []) as any[]
+  const publicBranchesList = branchesList.filter((branch: any) => branch.is_public_branch)
   const heroBackgroundUrl = settings.landing_hero_background_url
   const heroBackgroundDarkUrl = settings.landing_hero_background_dark_url || heroBackgroundUrl
   const ctaBackgroundUrl = settings.landing_cta_background_url
@@ -102,7 +102,17 @@ export default async function HomePage() {
   const ctaTitle = cmsText('cta', 'title', t.cta.title)
   const ctaSubtitle = cmsText('cta', 'subtitle', t.cta.subtitle)
   const ctaButton = cmsText('cta', 'button', t.cta.bookNow)
+  const contactTitle = cmsText('contact', 'title', lang === 'ar' ? 'تواصل معنا' : 'Contact Us')
+  const contactBody = cmsText(
+    'contact',
+    'body',
+    lang === 'ar'
+      ? 'فريق يوروكيور جاهز لمساعدتك في اختيار الفرع المناسب وتأكيد تفاصيل موعدك.'
+      : 'EuroCure is here to help you choose the right branch and confirm your appointment details.'
+  )
   const footerTagline = cmsText('footer', 'tagline', t.footer.tagline)
+  const clinicPhone = settings.clinic_phone || branchesList.find((branch: any) => branch.phone)?.phone || ''
+  const contactEmail = settings.email_from || ''
 
   return (
     <div
@@ -285,7 +295,7 @@ export default async function HomePage() {
             <p className="text-gray-500">{t.locations.sectionSubtitle}</p>
           </div>
           <div className="max-w-2xl mx-auto">
-            {branchesList.map((branch: any) => (
+            {publicBranchesList.map((branch: any) => (
               <div key={branch.id} className="eurocure-location-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
                 <h3 className="font-semibold text-gray-900 text-lg mb-2">
                   {branch[nameField] || branch.name_en}
@@ -321,6 +331,60 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Contact Us */}
+      <section id="contact" className="eurocure-section py-16 scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+            <div>
+              <p className="text-sm font-semibold text-[#9A6A16] mb-3">{lang === 'ar' ? 'الدعم والتواصل' : 'Support & Contact'}</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">{contactTitle}</h2>
+              <p className="text-gray-600 leading-relaxed">{contactBody}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                {clinicPhone && (
+                  <a
+                    href={`tel:${clinicPhone.replace(/\s/g, '')}`}
+                    className="inline-flex items-center gap-2 rounded-md bg-[#101010] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black"
+                    dir="ltr"
+                  >
+                    <Phone className="w-4 h-4" />
+                    {clinicPhone}
+                  </a>
+                )}
+                {contactEmail && (
+                  <a
+                    href={`mailto:${contactEmail}`}
+                    className="inline-flex items-center gap-2 rounded-md border border-[#9A6A16]/40 px-4 py-2 text-sm font-medium text-[#9A6A16] transition-colors hover:bg-[#101010] hover:text-white"
+                    dir="ltr"
+                  >
+                    <Mail className="w-4 h-4" />
+                    {contactEmail}
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {branchesList.map((branch: any) => (
+                <div key={`contact-${branch.id}`} className="eurocure-location-card rounded-lg border border-amber-100 bg-white p-5">
+                  <h3 className="font-semibold text-gray-900 mb-2">{branch[nameField] || branch.name_en}</h3>
+                  {branch[addressField] && (
+                    <p className="flex items-start gap-2 text-sm text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9A6A16]" />
+                      <span>{branch[addressField]}</span>
+                    </p>
+                  )}
+                  {branch.phone && (
+                    <a href={`tel:${branch.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 text-sm text-[#9A6A16] hover:underline" dir="ltr">
+                      <Phone className="w-4 h-4" />
+                      {branch.phone}
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Banner */}
       <section
         className="eurocure-cta py-16 bg-[#101010]"
@@ -341,7 +405,7 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="bg-[#101010] text-gray-400 py-10">
+      <footer className="bg-[#101010] text-gray-400 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between gap-8">
             <div>
@@ -366,6 +430,7 @@ export default async function HomePage() {
               <p className="font-medium text-white">{t.footer.quickLinks}</p>
               <Link href="/#specialties" className="hover:text-white transition-colors">{t.nav.specialties}</Link>
               <Link href="/#doctors" className="hover:text-white transition-colors">{t.nav.doctors}</Link>
+              <Link href="/#contact" className="hover:text-white transition-colors">{t.nav.contact}</Link>
               <Link href="/book" className="hover:text-white transition-colors">{t.nav.bookNow}</Link>
               <Link href="/admin/login" className="hover:text-white transition-colors">{t.footer.adminLogin}</Link>
             </div>

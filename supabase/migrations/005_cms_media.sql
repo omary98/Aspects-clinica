@@ -137,7 +137,7 @@ VALUES
   ('cta', 'subtitle', 'Choose your doctor, branch, date, and time in a few simple steps.', 'اختر الطبيب والفرع والتاريخ والوقت بخطوات بسيطة.', 'textarea', 20),
   ('cta', 'button', 'Book now', 'احجز الآن', 'text', 30),
   ('footer', 'tagline', 'No pain, just comfort.', 'راحة بلا ألم.', 'text', 10),
-  ('contact', 'title', 'Contact EuroCure', 'تواصل مع يورو كيور', 'text', 10),
+  ('contact', 'title', 'Contact Us', 'تواصل معنا', 'text', 10),
   ('contact', 'body', 'Use the booking form or contact your nearest public branch for appointment support.', 'استخدم نموذج الحجز أو تواصل مع أقرب فرع متاح لمساعدتك في الموعد.', 'textarea', 20)
 ON CONFLICT (section_key, field_key) DO NOTHING;
 
