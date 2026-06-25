@@ -96,7 +96,7 @@ export const COUNTRY_CODES = [
 ]
 
 const PHONE_RULES: Record<string, { pattern: RegExp; example: string }> = {
-  '+20': { pattern: /^01[0-9]{9}$/, example: '01282344448' },
+  '+20': { pattern: /^(01[0-9]{9}|1[0-9]{9})$/, example: '01200000000' },
   '+966': { pattern: /^5[0-9]{8}$/, example: '512345678' },
   '+971': { pattern: /^5[0-9]{8}$/, example: '501234567' },
   '+965': { pattern: /^[0-9]{8}$/, example: '51234567' },
