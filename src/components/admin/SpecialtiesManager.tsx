@@ -16,10 +16,10 @@ interface SpecialtiesManagerProps { specialties: Specialty[] }
 
 interface SpecialtyForm {
   name_en: string; name_ar: string; slug: string
-  description_en: string; description_ar: string; icon: string; image_url: string; display_order: string; is_active: boolean
+  description_en: string; description_ar: string; icon: string; image_url: string; display_order: string; is_active: boolean; featured_on_homepage: boolean
 }
 
-const emptyForm: SpecialtyForm = { name_en: '', name_ar: '', slug: '', description_en: '', description_ar: '', icon: '', image_url: '', display_order: '0', is_active: true }
+const emptyForm: SpecialtyForm = { name_en: '', name_ar: '', slug: '', description_en: '', description_ar: '', icon: '', image_url: '', display_order: '0', is_active: true, featured_on_homepage: false }
 
 export default function SpecialtiesManager({ specialties }: SpecialtiesManagerProps) {
   const router = useRouter()
@@ -33,7 +33,7 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
 
   function openEdit(s: Specialty) {
     setError('')
-    setForm({ name_en: s.name_en, name_ar: s.name_ar, slug: s.slug, description_en: s.description_en || '', description_ar: s.description_ar || '', icon: s.icon || '', image_url: s.image_url || '', display_order: String(s.display_order), is_active: s.is_active })
+    setForm({ name_en: s.name_en, name_ar: s.name_ar, slug: s.slug, description_en: s.description_en || '', description_ar: s.description_ar || '', icon: s.icon || '', image_url: s.image_url || '', display_order: String(s.display_order), is_active: s.is_active, featured_on_homepage: s.featured_on_homepage })
     setEditId(s.id); setOpen(true)
   }
 
@@ -47,7 +47,7 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
       description_ar: form.description_ar || null,
       icon: form.icon || null,
       image_url: form.image_url || null,
-      display_order: parseInt(form.display_order) || 0, is_active: form.is_active,
+      display_order: parseInt(form.display_order) || 0, is_active: form.is_active, featured_on_homepage: form.featured_on_homepage,
     }
     const response = await fetch('/api/admin/specialties', {
       method: editId ? 'PATCH' : 'POST',
@@ -182,6 +182,7 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
             </div>
             <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: e.target.value })} /></div>
             <div className="flex items-center gap-3"><Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} /><Label>Active</Label></div>
+            <div className="flex items-center gap-3"><Switch checked={form.featured_on_homepage} onCheckedChange={(v) => setForm({ ...form, featured_on_homepage: v })} /><Label>Featured on homepage</Label></div>
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
                 {error}

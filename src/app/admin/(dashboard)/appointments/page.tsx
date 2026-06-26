@@ -263,7 +263,7 @@ export default async function AppointmentsPage({
                             <Link
                               key={appointment.id}
                               href={`/admin/appointments/${appointment.id}`}
-                              className="block rounded-md border border-[#D8A83E]/30 bg-[#FFFDF7] p-1.5 hover:border-[#9A6A16] transition-colors"
+                              className="block rounded-md border border-[#19B7C6]/30 bg-[#F4FBFA] p-1.5 hover:border-[#0B8EA0] transition-colors"
                             >
                               <p className="text-[11px] font-semibold text-[#1B4F72]">{formatTime(appointment.start_time)}</p>
                               <p className="text-xs text-gray-900 truncate">{appointment.patient_name}</p>

@@ -32,13 +32,14 @@ interface DoctorForm {
   photo_url: string
   consultation_fee: string
   is_active: boolean
+  featured_on_homepage: boolean
   display_order: string
 }
 
 const emptyForm: DoctorForm = {
   name_en: '', name_ar: '', specialty_id: '', title_en: '', title_ar: '',
   bio_en: '', bio_ar: '', description_en: '', description_ar: '', photo_url: '', consultation_fee: '',
-  is_active: true, display_order: '0',
+  is_active: true, featured_on_homepage: false, display_order: '0',
 }
 
 export default function DoctorsManager({ doctors, specialties }: DoctorsManagerProps) {
@@ -73,6 +74,7 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
       photo_url: doc.photo_url || '',
       consultation_fee: doc.consultation_fee?.toString() || '',
       is_active: doc.is_active,
+      featured_on_homepage: doc.featured_on_homepage,
       display_order: String(doc.display_order),
     })
     setEditId(doc.id)
@@ -97,6 +99,7 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
       photo_url: form.photo_url || null,
       consultation_fee: form.consultation_fee ? parseFloat(form.consultation_fee) : null,
       is_active: form.is_active,
+      featured_on_homepage: form.featured_on_homepage,
       display_order: parseInt(form.display_order) || 0,
     }
 
@@ -335,6 +338,10 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
             <div className="flex items-center gap-3">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={form.featured_on_homepage} onCheckedChange={(v) => setForm({ ...form, featured_on_homepage: v })} />
+              <Label>Featured on homepage</Label>
             </div>
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">

@@ -36,10 +36,10 @@ const defaults: BrandingValues = {
   header_logo_dark_url: '',
   footer_logo_dark_url: '',
   brand_primary_color: '#123B67',
-  brand_accent_color: '#D7E90A',
+  brand_accent_color: '#BFEA1C',
   brand_background_color: '#F7FBF8',
   brand_dark_primary_color: '#06151E',
-  brand_dark_accent_color: '#D7E90A',
+  brand_dark_accent_color: '#BFEA1C',
   brand_dark_background_color: '#061016',
   site_theme_default: 'dark',
 }

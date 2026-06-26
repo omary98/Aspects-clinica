@@ -21,9 +21,9 @@ export default function Navbar({
   const brandName = lang === 'ar' ? 'أسبكتس كلينيكا' : 'Aspects Clinica'
 
   const navLinks = [
-    { href: '/#specialties', label: t.nav.specialties },
-    { href: '/#doctors', label: t.nav.doctors },
-    { href: '/#locations', label: t.nav.locations },
+    { href: '/', label: t.nav.home },
+    { href: '/specialties', label: t.nav.specialties },
+    { href: '/doctors', label: t.nav.doctors },
     { href: '/#contact', label: t.nav.contact },
   ]
 
@@ -38,7 +38,7 @@ export default function Navbar({
               <img src={currentLogoUrl} alt="Aspects Clinica" className="h-9 w-auto max-w-[132px] object-contain" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-[#123B67] flex items-center justify-center">
-                <span className="text-[#D7E90A] font-bold text-sm">AC</span>
+                <span className="text-[#BFEA1C] font-bold text-sm">AC</span>
               </div>
             )}
             <span className="aspects-wordmark aspects-nav-wordmark text-2xl font-bold text-[#101010]">{brandName}</span>
@@ -50,7 +50,7 @@ export default function Navbar({
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-gray-600 hover:text-[#9A6A16] transition-colors"
+                className="text-sm text-gray-600 hover:text-[#0B8EA0] transition-colors"
               >
                 {link.label}
               </Link>
@@ -62,7 +62,7 @@ export default function Navbar({
             {/* Language toggle */}
             <button
               onClick={toggleLang}
-              className="hidden md:flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-[#9A6A16] transition-colors border border-gray-200 hover:border-[#D8A83E]/60 rounded-full px-3 py-1.5"
+              className="hidden md:flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-[#0B8EA0] transition-colors border border-gray-200 hover:border-[#19B7C6]/60 rounded-full px-3 py-1.5"
               title={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
             >
               <Globe className="w-3.5 h-3.5" />
@@ -77,7 +77,7 @@ export default function Navbar({
               {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
 
-            <Link href="/book">
+            <Link href="/book" className="hidden sm:block">
               <Button size="sm" className="aspects-nav-cta bg-[#101010] hover:bg-black text-white">
                 {t.nav.bookNow}
               </Button>
@@ -111,7 +111,7 @@ export default function Navbar({
             <Link
               key={link.href}
               href={link.href}
-              className="block text-sm text-gray-700 hover:text-[#9A6A16] py-1"
+              className="block text-sm text-gray-700 hover:text-[#0B8EA0] py-1"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}

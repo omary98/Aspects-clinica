@@ -11,7 +11,7 @@ function getResend(): Resend {
 const FROM = process.env.EMAIL_FROM || 'aspectsclinica@gmail.com'
 const BASE_URL = process.env.APP_BASE_URL || 'http://localhost:3500'
 const BRAND_BLUE = '#123B67'
-const BRAND_GOLD = '#D7E90A'
+const BRAND_LIME = '#BFEA1C'
 
 const AR_DAY_NAMES = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 
@@ -73,7 +73,7 @@ export async function sendPatientConfirmation(
       <div dir="rtl" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;color:#1a1a1a;text-align:right;">
         <div style="background:${BRAND_BLUE};padding:32px;text-align:center;">
           <h1 style="color:white;margin:0;font-size:24px;">Aspects Clinica</h1>
-          <p style="color:${BRAND_GOLD};margin:8px 0 0;">تأكيد الحجز</p>
+          <p style="color:${BRAND_LIME};margin:8px 0 0;">تأكيد الحجز</p>
         </div>
         <div style="padding:32px;">
           <p>عزيزنا / عزيزتنا <strong>${appt.patient_name}</strong>،</p>
@@ -94,7 +94,7 @@ export async function sendPatientConfirmation(
       <div style="max-width:600px;margin:0 auto;font-family:sans-serif;color:#1a1a1a;">
         <div style="background:${BRAND_BLUE};padding:32px;text-align:center;">
           <h1 style="color:white;margin:0;font-size:24px;">Aspects Clinica</h1>
-          <p style="color:${BRAND_GOLD};margin:8px 0 0;">Appointment Confirmation</p>
+          <p style="color:${BRAND_LIME};margin:8px 0 0;">Appointment Confirmation</p>
         </div>
         <div style="padding:32px;">
           <p>Dear <strong>${appt.patient_name}</strong>,</p>

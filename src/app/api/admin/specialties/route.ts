@@ -15,6 +15,7 @@ type SpecialtyPayload = {
   image_url?: string | null
   display_order?: number
   is_active?: boolean
+  featured_on_homepage?: boolean
 }
 
 function normalizeSlug(value: string) {
@@ -39,6 +40,7 @@ function buildPayload(body: SpecialtyPayload) {
     image_url: body.image_url || null,
     display_order: typeof body.display_order === 'number' && Number.isFinite(body.display_order) ? body.display_order : 0,
     is_active: body.is_active !== false,
+    featured_on_homepage: body.featured_on_homepage === true,
   }
 }
 

@@ -3,6 +3,7 @@ import type { Translations } from './index'
 export const en: Translations = {
   dir: 'ltr',
   nav: {
+    home: 'Home',
     specialties: 'Specialties',
     doctors: 'Doctors',
     locations: 'Locations',

@@ -155,7 +155,7 @@ export default function SchedulesManager({ schedules, doctors, branches, rooms, 
                         <span className="text-gray-500 mx-2">·</span>
                         <span className="text-gray-600">{s.branches?.name_en}</span>
                         {s.first_come_first_serve && (
-                          <span className="text-[#9A6A16] ml-2 text-xs font-medium">
+                          <span className="text-[#0B8EA0] ml-2 text-xs font-medium">
                             First-come · {s.first_come_capacity || 1} patients
                           </span>
                         )}

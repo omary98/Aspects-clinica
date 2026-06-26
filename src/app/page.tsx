@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CSSProperties } from 'react'
+import Link from 'next/link'
+import { Activity, ChevronRight, Clock, HeartPulse, Mail, MapPin, Phone, Shield, Sparkles, Star, Stethoscope, User, Waves } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getLang } from '@/lib/i18n/server'
 import { getT } from '@/lib/i18n'
 import Navbar from '@/components/public/Navbar'
-import DoctorCard from '@/components/public/DoctorCard'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Activity, Scissors, Sparkles, ChevronRight, Star, Shield, Clock, Mail, HeartPulse, Waves } from 'lucide-react'
 
-const specialtyIcons: Record<string, React.ReactNode> = {
-  'interventional-radiology': <Activity className="w-7 h-7" />,
-  'general-surgery': <Scissors className="w-7 h-7" />,
-  'bariatric-surgery': <Scissors className="w-7 h-7" />,
-  'plastic-surgery': <Sparkles className="w-7 h-7" />,
-  'cosmetic-dermatology': <Sparkles className="w-7 h-7" />,
+function pickHomepageItems<T extends { featured_on_homepage?: boolean; display_order?: number }>(items: T[], limit = 8) {
+  const featured = items.filter((item) => item.featured_on_homepage)
+  const source = featured.length ? featured : items
+  return source
+    .slice()
+    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+    .slice(0, limit)
 }
 
 export default async function HomePage() {
@@ -25,45 +25,27 @@ export default async function HomePage() {
   const descField = lang === 'ar' ? 'description_ar' : 'description_en'
   const addressField = lang === 'ar' ? 'address_ar' : 'address_en'
 
-  const { data: specialties } = await (supabase as any)
-    .from('specialties')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order')
+  const [specialtiesRes, doctorsRes, branchesRes, settingsRes, contentRes] = await Promise.all([
+    (supabase as any).from('specialties').select('*').eq('is_active', true).order('display_order'),
+    (supabase as any).from('doctors').select('*, specialties (id, name_en, name_ar)').eq('is_active', true).order('display_order'),
+    (supabase as any).from('branches').select('*').eq('is_active', true).order('display_order'),
+    (supabase as any).from('clinic_settings').select('key, value'),
+    (supabase as any).from('site_content').select('section_key, field_key, value_en, value_ar, is_active').eq('is_active', true),
+  ])
 
-  const { data: doctors } = await (supabase as any)
-    .from('doctors')
-    .select(`
-      *,
-      specialties (name_en, name_ar),
-      doctor_schedule_templates (
-        day_of_week, start_time, end_time, branch_id, is_active,
-        branches (id, name_en, name_ar, is_public_branch)
-      )
-    `)
-    .eq('is_active', true)
-    .order('display_order')
-
-  const { data: branches } = await (supabase as any)
-    .from('branches')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order')
-
-  const { data: settingsRaw } = await (supabase as any)
-    .from('clinic_settings')
-    .select('key, value')
-
-  const { data: siteContentRaw } = await (supabase as any)
-    .from('site_content')
-    .select('section_key, field_key, value_en, value_ar, is_active')
-    .eq('is_active', true)
+  const specialties = (specialtiesRes.data || []) as any[]
+  const doctors = (doctorsRes.data || []) as any[]
+  const branches = (branchesRes.data || []) as any[]
+  const homepageSpecialties = pickHomepageItems(specialties, 8)
+  const homepageDoctors = pickHomepageItems(doctors, 8)
+  const publicBranches = branches.filter((branch) => branch.is_public_branch)
+  const mainBranch = publicBranches[0] || branches[0]
 
   const settings = Object.fromEntries(
-    ((settingsRaw || []) as Array<{ key: string; value: string }>).map((setting) => [setting.key, setting.value])
+    ((settingsRes.data || []) as Array<{ key: string; value: string }>).map((setting) => [setting.key, setting.value])
   )
   const contentMap = new Map(
-    ((siteContentRaw || []) as Array<{ section_key: string; field_key: string; value_en: string | null; value_ar: string | null }>).map((row) => [
+    ((contentRes.data || []) as Array<{ section_key: string; field_key: string; value_en: string | null; value_ar: string | null }>).map((row) => [
       `${row.section_key}.${row.field_key}`,
       row,
     ])
@@ -74,10 +56,12 @@ export default async function HomePage() {
     return value || fallback
   }
 
-  const specialtiesList = (specialties || []) as any[]
-  const doctorsList = (doctors || []) as any[]
-  const branchesList = (branches || []) as any[]
-  const publicBranchesList = branchesList.filter((branch: any) => branch.is_public_branch)
+  const primaryColor = settings.brand_primary_color || '#123B67'
+  const accentColor = settings.brand_accent_color || '#BFEA1C'
+  const backgroundColor = settings.brand_background_color || '#F7FBF8'
+  const darkPrimaryColor = settings.brand_dark_primary_color || '#06151E'
+  const darkAccentColor = settings.brand_dark_accent_color || '#BFEA1C'
+  const darkBackgroundColor = settings.brand_dark_background_color || '#061016'
   const heroBackgroundUrl = settings.landing_hero_background_url
   const heroBackgroundDarkUrl = settings.landing_hero_background_dark_url || heroBackgroundUrl
   const ctaBackgroundUrl = settings.landing_cta_background_url
@@ -87,39 +71,27 @@ export default async function HomePage() {
   const footerLogoUrl = settings.footer_logo_url || settings.logo_url
   const footerLogoDarkUrl = settings.footer_logo_dark_url || settings.logo_dark_url || footerLogoUrl
   const fallbackLogo = '/aspects-clinica-logo.png'
-  const primaryColor = settings.brand_primary_color || '#123B67'
-  const accentColor = settings.brand_accent_color || '#D7E90A'
-  const backgroundColor = settings.brand_background_color || '#F7FBF8'
-  const darkPrimaryColor = settings.brand_dark_primary_color || '#06151E'
-  const darkAccentColor = settings.brand_dark_accent_color || '#D7E90A'
-  const darkBackgroundColor = settings.brand_dark_background_color || '#061016'
   const heroTagline = cmsText('hero', 'tagline', lang === 'en' ? settings.landing_hero_tagline_en || t.hero.tagline : t.hero.tagline)
   const heroTitle = cmsText('hero', 'title', lang === 'en' ? settings.landing_hero_title_en || t.hero.title : t.hero.title)
   const heroSubtitle = cmsText('hero', 'subtitle', lang === 'en' ? settings.landing_hero_subtitle_en || t.hero.subtitle : t.hero.subtitle)
   const heroPrimaryCta = cmsText('hero', 'primary_cta', t.hero.bookCta)
   const heroSecondaryCta = cmsText('hero', 'secondary_cta', t.hero.viewSpecialties)
   const aboutTitle = cmsText('about', 'title', lang === 'ar' ? 'عن أسبكتس كلينيكا' : 'About Aspects Clinica')
-  const aboutBody = cmsText('about', 'body', lang === 'ar' ? 'أسبكتس كلينيكا منشأة طبية متكاملة تقدم مجموعة واسعة من الخدمات الجراحية والتجميلية للمرضى المقيمين في القاهرة وزوارها، من الكشف الروتيني إلى التشخيص والعلاج.' : 'Aspects Clinica is a full-service healthcare facility providing a wide range of surgical and aesthetic procedures for residents of, and visitors to, Cairo, Egypt. We provide everything from routine physical examination to diagnosis and treatment.')
-  const whyTitle = cmsText('facilities', 'title', lang === 'ar' ? 'مرافق وتجهيزات متكاملة' : 'Integrated Facilities')
-  const whyBody = cmsText('facilities', 'body', lang === 'ar' ? 'تضم أسبكتس كلينيكا ٧ غرف عيادات، وغرفتي ليزر، وغرفة عمليات لجراحات اليوم الواحد، وغرفتي إفاقة، ومنطقة تعقيم داخلية، واستقبالين، وركن قهوة لتجربة أكثر راحة.' : 'Aspects Clinica includes 7 clinic rooms, 2 laser rooms, a fully equipped one-day surgery room, 2 recovery rooms, an internal sterilization area, 2 receptions, and a coffee corner.')
-  const surgeryTitle = cmsText('surgery_recovery', 'title', lang === 'ar' ? 'جراحات اليوم الواحد والإفاقة' : 'One-Day Surgery & Recovery')
-  const surgeryBody = cmsText('surgery_recovery', 'body', lang === 'ar' ? 'غرفة عمليات مجهزة لجراحات اليوم الواحد مع غرف إفاقة مريحة وعملية تعقيم داخلية مخصصة لدعم تجربة علاجية آمنة ومنظمة.' : 'A fully equipped one-day surgery room, premium recovery spaces, and a dedicated internal sterilization process support safe, organized care.')
-  const laserTitle = cmsText('laser_dermatology', 'title', lang === 'ar' ? 'الليزر والجلدية التجميلية' : 'Laser & Aesthetic Dermatology')
-  const laserBody = cmsText('laser_dermatology', 'body', lang === 'ar' ? 'تقنيات تشمل DEKA MOTUS AY لإزالة الشعر بالليزر، والفركشنال ليزر، وQ-switch، مع خدمات الجلدية والتجميل المتقدمة.' : 'Technology includes DEKA MOTUS AY laser hair removal, fractional laser, Q-switch laser, and advanced dermatology and aesthetic services.')
+  const aboutBody = cmsText('about', 'body', lang === 'ar' ? 'أسبكتس كلينيكا منشأة طبية متكاملة تقدم رعاية طبية وجراحية وتجميلية متعددة التخصصات في القاهرة، من الكشف الروتيني إلى التشخيص والعلاج.' : 'Aspects Clinica is a full-service healthcare facility in Cairo providing routine examination, diagnosis, treatment, surgical care, and aesthetic procedures.')
+  const contactTitle = cmsText('contact', 'title', lang === 'ar' ? 'تواصل معنا' : 'Contact Us')
+  const contactBody = cmsText('contact', 'body', lang === 'ar' ? 'فريق أسبكتس كلينيكا جاهز لمساعدتك في اختيار الطبيب المناسب وتأكيد تفاصيل موعدك.' : 'Aspects Clinica is here to help you choose the right doctor and confirm your appointment details.')
   const ctaTitle = cmsText('cta', 'title', t.cta.title)
   const ctaSubtitle = cmsText('cta', 'subtitle', t.cta.subtitle)
-  const ctaButton = cmsText('cta', 'button', t.cta.bookNow)
-  const contactTitle = cmsText('contact', 'title', lang === 'ar' ? 'تواصل معنا' : 'Contact Us')
-  const contactBody = cmsText(
-    'contact',
-    'body',
-    lang === 'ar'
-      ? 'فريق أسبكتس كلينيكا جاهز لمساعدتك في اختيار الفرع المناسب وتأكيد تفاصيل موعدك.'
-      : 'Aspects Clinica is here to help you choose the right branch and confirm your appointment details.'
-  )
   const footerTagline = cmsText('footer', 'tagline', t.footer.tagline)
-  const clinicPhone = settings.clinic_phone || branchesList.find((branch: any) => branch.phone)?.phone || ''
+  const clinicPhone = settings.clinic_phone || mainBranch?.phone || ''
   const contactEmail = settings.email_from || ''
+
+  const facilities = [
+    { icon: <Stethoscope className="h-5 w-5" />, label: lang === 'ar' ? '٧ غرف عيادات' : '7 clinic rooms' },
+    { icon: <Waves className="h-5 w-5" />, label: lang === 'ar' ? 'غرفتا ليزر' : '2 laser rooms' },
+    { icon: <HeartPulse className="h-5 w-5" />, label: lang === 'ar' ? 'غرفة عمليات' : 'Surgery room' },
+    { icon: <Activity className="h-5 w-5" />, label: lang === 'ar' ? 'غرفتا إفاقة' : '2 recovery rooms' },
+  ]
 
   return (
     <div
@@ -135,330 +107,237 @@ export default async function HomePage() {
     >
       <Navbar logoUrl={logoUrl || fallbackLogo} logoUrlDark={logoDarkUrl || fallbackLogo} />
 
-      {/* Hero */}
       <section
-        className="aspects-hero relative text-white overflow-hidden"
+        className="aspects-hero relative overflow-hidden text-white"
         style={{
-          '--hero-bg-light': heroBackgroundUrl ? `linear-gradient(rgba(6, 21, 30, 0.72), rgba(18, 59, 103, 0.82)), url(${heroBackgroundUrl})` : `radial-gradient(circle at 82% 20%, rgba(215, 233, 10, 0.20), transparent 24%), linear-gradient(135deg, ${primaryColor}, #0B8EA0 54%, #17A565)`,
-          '--hero-bg-dark': heroBackgroundDarkUrl ? `linear-gradient(rgba(6, 16, 22, 0.74), rgba(6, 16, 22, 0.92)), url(${heroBackgroundDarkUrl})` : `radial-gradient(circle at 82% 20%, rgba(215, 233, 10, 0.16), transparent 24%), linear-gradient(135deg, ${darkPrimaryColor}, #0B4D64 58%, #0F5A40)`,
+          '--hero-bg-light': heroBackgroundUrl ? `linear-gradient(rgba(6, 21, 30, 0.72), rgba(18, 59, 103, 0.82)), url(${heroBackgroundUrl})` : `radial-gradient(circle at 82% 20%, rgba(191, 234, 28, 0.16), transparent 24%), linear-gradient(135deg, ${primaryColor}, #0B8EA0 54%, #17A565)`,
+          '--hero-bg-dark': heroBackgroundDarkUrl ? `linear-gradient(rgba(6, 16, 22, 0.74), rgba(6, 16, 22, 0.92)), url(${heroBackgroundDarkUrl})` : `radial-gradient(circle at 82% 20%, rgba(191, 234, 28, 0.1), transparent 24%), linear-gradient(135deg, ${darkPrimaryColor}, #0B4D64 58%, #0F5A40)`,
         } as CSSProperties}
       >
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/18 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-1.5 text-sm mb-6">
-              <Star className="w-4 h-4 fill-current" style={{ color: accentColor }} />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24 lg:px-8">
+          <div className="max-w-3xl">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm backdrop-blur">
+              <Star className="h-4 w-4 fill-current" style={{ color: accentColor }} />
               <span>{heroTagline}</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+            <h1 className="mb-5 text-4xl font-bold leading-tight md:text-6xl">
               {heroTitle}
               <br />
               <span style={{ color: accentColor }}>{t.hero.titleHighlight}</span>
             </h1>
-            <p className="text-lg text-white/80 mb-8 leading-relaxed">
-              {heroSubtitle}
-            </p>
-            <div className="flex flex-wrap gap-4">
+            <p className="max-w-2xl text-lg leading-relaxed text-white/80">{heroSubtitle}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/book">
-                <Button size="lg" className="aspects-primary-cta bg-white hover:bg-gray-100 font-semibold px-8" style={{ color: primaryColor }}>
+                <Button size="lg" className="aspects-primary-cta bg-white px-8 font-semibold hover:bg-gray-100" style={{ color: primaryColor }}>
                   {heroPrimaryCta}
-                  <ChevronRight className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180 ms-1' : 'ms-1'}`} />
+                  <ChevronRight className={`ms-1 h-5 w-5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
                 </Button>
               </Link>
-              <Link href="/#specialties">
-                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 bg-transparent">
+              <Link href="/specialties">
+                <Button size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10">
                   {heroSecondaryCta}
                 </Button>
               </Link>
+              <Link href="/doctors">
+                <Button size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10">
+                  {lang === 'ar' ? 'تعرّف على الأطباء' : 'Meet Our Doctors'}
+                </Button>
+              </Link>
             </div>
-
-            {/* Trust signals */}
-            <div className="flex flex-wrap gap-6 mt-10 text-sm text-white/70">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                <span>{t.hero.verified}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{t.hero.instant}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span>{t.hero.multiLocation}</span>
-              </div>
+            <div className="mt-9 flex flex-wrap gap-5 text-sm text-white/72">
+              <span className="flex items-center gap-2"><Shield className="h-4 w-4" />{t.hero.verified}</span>
+              <span className="flex items-center gap-2"><Clock className="h-4 w-4" />{t.hero.instant}</span>
+              <span className="flex items-center gap-2"><MapPin className="h-4 w-4" />{t.hero.multiLocation}</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="aspects-section py-14 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="aspects-surface rounded-lg border border-amber-100 bg-[#FFFDF7] p-7">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">{aboutTitle}</h2>
-            <p className="text-gray-600 leading-relaxed">{aboutBody}</p>
-          </div>
-          <div className="aspects-premium-panel rounded-lg border border-amber-100 bg-[#101010] p-7 text-white">
-            <h2 className="text-2xl font-bold mb-3" style={{ color: darkAccentColor || accentColor }}>{whyTitle}</h2>
-            <p className="text-white/75 leading-relaxed">{whyBody}</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="aspects-section py-14 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="aspects-surface rounded-lg border border-emerald-100 bg-white p-7">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#0B8EA0]/10 text-[#0B8EA0]">
-              <HeartPulse className="h-6 w-6" />
+      <section id="specialties" className="aspects-section-soft py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{t.specialties.sectionTitle}</h2>
+              <p className="mt-2 max-w-2xl text-sm text-gray-500">
+                {lang === 'ar' ? 'مختارات من التخصصات الأكثر طلبًا. كل التخصصات متاحة في الصفحة الكاملة.' : 'A curated preview of key specialties. The full directory stays one click away.'}
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">{surgeryTitle}</h2>
-            <p className="text-gray-600 leading-relaxed">{surgeryBody}</p>
+            <Link href="/specialties" className="text-sm font-semibold text-[#0B8EA0] hover:underline">
+              {lang === 'ar' ? 'عرض كل التخصصات' : 'View all specialties'}
+            </Link>
           </div>
-          <div className="aspects-surface rounded-lg border border-emerald-100 bg-white p-7">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#17A565]/10 text-[#17A565]">
-              <Waves className="h-6 w-6" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">{laserTitle}</h2>
-            <p className="text-gray-600 leading-relaxed">{laserBody}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Specialties */}
-      <section id="specialties" className="aspects-section-soft py-16 bg-[#FFFDF7]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.specialties.sectionTitle}</h2>
-            <p className="text-gray-500 max-w-xl mx-auto">{t.specialties.sectionSubtitle}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {specialtiesList.map((specialty: any) => (
-              <a
-                key={specialty.id}
-                href={`#${specialty.slug}`}
-                className="aspects-specialty-card group bg-white rounded-lg p-6 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-              >
-                {specialty.image_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={specialty.image_url} alt={specialty[nameField] || specialty.name_en} className="h-28 w-full rounded-md object-cover mb-4" />
-                )}
-                <div className="w-14 h-14 rounded-lg bg-[#D8A83E]/15 flex items-center justify-center text-[#9A6A16] mb-4 group-hover:bg-[#101010] group-hover:text-white transition-colors duration-300">
-                  {specialtyIcons[specialty.slug] || <Activity className="w-7 h-7" />}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {homepageSpecialties.map((specialty) => (
+              <Link key={specialty.id} href={`/book?specialty=${specialty.id}`} className="aspects-specialty-card group rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FAF6] text-[#0B8EA0]">
+                  <Sparkles className="h-5 w-5" />
                 </div>
-                <h3 className="font-semibold text-gray-900 text-lg mb-2">
-                  {specialty[nameField] || specialty.name_en}
-                </h3>
-                {specialty[descField] && (
-                  <p className="text-sm text-gray-500 leading-relaxed">{specialty[descField]}</p>
-                )}
-                <div className="mt-4 flex items-center text-[#9A6A16] text-sm font-medium gap-1">
-                  <span>{t.specialties.viewDoctors}</span>
-                  <ChevronRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${lang === 'ar' ? 'rotate-180' : ''}`} />
-                </div>
-              </a>
+                <h3 className="font-semibold text-gray-900">{specialty[nameField] || specialty.name_en}</h3>
+                {specialty[descField] && <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-500">{specialty[descField]}</p>}
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Doctors by Specialty */}
-      <section id="doctors" className="aspects-section py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {specialtiesList.map((specialty: any) => {
-            const specialtyDoctors = doctorsList.filter(
-              (d: any) => d.specialty_id === specialty.id
-            )
-            if (!specialtyDoctors.length) return null
-
-            return (
-              <div key={specialty.id} id={specialty.slug} className="mb-16 scroll-mt-20">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {specialty[nameField] || specialty.name_en}
-                    </h2>
-                    {specialty[descField] && (
-                      <p className="text-gray-500 text-sm mt-1">{specialty[descField]}</p>
+      <section id="doctors" className="aspects-section py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{t.doctors.sectionTitle}</h2>
+              <p className="mt-2 max-w-2xl text-sm text-gray-500">
+                {lang === 'ar' ? 'عرض مختصر لأطباء أسبكتس كلينيكا، مع إمكانية التصفح الكامل والبحث.' : 'A compact preview of the Aspects Clinica medical team, with full search on the doctors page.'}
+              </p>
+            </div>
+            <Link href="/doctors" className="text-sm font-semibold text-[#0B8EA0] hover:underline">
+              {lang === 'ar' ? 'عرض كل الأطباء' : 'View all doctors'}
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {homepageDoctors.map((doctor) => (
+              <article key={doctor.id} className="aspects-specialty-card rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#E6FAF6] text-[#0B8EA0]">
+                    {doctor.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={doctor.photo_url} alt={doctor[nameField]} className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="h-6 w-6" />
                     )}
                   </div>
-                  <Link href={`/book?specialty=${specialty.id}`} className="hidden md:block">
-                    <Button variant="outline" size="sm" className="border-[#9A6A16] text-[#9A6A16] hover:bg-[#101010] hover:text-white">
-                      {t.specialties.bookIn} {specialty[nameField] || specialty.name_en}
-                    </Button>
-                  </Link>
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold text-gray-900">{doctor[nameField] || doctor.name_en}</h3>
+                    <p className="truncate text-xs text-[#0B8EA0]">{doctor[lang === 'ar' ? 'title_ar' : 'title_en'] || doctor.title_en}</p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {specialtyDoctors.map((doctor: any) => (
-                    <DoctorCard
-                      key={doctor.id}
-                      lang={lang}
-                      doctor={{
-                        ...doctor,
-                        specialties: {
-                          name_en: specialty.name_en,
-                          name_ar: specialty.name_ar,
-                        },
-                        schedules: ((doctor as any).doctor_schedule_templates || []).filter(
-                          (s: any) => s.is_active
-                        ),
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          })}
+                <Link href={`/book?doctor=${doctor.id}`} className="mt-4 block">
+                  <Button size="sm" className="aspects-primary-cta w-full bg-[#101010] text-white hover:bg-black">
+                    {lang === 'ar' ? 'احجز' : 'Book'}
+                  </Button>
+                </Link>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Locations */}
-      <section id="locations" className="aspects-section-soft py-16 bg-[#FFFDF7]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.locations.sectionTitle}</h2>
-            <p className="text-gray-500">{t.locations.sectionSubtitle}</p>
+      <section className="aspects-section-soft py-12">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+          <div className="aspects-surface rounded-lg border border-gray-100 bg-white p-6">
+            <h2 className="text-2xl font-bold text-gray-900">{aboutTitle}</h2>
+            <p className="mt-3 leading-7 text-gray-600">{aboutBody}</p>
+            <Link href="/specialties" className="mt-5 inline-flex items-center text-sm font-semibold text-[#0B8EA0] hover:underline">
+              {lang === 'ar' ? 'اكتشف الخدمات' : 'Explore services'}
+              <ChevronRight className={`ms-1 h-4 w-4 ${lang === 'ar' ? 'rotate-180' : ''}`} />
+            </Link>
           </div>
-          <div className="max-w-2xl mx-auto">
-            {publicBranchesList.map((branch: any) => (
-              <div key={branch.id} className="aspects-location-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                <h3 className="font-semibold text-gray-900 text-lg mb-2">
-                  {branch[nameField] || branch.name_en}
-                </h3>
-                {branch[addressField] && (
-                  <div className="flex items-start gap-2 text-sm text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9A6A16]" />
-                    <span>{branch[addressField]}</span>
-                  </div>
-                )}
-                {branch.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                    <Phone className="w-4 h-4 text-[#9A6A16]" />
-                    <a href={`tel:${branch.phone}`} className="hover:text-[#9A6A16]" dir="ltr">
-                      {branch.phone}
-                    </a>
-                  </div>
-                )}
-                {branch.google_maps_url && (
-                  <a
-                    href={branch.google_maps_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-[#9A6A16] font-medium hover:underline"
-                  >
-                    <MapPin className="w-4 h-4" />
+          <div className="grid grid-cols-2 gap-3">
+            {facilities.map((facility) => (
+              <div key={facility.label} className="aspects-surface rounded-lg border border-gray-100 bg-white p-5">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FAF6] text-[#0B8EA0]">{facility.icon}</div>
+                <p className="font-semibold text-gray-900">{facility.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" className="aspects-section py-12 scroll-mt-20">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+          <div>
+            <p className="mb-3 text-sm font-semibold text-[#0B8EA0]">{lang === 'ar' ? 'الدعم والتواصل' : 'Support & Contact'}</p>
+            <h2 className="text-3xl font-bold text-gray-900">{contactTitle}</h2>
+            <p className="mt-4 leading-7 text-gray-600">{contactBody}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {clinicPhone && (
+                <a href={`tel:${clinicPhone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 rounded-md bg-[#101010] px-4 py-2 text-sm font-medium text-white hover:bg-black" dir="ltr">
+                  <Phone className="h-4 w-4" />{clinicPhone}
+                </a>
+              )}
+              {clinicPhone && (
+                <a href={`https://wa.me/${clinicPhone.replace(/[^\d]/g, '')}`} className="inline-flex items-center gap-2 rounded-md border border-[#0B8EA0]/40 px-4 py-2 text-sm font-medium text-[#0B8EA0] hover:bg-[#101010] hover:text-white" dir="ltr">
+                  WhatsApp
+                </a>
+              )}
+              {contactEmail && (
+                <a href={`mailto:${contactEmail}`} className="inline-flex items-center gap-2 rounded-md border border-[#0B8EA0]/40 px-4 py-2 text-sm font-medium text-[#0B8EA0] hover:bg-[#101010] hover:text-white" dir="ltr">
+                  <Mail className="h-4 w-4" />{contactEmail}
+                </a>
+              )}
+            </div>
+          </div>
+          {mainBranch && (
+            <div className="aspects-location-card rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900">{mainBranch[nameField] || mainBranch.name_en}</h3>
+              {mainBranch[addressField] && (
+                <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-gray-600">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#0B8EA0]" />
+                  <span>{mainBranch[addressField]}</span>
+                </p>
+              )}
+              <div className="mt-5 flex flex-wrap gap-3">
+                {mainBranch.google_maps_url && (
+                  <a href={mainBranch.google_maps_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-[#0B8EA0] hover:underline">
                     {t.locations.viewOnMaps}
                   </a>
                 )}
+                <Link href="/book" className="text-sm font-semibold text-[#0B8EA0] hover:underline">
+                  {t.nav.bookNow}
+                </Link>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Contact Us */}
-      <section id="contact" className="aspects-section py-16 scroll-mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
-            <div>
-              <p className="text-sm font-semibold text-[#9A6A16] mb-3">{lang === 'ar' ? 'الدعم والتواصل' : 'Support & Contact'}</p>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">{contactTitle}</h2>
-              <p className="text-gray-600 leading-relaxed">{contactBody}</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                {clinicPhone && (
-                  <a
-                    href={`tel:${clinicPhone.replace(/\s/g, '')}`}
-                    className="inline-flex items-center gap-2 rounded-md bg-[#101010] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black"
-                    dir="ltr"
-                  >
-                    <Phone className="w-4 h-4" />
-                    {clinicPhone}
-                  </a>
-                )}
-                {contactEmail && (
-                  <a
-                    href={`mailto:${contactEmail}`}
-                    className="inline-flex items-center gap-2 rounded-md border border-[#9A6A16]/40 px-4 py-2 text-sm font-medium text-[#9A6A16] transition-colors hover:bg-[#101010] hover:text-white"
-                    dir="ltr"
-                  >
-                    <Mail className="w-4 h-4" />
-                    {contactEmail}
-                  </a>
-                )}
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {branchesList.map((branch: any) => (
-                <div key={`contact-${branch.id}`} className="aspects-location-card rounded-lg border border-amber-100 bg-white p-5">
-                  <h3 className="font-semibold text-gray-900 mb-2">{branch[nameField] || branch.name_en}</h3>
-                  {branch[addressField] && (
-                    <p className="flex items-start gap-2 text-sm text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9A6A16]" />
-                      <span>{branch[addressField]}</span>
-                    </p>
-                  )}
-                  {branch.phone && (
-                    <a href={`tel:${branch.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 text-sm text-[#9A6A16] hover:underline" dir="ltr">
-                      <Phone className="w-4 h-4" />
-                      {branch.phone}
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Banner */}
       <section
-        className="aspects-cta py-16 bg-[#101010]"
+        className="aspects-cta py-14"
         style={{
-          '--cta-bg-light': ctaBackgroundUrl ? `linear-gradient(rgba(16, 16, 16, 0.84), rgba(16, 16, 16, 0.84)), url(${ctaBackgroundUrl})` : 'linear-gradient(135deg, #101010, #2D2414)',
-          '--cta-bg-dark': ctaBackgroundDarkUrl ? `linear-gradient(rgba(7, 7, 7, 0.82), rgba(7, 7, 7, 0.9)), url(${ctaBackgroundDarkUrl})` : 'linear-gradient(135deg, #070707, #211806)',
+          '--cta-bg-light': ctaBackgroundUrl ? `linear-gradient(rgba(16, 16, 16, 0.84), rgba(16, 16, 16, 0.84)), url(${ctaBackgroundUrl})` : 'linear-gradient(135deg, #06151E, #0B8EA0)',
+          '--cta-bg-dark': ctaBackgroundDarkUrl ? `linear-gradient(rgba(6, 16, 22, 0.82), rgba(6, 16, 22, 0.9)), url(${ctaBackgroundDarkUrl})` : 'linear-gradient(135deg, #061016, #08232A)',
         } as CSSProperties}
       >
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">{ctaTitle}</h2>
-          <p className="text-white/70 mb-8 text-lg">{ctaSubtitle}</p>
-          <Link href="/book">
-            <Button size="lg" className="aspects-primary-cta bg-white hover:bg-gray-100 font-semibold px-10" style={{ color: primaryColor }}>
-              {ctaButton}
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h2 className="text-3xl font-bold text-white">{ctaTitle}</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-white/72">{ctaSubtitle}</p>
+          <Link href="/book" className="mt-8 inline-block">
+            <Button size="lg" className="aspects-primary-cta bg-white px-10 font-semibold hover:bg-gray-100" style={{ color: primaryColor }}>
+              {t.cta.bookNow}
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#101010] text-gray-400 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between gap-8">
+      <footer className="bg-[#101010] py-10 text-gray-400">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between gap-8 md:flex-row">
             <div>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="mb-3 flex items-center gap-2">
                 {(footerLogoUrl || footerLogoDarkUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={footerLogoUrl || footerLogoDarkUrl} alt="Aspects Clinica" className="footer-logo-light w-6 h-6 rounded-full object-cover" />
+                  <img src={footerLogoUrl || footerLogoDarkUrl} alt="Aspects Clinica" className="footer-logo-light h-6 w-6 rounded-full object-cover" />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-[#D8A83E] flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">AC</span>
-                  </div>
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#19B7C6] text-xs font-bold text-white">AC</div>
                 )}
                 {footerLogoDarkUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={footerLogoDarkUrl} alt="Aspects Clinica" className="footer-logo-dark hidden w-6 h-6 rounded-full object-cover" />
+                  <img src={footerLogoDarkUrl} alt="Aspects Clinica" className="footer-logo-dark hidden h-6 w-6 rounded-full object-cover" />
                 )}
                 <span className="aspects-wordmark text-white">{lang === 'ar' ? 'أسبكتس كلينيكا' : 'Aspects Clinica'}</span>
               </div>
-              <p className="text-sm max-w-xs">{footerTagline}</p>
+              <p className="max-w-xs text-sm">{footerTagline}</p>
             </div>
             <div className="flex flex-col gap-2 text-sm">
               <p className="font-medium text-white">{t.footer.quickLinks}</p>
-              <Link href="/#specialties" className="hover:text-white transition-colors">{t.nav.specialties}</Link>
-              <Link href="/#doctors" className="hover:text-white transition-colors">{t.nav.doctors}</Link>
-              <Link href="/#contact" className="hover:text-white transition-colors">{t.nav.contact}</Link>
-              <Link href="/book" className="hover:text-white transition-colors">{t.nav.bookNow}</Link>
-              <Link href="/admin/login" className="hover:text-white transition-colors">{t.footer.adminLogin}</Link>
+              <Link href="/specialties" className="hover:text-white">{t.nav.specialties}</Link>
+              <Link href="/doctors" className="hover:text-white">{t.nav.doctors}</Link>
+              <Link href="/#contact" className="hover:text-white">{t.nav.contact}</Link>
+              <Link href="/book" className="hover:text-white">{t.nav.bookNow}</Link>
+              <Link href="/admin/login" className="hover:text-white">{t.footer.adminLogin}</Link>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-center">
+          <div className="mt-8 border-t border-gray-800 pt-6 text-center text-xs">
             &copy; {new Date().getFullYear()} Aspects Clinica. {t.footer.rights}
           </div>
         </div>

@@ -18,6 +18,7 @@ type DoctorPayload = {
   photo_url?: string | null
   consultation_fee?: number | null
   is_active?: boolean
+  featured_on_homepage?: boolean
   display_order?: number
 }
 
@@ -38,6 +39,7 @@ function buildPayload(body: DoctorPayload) {
     photo_url: body.photo_url || null,
     consultation_fee: body.consultation_fee ?? null,
     is_active: body.is_active !== false,
+    featured_on_homepage: body.featured_on_homepage === true,
     display_order: typeof body.display_order === 'number' && Number.isFinite(body.display_order) ? body.display_order : 0,
   }
 }

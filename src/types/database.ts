@@ -47,6 +47,7 @@ export type Database = {
           icon: string | null
           image_url: string | null
           display_order: number
+          featured_on_homepage: boolean
           is_active: boolean
           created_at: string
           updated_at: string
@@ -102,6 +103,7 @@ export type Database = {
           photo_url: string | null
           consultation_fee: number | null
           is_active: boolean
+          featured_on_homepage: boolean
           display_order: number
           created_at: string
           updated_at: string

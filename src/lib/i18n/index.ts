@@ -6,6 +6,7 @@ export const DEFAULT_LANG: Lang = 'ar'
 export interface Translations {
   dir: 'rtl' | 'ltr'
   nav: {
+    home: string
     specialties: string
     doctors: string
     locations: string

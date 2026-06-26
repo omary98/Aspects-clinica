@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { LANG_COOKIE, DEFAULT_LANG, getT, type Lang, type Translations } from '@/lib/i18n'
+import { LANG_COOKIE, getT, type Lang, type Translations } from '@/lib/i18n'
 
 interface LanguageContextValue {
   lang: Lang
@@ -21,6 +21,11 @@ export function LanguageProvider({
 }) {
   const [lang, setLang] = useState<Lang>(initialLang)
   const router = useRouter()
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
+  }, [lang])
 
   const toggleLang = useCallback(() => {
     const next: Lang = lang === 'ar' ? 'en' : 'ar'

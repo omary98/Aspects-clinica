@@ -3,6 +3,7 @@ import type { Translations } from './index'
 export const ar: Translations = {
   dir: 'rtl',
   nav: {
+    home: 'الرئيسية',
     specialties: 'التخصصات',
     doctors: 'الأطباء',
     locations: 'الفروع',
@@ -185,7 +186,7 @@ export const ar: Translations = {
     cancelled: 'ملغى',
     rescheduled: 'مُعاد جدولته',
   },
-  dayNames: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+  dayNames: ['سبت', 'احد', 'اثنين', 'ثلاثاء', 'اربعاء', 'خميس', 'جمعة'],
   common: {
     loading: 'جاري التحميل...',
     back: 'رجوع',

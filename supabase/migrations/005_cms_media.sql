@@ -155,7 +155,7 @@ ON CONFLICT (section_key, field_key) DO UPDATE SET
 INSERT INTO clinic_settings (key, value, description)
 VALUES
   ('brand_primary_color', '#123B67', 'Primary website brand color'),
-  ('brand_accent_color', '#D7E90A', 'Accent website brand color'),
+  ('brand_accent_color', '#BFEA1C', 'Accent website brand color'),
   ('brand_background_color', '#F7FBF8', 'Public website background color'),
   ('header_logo_url', '', 'Header logo URL'),
   ('footer_logo_url', '', 'Footer logo URL'),

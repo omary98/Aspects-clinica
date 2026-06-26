@@ -157,14 +157,14 @@ export default function BookingForm({
         ).values()
       ).filter(Boolean)
     : []
-  const branchPalette = ['#D8A83E', '#2E8B57', '#9A6A16', '#326B8C', '#7C4D9E']
+  const branchPalette = ['#19B7C6', '#2E8B57', '#0B8EA0', '#326B8C', '#7C4D9E']
   const branchColorMap = new Map(
     (doctorBranches as Array<{ id: string }>).map((branch, index) => [branch.id, branchPalette[index % branchPalette.length]])
   )
   const activeDoctorSchedules = (selectedDoctor?.doctor_schedule_templates || [])
     .filter((tmpl: { is_active: boolean }) => tmpl.is_active)
-  const calendarGridStart = startOfWeek(startOfMonth(calendarMonth))
-  const calendarGridEnd = endOfWeek(endOfMonth(calendarMonth))
+  const calendarGridStart = startOfWeek(startOfMonth(calendarMonth), { weekStartsOn: isRtl ? 6 : 0 })
+  const calendarGridEnd = endOfWeek(endOfMonth(calendarMonth), { weekStartsOn: isRtl ? 6 : 0 })
   const monthDays = eachDayOfInterval({
     start: calendarGridStart,
     end: calendarGridEnd,
@@ -192,6 +192,8 @@ export default function BookingForm({
     (tmpl: { branch_id: string; first_come_first_serve?: boolean }) =>
       tmpl.branch_id === branchId && tmpl.first_come_first_serve === true
   )
+  const getDayLabel = (dayIndex: number) => isRtl ? t.dayNames[(dayIndex + 1) % 7] : t.dayNames[dayIndex]
+  const calendarDayLabels = isRtl ? t.dayNames : t.dayNames.map((day) => day.slice(0, 3))
   const phoneValidationMessage = getPhoneValidationMessage(countryCode, phone)
 
   const relevantServices = services.filter((service) => {
@@ -365,7 +367,7 @@ export default function BookingForm({
             )}
 
             {selectedDoctor && broadAvailability.size > 0 && (
-              <div className="aspects-booking-panel space-y-3 rounded-lg border border-amber-100 bg-[#FFFDF7] p-4">
+              <div className="aspects-booking-panel space-y-3 rounded-lg border border-amber-100 bg-[#F4FBFA] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{format(calendarMonth, 'MMMM yyyy')}</p>
@@ -381,7 +383,7 @@ export default function BookingForm({
                   </div>
                 </div>
                 <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-500">
-                  {t.dayNames.map((day) => <div key={day} className="truncate">{day.slice(0, 3)}</div>)}
+                  {calendarDayLabels.map((day) => <div key={day} className="truncate">{day}</div>)}
                   {monthDays.map((day) => {
                     const dayKey = format(day, 'yyyy-MM-dd')
                     const branches = broadAvailability.get(dayKey) || []
@@ -397,17 +399,17 @@ export default function BookingForm({
                         }}
                         className={`min-h-12 rounded-md border text-sm transition-colors ${
                           hasAvailability
-                            ? 'aspects-calendar-day bg-white text-gray-800 hover:border-[#9A6A16]'
+                            ? 'aspects-calendar-day bg-white text-gray-800 hover:border-[#0B8EA0]'
                             : isSameMonth(day, calendarMonth)
                               ? 'aspects-calendar-day-muted bg-white text-gray-400 opacity-50'
                               : 'aspects-calendar-day-muted bg-gray-50 text-gray-300 opacity-50'
-                        } ${hasSelectedBranch ? 'ring-2 ring-[#D8A83E] border-[#D8A83E] bg-[#FFF3C7]' : isToday(day) ? 'border-[#D8A83E]' : 'border-gray-100'}`}
+                        } ${hasSelectedBranch ? 'ring-2 ring-[#19B7C6] border-[#19B7C6] bg-[#E6FAF6]' : isToday(day) ? 'border-[#19B7C6]' : 'border-gray-100'}`}
                       >
                         <span className="block">{format(day, 'd')}</span>
                         {hasAvailability && (
                           <span className="mt-1 flex justify-center gap-0.5">
                             {branches.slice(0, 4).map((branch) => (
-                              <span key={branch.id} className="h-1.5 w-4 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#D8A83E' }} />
+                              <span key={branch.id} className="h-1.5 w-4 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#19B7C6' }} />
                             ))}
                           </span>
                         )}
@@ -418,14 +420,14 @@ export default function BookingForm({
                 {branchId && (
                   <p className="text-xs text-gray-500">
                     {isRtl
-                      ? 'الأيام المحددة بإطار ذهبي متاحة في الفرع الذي اخترته. الأيام الأخرى التي بها علامات ملوّنة متاحة في فروع أخرى.'
-                      : 'Gold-outlined days are available at your selected branch. Other marked days remain visible for the doctor at other branches.'}
+                      ? 'الأيام المحددة بإطار مميز متاحة في الفرع الذي اخترته. الأيام الأخرى التي بها علامات ملوّنة متاحة في فروع أخرى.'
+                      : 'Highlighted days are available at your selected branch. Other marked days remain visible for the doctor at other branches.'}
                   </p>
                 )}
                 <div className="flex flex-wrap gap-2">
                   {(doctorBranches as Array<{ id: string; name_en: string; name_ar?: string }>).map((branch) => (
                     <span key={branch.id} className="inline-flex items-center gap-1 text-xs text-gray-600">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#D8A83E' }} />
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#19B7C6' }} />
                       {getBranchDisplayName(branch)}
                     </span>
                   ))}
@@ -501,7 +503,7 @@ export default function BookingForm({
             </div>
 
             {hasFirstComeForSelectedBranch && (
-              <div className="rounded-lg border border-[#D8A83E]/30 bg-[#FFFDF7] p-3 text-sm text-gray-700">
+              <div className="rounded-lg border border-[#19B7C6]/30 bg-[#F4FBFA] p-3 text-sm text-gray-700">
                 {firstComeNotice}
               </div>
             )}
@@ -520,7 +522,7 @@ export default function BookingForm({
                   </Button>
                 </div>
                 <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-500">
-                  {t.dayNames.map((day) => <div key={day} className="truncate">{day.slice(0, 3)}</div>)}
+                  {calendarDayLabels.map((day) => <div key={day} className="truncate">{day}</div>)}
                   {monthDays.map((day) => {
                     const dayKey = format(day, 'yyyy-MM-dd')
                     const selectable = availableDateSet.has(dayKey)
@@ -534,7 +536,7 @@ export default function BookingForm({
                           selectedDate === dayKey
                             ? 'aspects-calendar-day-selected bg-[#101010] text-white border-[#101010]'
                             : selectable
-                              ? 'aspects-calendar-day bg-[#FFFDF7] text-gray-900 border-[#D8A83E]/30 hover:border-[#9A6A16]'
+                              ? 'aspects-calendar-day bg-[#F4FBFA] text-gray-900 border-[#19B7C6]/30 hover:border-[#0B8EA0]'
                               : 'aspects-calendar-day-muted bg-gray-50 text-gray-300 border-gray-100'
                         } ${!selectable && !isSameMonth(day, calendarMonth) ? 'opacity-50' : ''}`}
                       >
@@ -546,7 +548,7 @@ export default function BookingForm({
               </div>
               {selectedDate && (
                 <p className="text-xs text-gray-500">
-                  {t.dayNames[parseISO(selectedDate).getDay()]}، {format(parseISO(selectedDate), 'd/M/yyyy')}
+                  {getDayLabel(parseISO(selectedDate).getDay())}، {format(parseISO(selectedDate), 'd/M/yyyy')}
                 </p>
               )}
               {availableDates.length === 0 && (

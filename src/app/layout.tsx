@@ -63,6 +63,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={lang} dir={dir} className="h-full">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Marcellus&family=Noto+Kufi+Arabic:wght@500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-full flex flex-col antialiased">
         <ThemeProvider defaultTheme={defaultTheme}>
           <LanguageProvider initialLang={lang}>

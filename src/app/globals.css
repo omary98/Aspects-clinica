@@ -24,10 +24,11 @@
     --radius: 0.5rem;
     --aspects-blue: #1B4F72;
     --aspects-blue-light: #2E86C1;
-    --aspects-gold: #D4AC0D;
-    --font-body: Optima, 'Avenir Next', 'Segoe UI', Arial, sans-serif;
-    --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-    --font-arabic: 'Geeza Pro', 'Noto Naskh Arabic', Tahoma, Arial, sans-serif;
+    --aspects-lime: #BFEA1C;
+    --font-body: 'Outfit', 'Avenir Next', 'Segoe UI', Arial, sans-serif;
+    --font-display: 'Marcellus', 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-arabic: 'IBM Plex Sans Arabic', 'Noto Kufi Arabic', 'Geeza Pro', Tahoma, Arial, sans-serif;
+    --font-arabic-display: 'Noto Kufi Arabic', 'IBM Plex Sans Arabic', 'Geeza Pro', Tahoma, Arial, sans-serif;
   }
 
   * {
@@ -62,7 +63,7 @@
   [dir="rtl"] h1,
   [dir="rtl"] h2,
   [dir="rtl"] .aspects-wordmark {
-    font-family: var(--font-arabic);
+    font-family: var(--font-arabic-display);
     font-weight: 700;
     letter-spacing: 0;
   }
@@ -74,23 +75,23 @@
 
   [data-theme="dark"] {
     color-scheme: dark;
-    --background: 42 28% 4%;
-    --foreground: 42 38% 90%;
-    --card: 42 25% 7%;
-    --card-foreground: 42 38% 90%;
-    --popover: 42 25% 7%;
-    --popover-foreground: 42 38% 90%;
-    --primary: 43 69% 59%;
-    --primary-foreground: 42 28% 5%;
-    --secondary: 42 20% 12%;
-    --secondary-foreground: 42 32% 86%;
-    --muted: 42 18% 13%;
-    --muted-foreground: 39 18% 69%;
-    --accent: 43 38% 18%;
-    --accent-foreground: 43 66% 78%;
-    --border: 42 20% 18%;
-    --input: 42 20% 18%;
-    --ring: 43 69% 59%;
+    --background: 196 57% 5%;
+    --foreground: 170 38% 94%;
+    --card: 194 53% 8%;
+    --card-foreground: 170 38% 94%;
+    --popover: 194 53% 8%;
+    --popover-foreground: 170 38% 94%;
+    --primary: 184 78% 44%;
+    --primary-foreground: 196 57% 5%;
+    --secondary: 190 45% 12%;
+    --secondary-foreground: 170 31% 88%;
+    --muted: 190 38% 13%;
+    --muted-foreground: 172 20% 72%;
+    --accent: 75 82% 51%;
+    --accent-foreground: 196 57% 5%;
+    --border: 184 48% 20%;
+    --input: 184 48% 20%;
+    --ring: 184 78% 44%;
   }
 
   .aspects-page {
@@ -99,58 +100,58 @@
   }
 
   [data-theme="dark"] .aspects-page {
-    background: var(--page-bg-dark, #080806);
-    color: #f7f0df;
+    background: var(--page-bg-dark, #061016);
+    color: #E8F7F4;
   }
 
   [data-theme="dark"] header,
   [data-theme="dark"] .bg-white {
-    background-color: #11100d;
+    background-color: #071D24;
   }
 
   [data-theme="dark"] .bg-white\/95 {
-    background-color: rgba(17, 16, 13, 0.92);
+    background-color: rgba(7, 29, 36, 0.92);
   }
 
   [data-theme="dark"] .bg-card {
-    background-color: #11100d;
+    background-color: #071D24;
   }
 
   [data-theme="dark"] .text-card-foreground,
   [data-theme="dark"] .text-foreground {
-    color: #f6edd8;
+    color: #E8F7F4;
   }
 
   [data-theme="dark"] header {
-    border-color: rgba(225, 184, 77, 0.18);
+    border-color: rgba(25, 183, 198, 0.18);
   }
 
   [data-theme="dark"] header a,
   [data-theme="dark"] header button {
-    color: #d9cfb8;
+    color: #CDE4DF;
   }
 
   [data-theme="dark"] header .aspects-wordmark {
-    color: #f7d775;
+    color: #BFEA1C;
   }
 
   [data-theme="dark"] .text-gray-900,
   [data-theme="dark"] .text-gray-800,
   [data-theme="dark"] .text-gray-700 {
-    color: #f6edd8;
+    color: #E8F7F4;
   }
 
   [data-theme="dark"] .text-gray-600,
   [data-theme="dark"] .text-gray-500 {
-    color: #c9bfa8;
+    color: #B7D6D0;
   }
 
   [data-theme="dark"] .text-gray-400 {
-    color: #a99f89;
+    color: #8FB8B2;
   }
 
   [data-theme="dark"] .text-gray-300 {
-    color: #7f755f;
+    color: #648F89;
   }
 
   [data-theme="dark"] .bg-gray-50,
@@ -159,122 +160,122 @@
   [data-theme="dark"] .bg-blue-50,
   [data-theme="dark"] .bg-green-50,
   [data-theme="dark"] .bg-red-50,
-  [data-theme="dark"] .bg-\[\#FFF3C7\],
-  [data-theme="dark"] .bg-\[\#FFFDF7\] {
-    background-color: #15130f;
+  [data-theme="dark"] .bg-\[\#E6FAF6\],
+  [data-theme="dark"] .bg-\[\#F4FBFA\] {
+    background-color: #08232A;
   }
 
   [data-theme="dark"] .bg-\[\#101010\] {
-    background-color: #050504;
+    background-color: #041016;
   }
 
   [data-theme="dark"] .border-gray-100,
   [data-theme="dark"] .border-gray-200,
   [data-theme="dark"] .border-input,
-  [data-theme="dark"] .border-\[\#D8A83E\]\/30,
+  [data-theme="dark"] .border-\[\#19B7C6\]\/30,
   [data-theme="dark"] .border-amber-100 {
-    border-color: rgba(225, 184, 77, 0.22);
+    border-color: rgba(25, 183, 198, 0.22);
   }
 
   [data-theme="dark"] input,
   [data-theme="dark"] textarea,
   [data-theme="dark"] [role="combobox"] {
-    background-color: #0f0e0b;
-    border-color: rgba(225, 184, 77, 0.24);
-    color: #f6edd8;
+    background-color: #061920;
+    border-color: rgba(25, 183, 198, 0.24);
+    color: #E8F7F4;
   }
 
   [data-theme="dark"] input::placeholder,
   [data-theme="dark"] textarea::placeholder {
-    color: #8f856f;
+    color: #749B96;
   }
 
   [data-theme="dark"] [data-radix-popper-content-wrapper] {
-    color: #f6edd8;
+    color: #E8F7F4;
   }
 
   [data-theme="dark"] .aspects-section {
     background:
-      radial-gradient(circle at top left, rgba(225, 184, 77, 0.08), transparent 30%),
-      #080806;
+      radial-gradient(circle at top left, rgba(25, 183, 198, 0.08), transparent 30%),
+      #061016;
   }
 
   [data-theme="dark"] .aspects-section-soft {
     background:
-      linear-gradient(180deg, rgba(225, 184, 77, 0.04), rgba(8, 8, 6, 0)),
-      #0b0a08;
+      linear-gradient(180deg, rgba(25, 183, 198, 0.04), rgba(6, 16, 22, 0)),
+      #06151E;
   }
 
   [data-theme="dark"] .aspects-surface,
   [data-theme="dark"] .aspects-specialty-card,
   [data-theme="dark"] .aspects-location-card {
     background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(225, 184, 77, 0.035)),
-      #11100d !important;
-    border-color: rgba(225, 184, 77, 0.24) !important;
+      linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(25, 183, 198, 0.035)),
+      #071D24 !important;
+    border-color: rgba(25, 183, 198, 0.24) !important;
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28) !important;
   }
 
   [data-theme="dark"] .aspects-specialty-card:hover,
   [data-theme="dark"] .aspects-location-card:hover {
-    border-color: rgba(225, 184, 77, 0.46);
+    border-color: rgba(25, 183, 198, 0.46);
     background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(225, 184, 77, 0.06)),
-      #14120e !important;
+      linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(25, 183, 198, 0.06)),
+      #082833 !important;
   }
 
   [data-theme="dark"] .aspects-premium-panel {
     background:
-      linear-gradient(145deg, rgba(225, 184, 77, 0.12), rgba(255, 255, 255, 0.035)),
-      #0d0c09 !important;
-    border-color: rgba(225, 184, 77, 0.28) !important;
+      linear-gradient(145deg, rgba(25, 183, 198, 0.12), rgba(255, 255, 255, 0.035)),
+      #061920 !important;
+    border-color: rgba(25, 183, 198, 0.28) !important;
   }
 
   [data-theme="dark"] .aspects-page .text-\[\#1B4F72\],
-  [data-theme="dark"] .aspects-page .text-\[\#9A6A16\] {
-    color: #e1b84d;
+  [data-theme="dark"] .aspects-page .text-\[\#0B8EA0\] {
+    color: #BFEA1C;
   }
 
   [data-theme="dark"] .aspects-page .bg-\[\#1B4F72\] {
-    background-color: #d8a83e;
-    color: #080806;
+    background-color: #19B7C6;
+    color: #061016;
   }
 
   [data-theme="dark"] .aspects-page .bg-\[\#101010\] {
-    background-color: #d8a83e;
-    color: #080806;
+    background-color: #19B7C6;
+    color: #061016;
   }
 
   [data-theme="dark"] .aspects-page .hover\:bg-\[\#154360\]:hover,
   [data-theme="dark"] .aspects-page .hover\:bg-black:hover {
-    background-color: #f0ca62;
-    color: #080806;
+    background-color: #19B7C6;
+    color: #061016;
   }
 
   [data-theme="dark"] .aspects-booking-panel,
   [data-theme="dark"] .aspects-review-panel {
     background:
-      linear-gradient(145deg, rgba(225, 184, 77, 0.09), rgba(255, 255, 255, 0.025)),
-      #11100d !important;
-    border-color: rgba(225, 184, 77, 0.24) !important;
+      linear-gradient(145deg, rgba(25, 183, 198, 0.09), rgba(255, 255, 255, 0.025)),
+      #071D24 !important;
+    border-color: rgba(25, 183, 198, 0.24) !important;
   }
 
   [data-theme="dark"] .aspects-calendar-day {
-    background-color: #15130f !important;
-    border-color: rgba(225, 184, 77, 0.18) !important;
-    color: #f6edd8 !important;
+    background-color: #08232A !important;
+    border-color: rgba(25, 183, 198, 0.18) !important;
+    color: #E8F7F4 !important;
   }
 
   [data-theme="dark"] .aspects-calendar-day-muted {
-    background-color: #0f0e0b !important;
-    border-color: rgba(225, 184, 77, 0.1) !important;
-    color: #6f674f !important;
+    background-color: #061920 !important;
+    border-color: rgba(25, 183, 198, 0.1) !important;
+    color: #557873 !important;
   }
 
   [data-theme="dark"] .aspects-calendar-day-selected {
-    background-color: #d8a83e !important;
-    border-color: #d8a83e !important;
-    color: #080806 !important;
+    background-color: #19B7C6 !important;
+    border-color: #19B7C6 !important;
+    color: #061016 !important;
   }
 
   .aspects-hero,
@@ -361,29 +362,29 @@
 }
 
 [data-theme="dark"] .aspects-page {
-  background: var(--page-bg-dark, #080806) !important;
-  color: #f7f0df !important;
+  background: var(--page-bg-dark, #061016) !important;
+  color: #E8F7F4 !important;
 }
 
 [data-theme="dark"] .aspects-section {
   background:
-    radial-gradient(circle at top left, rgba(225, 184, 77, 0.08), transparent 30%),
-    #080806 !important;
+    radial-gradient(circle at top left, rgba(25, 183, 198, 0.08), transparent 30%),
+    #061016 !important;
 }
 
 [data-theme="dark"] .aspects-section-soft {
   background:
-    linear-gradient(180deg, rgba(225, 184, 77, 0.04), rgba(8, 8, 6, 0)),
-    #0b0a08 !important;
+    linear-gradient(180deg, rgba(25, 183, 198, 0.04), rgba(6, 16, 22, 0)),
+    #06151E !important;
 }
 
 [data-theme="dark"] .aspects-surface,
 [data-theme="dark"] .aspects-specialty-card,
 [data-theme="dark"] .aspects-location-card {
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(225, 184, 77, 0.035)),
-    #11100d !important;
-  border-color: rgba(225, 184, 77, 0.24) !important;
+    linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(25, 183, 198, 0.035)),
+    #071D24 !important;
+  border-color: rgba(25, 183, 198, 0.24) !important;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28) !important;
 }
 
@@ -391,9 +392,9 @@
 [data-theme="dark"] .aspects-booking-panel,
 [data-theme="dark"] .aspects-review-panel {
   background:
-    linear-gradient(145deg, rgba(225, 184, 77, 0.1), rgba(255, 255, 255, 0.03)),
-    #0d0c09 !important;
-  border-color: rgba(225, 184, 77, 0.28) !important;
+    linear-gradient(145deg, rgba(25, 183, 198, 0.1), rgba(255, 255, 255, 0.03)),
+    #061920 !important;
+  border-color: rgba(25, 183, 198, 0.28) !important;
 }
 
 [data-theme="dark"] .aspects-page .bg-white,
@@ -402,106 +403,106 @@
 [data-theme="dark"] .aspects-page .bg-gray-100,
 [data-theme="dark"] .aspects-page .bg-gray-200,
 [data-theme="dark"] .aspects-page .bg-blue-50,
-[data-theme="dark"] .aspects-page .bg-\[\#FFFDF7\],
-[data-theme="dark"] .aspects-page .bg-\[\#FFF3C7\] {
-  background-color: #11100d !important;
+[data-theme="dark"] .aspects-page .bg-\[\#F4FBFA\],
+[data-theme="dark"] .aspects-page .bg-\[\#E6FAF6\] {
+  background-color: #071D24 !important;
 }
 
 [data-theme="dark"] .aspects-page .text-gray-900,
 [data-theme="dark"] .aspects-page .text-gray-800,
 [data-theme="dark"] .aspects-page .text-gray-700,
 [data-theme="dark"] .aspects-page .text-card-foreground {
-  color: #f6edd8 !important;
+  color: #E8F7F4 !important;
 }
 
 [data-theme="dark"] .aspects-page .text-gray-600,
 [data-theme="dark"] .aspects-page .text-gray-500 {
-  color: #c9bfa8 !important;
+  color: #B7D6D0 !important;
 }
 
 [data-theme="dark"] .aspects-page .text-gray-400 {
-  color: #a99f89 !important;
+  color: #8FB8B2 !important;
 }
 
 [data-theme="dark"] .aspects-page .text-\[\#1B4F72\],
-[data-theme="dark"] .aspects-page .text-\[\#9A6A16\] {
-  color: #e1b84d !important;
+[data-theme="dark"] .aspects-page .text-\[\#0B8EA0\] {
+  color: #BFEA1C !important;
 }
 
 [data-theme="dark"] .aspects-calendar-day {
-  background-color: #15130f !important;
-  border-color: rgba(225, 184, 77, 0.18) !important;
-  color: #f6edd8 !important;
+  background-color: #08232A !important;
+  border-color: rgba(25, 183, 198, 0.18) !important;
+  color: #E8F7F4 !important;
 }
 
 [data-theme="dark"] .aspects-calendar-day-muted {
-  background-color: #0f0e0b !important;
-  border-color: rgba(225, 184, 77, 0.1) !important;
-  color: #6f674f !important;
+  background-color: #061920 !important;
+  border-color: rgba(25, 183, 198, 0.1) !important;
+  color: #557873 !important;
 }
 
 [data-theme="dark"] .aspects-calendar-day-selected {
-  background-color: #d8a83e !important;
-  border-color: #d8a83e !important;
-  color: #080806 !important;
+  background-color: #19B7C6 !important;
+  border-color: #19B7C6 !important;
+  color: #061016 !important;
 }
 
 [data-theme="dark"] .aspects-page input,
 [data-theme="dark"] .aspects-page textarea,
 [data-theme="dark"] .aspects-page [role="combobox"] {
-  background-color: #0f0e0b !important;
-  border-color: rgba(225, 184, 77, 0.24) !important;
-  color: #f6edd8 !important;
+  background-color: #061920 !important;
+  border-color: rgba(25, 183, 198, 0.24) !important;
+  color: #E8F7F4 !important;
 }
 
 .aspects-nav-wordmark {
   line-height: 1;
-  text-shadow: 0 1px 0 rgba(216, 168, 62, 0.12);
+  text-shadow: 0 1px 0 rgba(25, 183, 198, 0.12);
 }
 
 .aspects-theme-toggle {
-  background-color: #fffaf0 !important;
+  background-color: #F4FBFA !important;
   border-color: #d8dde6 !important;
   color: #263241 !important;
   box-shadow: 0 8px 20px rgba(16, 16, 16, 0.04);
 }
 
 .aspects-theme-toggle:hover {
-  background-color: #fff3d4 !important;
-  border-color: rgba(154, 106, 22, 0.42) !important;
-  color: #8a5d12 !important;
+  background-color: #E6FAF6 !important;
+  border-color: rgba(11, 142, 160, 0.42) !important;
+  color: #0B8EA0 !important;
 }
 
 [data-theme="dark"] .aspects-nav-wordmark {
-  color: #f7d775 !important;
-  text-shadow: 0 0 18px rgba(216, 168, 62, 0.18);
+  color: #BFEA1C !important;
+  text-shadow: 0 0 18px rgba(25, 183, 198, 0.18);
 }
 
 [data-theme="dark"] .aspects-theme-toggle {
-  background-color: #15130f !important;
-  border-color: rgba(247, 215, 117, 0.28) !important;
-  color: #f7d775 !important;
+  background-color: #08232A !important;
+  border-color: rgba(191, 234, 28, 0.28) !important;
+  color: #BFEA1C !important;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
 }
 
 [data-theme="dark"] .aspects-theme-toggle:hover {
-  background-color: #211b0f !important;
-  border-color: rgba(247, 215, 117, 0.5) !important;
-  color: #ffe28a !important;
+  background-color: #06242A !important;
+  border-color: rgba(191, 234, 28, 0.5) !important;
+  color: #D6F85D !important;
 }
 
 [data-theme="dark"] .aspects-primary-cta,
 [data-theme="dark"] .aspects-nav-cta {
-  background: linear-gradient(135deg, #f0ca62, #d8a83e) !important;
-  border-color: rgba(247, 215, 117, 0.62) !important;
-  color: #080806 !important;
-  box-shadow: 0 14px 34px rgba(216, 168, 62, 0.18) !important;
+  background: linear-gradient(135deg, #19B7C6, #19B7C6) !important;
+  border-color: rgba(191, 234, 28, 0.62) !important;
+  color: #061016 !important;
+  box-shadow: 0 14px 34px rgba(25, 183, 198, 0.18) !important;
 }
 
 [data-theme="dark"] .aspects-primary-cta:hover,
 [data-theme="dark"] .aspects-nav-cta:hover {
-  background: linear-gradient(135deg, #f7d775, #e1b84d) !important;
-  color: #080806 !important;
+  background: linear-gradient(135deg, #BFEA1C, #BFEA1C) !important;
+  color: #061016 !important;
 }
 
 .booking-select-trigger > span {

@@ -64,7 +64,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[#123B67] flex items-center justify-center">
-            <span className="text-[#D7E90A] font-bold text-sm">AC</span>
+            <span className="text-[#BFEA1C] font-bold text-sm">AC</span>
           </div>
           <div>
             <p className="font-bold text-gray-900 text-sm">Aspects Clinica</p>
@@ -110,7 +110,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
         <Link
           href="/"
           onClick={() => setMobileOpen(false)}
-          className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-[#D8A83E]/40 bg-[#FFFDF7] px-3 py-2 text-sm font-medium text-[#9A6A16] transition-colors hover:bg-[#D8A83E]/15"
+          className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-[#19B7C6]/40 bg-[#F4FBFA] px-3 py-2 text-sm font-medium text-[#0B8EA0] transition-colors hover:bg-[#19B7C6]/15"
         >
           <Home className="w-4 h-4" />
           Back to Website
@@ -143,7 +143,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
       <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b sticky top-0 z-30">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-[#123B67] flex items-center justify-center">
-            <span className="text-[#D7E90A] font-bold text-xs">AC</span>
+            <span className="text-[#BFEA1C] font-bold text-xs">AC</span>
           </div>
           <span className="font-bold text-gray-900">Aspects Clinica Admin</span>
         </div>

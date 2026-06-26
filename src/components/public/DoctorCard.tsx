@@ -29,6 +29,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
     lang === 'ar' ? doctor.specialties.name_ar : doctor.specialties.name_en
   const bioField = lang === 'ar' ? 'bio_ar' : 'bio_en'
   const bio = (doctor as any)[bioField] || null
+  const dayLabel = (dayIndex: number) => lang === 'ar' ? t.dayNames[(dayIndex + 1) % 7] : t.dayNames[dayIndex]
 
   const initials = doctor.name_en.split(' ')[1]?.[0] || doctor.name_en[0] || '?'
 
@@ -43,11 +44,11 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
               <img
                 src={doctor.photo_url}
                 alt={doctor.name_en}
-                className="w-16 h-16 rounded-full object-cover border-2 border-[#D8A83E]/40"
+                className="w-16 h-16 rounded-full object-cover border-2 border-[#19B7C6]/40"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFF3C7] to-[#D8A83E]/20 flex items-center justify-center border border-[#D8A83E]/30">
-                <span className="text-[#9A6A16] font-bold text-xl">{initials.toUpperCase()}</span>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#E6FAF6] to-[#19B7C6]/20 flex items-center justify-center border border-[#19B7C6]/30">
+                <span className="text-[#0B8EA0] font-bold text-xl">{initials.toUpperCase()}</span>
               </div>
             )}
           </div>
@@ -55,7 +56,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
           {/* Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-gray-900 text-base leading-snug">{doctorName}</h3>
-            <p className="text-sm text-[#9A6A16] font-medium mt-0.5">{doctorTitle}</p>
+            <p className="text-sm text-[#0B8EA0] font-medium mt-0.5">{doctorTitle}</p>
             <p className="text-xs text-gray-500 mt-1">{specialtyName}</p>
 
             {/* Consultation fee */}
@@ -78,7 +79,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
             {uniqueBranches.map((b) => (
               <span
                 key={b.id}
-                className="inline-flex items-center gap-1 text-xs bg-[#FFF3C7] text-[#9A6A16] px-2 py-0.5 rounded-full border border-[#D8A83E]/30"
+                className="inline-flex items-center gap-1 text-xs bg-[#E6FAF6] text-[#0B8EA0] px-2 py-0.5 rounded-full border border-[#19B7C6]/30"
               >
                 <MapPin className="w-3 h-3" />
                 {lang === 'ar' ? (b as any).name_ar || b.name_en : b.name_en}
@@ -91,9 +92,9 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
         <div className="mt-3 space-y-1 flex-1">
           {doctor.schedules.slice(0, 3).map((s, i) => (
             <div key={i} className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Clock className="w-3 h-3 flex-shrink-0 text-[#9A6A16]" />
+              <Clock className="w-3 h-3 flex-shrink-0 text-[#0B8EA0]" />
               <span>
-                {t.dayNames[s.day_of_week]}
+                {dayLabel(s.day_of_week)}
                 {' · '}
                 {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
                 {isMultiLocation && (
