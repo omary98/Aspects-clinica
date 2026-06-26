@@ -63,11 +63,11 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
       {/* Logo */}
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#1B4F72] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">EC</span>
+          <div className="w-8 h-8 rounded-full bg-[#123B67] flex items-center justify-center">
+            <span className="text-[#D7E90A] font-bold text-sm">AC</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm">EuroCure</p>
+            <p className="font-bold text-gray-900 text-sm">Aspects Clinica</p>
             <p className="text-xs text-gray-500">Admin Panel</p>
           </div>
         </div>
@@ -142,10 +142,10 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
       {/* Mobile top bar */}
       <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b sticky top-0 z-30">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-[#1B4F72] flex items-center justify-center">
-            <span className="text-white font-bold text-xs">EC</span>
+          <div className="w-7 h-7 rounded-full bg-[#123B67] flex items-center justify-center">
+            <span className="text-[#D7E90A] font-bold text-xs">AC</span>
           </div>
-          <span className="font-bold text-gray-900">EuroCure Admin</span>
+          <span className="font-bold text-gray-900">Aspects Clinica Admin</span>
         </div>
         <button onClick={() => setMobileOpen(true)} className="p-2 text-gray-600">
           <Menu className="w-5 h-5" />

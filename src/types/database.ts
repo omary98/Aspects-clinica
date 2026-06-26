@@ -1,4 +1,4 @@
-export type AdminRole = 'medical_director' | 'reception_head'
+export type AdminRole = 'medical_director' | 'operational_manager' | 'general_manager'
 
 export type AppointmentStatus =
   | 'reserved'

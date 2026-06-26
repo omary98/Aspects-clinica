@@ -1,6 +1,6 @@
 export type Lang = 'ar' | 'en'
 
-export const LANG_COOKIE = 'eurocure_lang'
+export const LANG_COOKIE = 'aspects_lang'
 export const DEFAULT_LANG: Lang = 'ar'
 
 export interface Translations {

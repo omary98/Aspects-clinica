@@ -152,7 +152,11 @@ export default function RoomsManager({ rooms, branches }: RoomsManagerProps) {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="clinic">Clinic</SelectItem>
-                  <SelectItem value="procedure_room">Procedure Room</SelectItem>
+                  <SelectItem value="procedure">Procedure</SelectItem>
+                  <SelectItem value="laser">Laser</SelectItem>
+                  <SelectItem value="surgery">Surgery</SelectItem>
+                  <SelectItem value="recovery">Recovery</SelectItem>
+                  <SelectItem value="reception">Reception</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>

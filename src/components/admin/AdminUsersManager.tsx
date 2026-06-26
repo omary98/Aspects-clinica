@@ -20,13 +20,13 @@ interface AdminUsersManagerProps {
 }
 
 interface ProfileForm {
-  full_name: string; role: 'medical_director' | 'reception_head'; email: string
+  full_name: string; role: 'medical_director' | 'operational_manager' | 'general_manager'; email: string
   whatsapp_number: string; notifications_enabled: boolean; is_active: boolean
   user_id: string
 }
 
 const emptyForm: ProfileForm = {
-  full_name: '', role: 'reception_head', email: '', whatsapp_number: '',
+  full_name: '', role: 'operational_manager', email: '', whatsapp_number: '',
   notifications_enabled: true, is_active: true, user_id: '',
 }
 
@@ -128,11 +128,12 @@ export default function AdminUsersManager({ profiles }: AdminUsersManagerProps) 
             <div className="space-y-2"><Label>Email *</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
             <div className="space-y-2">
               <Label>Role *</Label>
-              <Select value={form.role} onValueChange={(v: 'medical_director' | 'reception_head') => setForm({ ...form, role: v })}>
+              <Select value={form.role} onValueChange={(v: 'medical_director' | 'operational_manager' | 'general_manager') => setForm({ ...form, role: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="medical_director">Medical Director (Full Access)</SelectItem>
-                  <SelectItem value="reception_head">Reception Head</SelectItem>
+                  <SelectItem value="general_manager">General Manager (Full Access)</SelectItem>
+                  <SelectItem value="operational_manager">Operational Manager</SelectItem>
                 </SelectContent>
               </Select>
             </div>

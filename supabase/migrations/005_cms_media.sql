@@ -1,4 +1,4 @@
--- Mini-CMS and media library for public EuroCure content.
+-- Mini-CMS and media library for public Aspects Clinica content.
 -- Run after 004_api_grants.sql.
 
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -124,28 +124,39 @@ GRANT ALL ON site_content TO service_role;
 
 INSERT INTO site_content (section_key, field_key, value_en, value_ar, content_type, display_order)
 VALUES
-  ('hero', 'tagline', 'No pain, just comfort', 'راحة بلا ألم', 'text', 10),
-  ('hero', 'title', 'EuroCure', 'يورو كيور', 'text', 20),
-  ('hero', 'subtitle', 'Book with trusted EuroCure specialists across our clinics.', 'احجز مع أطباء يورو كيور المتخصصين في فروعنا.', 'textarea', 30),
+  ('hero', 'tagline', 'Premium Polyclinic in Cairo', 'أسبكتس كلينيكا — مركز طبي متكامل', 'text', 10),
+  ('hero', 'title', 'Aspects Clinica', 'أسبكتس كلينيكا', 'text', 20),
+  ('hero', 'subtitle', 'Aspects Clinica is a full-service healthcare facility providing a wide range of surgical and aesthetic procedures for residents of, and visitors to, Cairo, Egypt.', 'أسبكتس كلينيكا منشأة طبية متكاملة تقدم مجموعة واسعة من الخدمات الجراحية والتجميلية للمرضى المقيمين في القاهرة وزوارها.', 'textarea', 30),
   ('hero', 'primary_cta', 'Book now', 'احجز الآن', 'text', 40),
   ('hero', 'secondary_cta', 'View specialties', 'عرض التخصصات', 'text', 50),
-  ('about', 'title', 'About EuroCure', 'عن يورو كيور', 'text', 10),
-  ('about', 'body', 'EuroCure brings specialist care, clear scheduling, and a calmer patient experience together in one place.', 'تجمع يورو كيور بين الرعاية المتخصصة وتنظيم المواعيد وتجربة مريحة للمريض في مكان واحد.', 'textarea', 20),
-  ('why_choose', 'title', 'Why choose EuroCure', 'لماذا تختار يورو كيور', 'text', 10),
-  ('why_choose', 'body', 'Coordinated doctors, multiple branches, transparent availability, and a booking flow built around patient comfort.', 'أطباء منسقون، وفروع متعددة، ومواعيد واضحة، وتجربة حجز مصممة لراحة المريض.', 'textarea', 20),
+  ('about', 'title', 'About Aspects Clinica', 'عن أسبكتس كلينيكا', 'text', 10),
+  ('about', 'body', 'Aspects Clinica provides everything from routine physical examination to diagnosis and treatment, with a premium patient experience and editable clinic content.', 'تقدم أسبكتس كلينيكا خدمات تبدأ من الكشف الروتيني وتمتد إلى التشخيص والعلاج، ضمن تجربة راقية ومحتوى قابل للتعديل من لوحة التحكم.', 'textarea', 20),
+  ('facilities', 'title', 'Integrated Facilities', 'مرافق وتجهيزات متكاملة', 'text', 10),
+  ('facilities', 'body', 'Many specialties including surgery, dermatology, internal medicine, interventional radiology, dentistry, laser services, one-day surgery, recovery rooms, sterilization, receptions, and a coffee corner.', 'تضم تخصصات متعددة تشمل الجراحة والجلدية والباطنة والأشعة التداخلية والأسنان وخدمات الليزر وجراحة اليوم الواحد وغرف الإفاقة والتعقيم والاستقبال وركن القهوة.', 'textarea', 20),
+  ('surgery_recovery', 'title', 'One-Day Surgery & Recovery', 'جراحات اليوم الواحد والإفاقة', 'text', 10),
+  ('surgery_recovery', 'body', 'A fully equipped one-day surgery room, premium recovery rooms, and a dedicated internal sterilization area support safe surgical care.', 'غرفة عمليات مجهزة لجراحات اليوم الواحد وغرف إفاقة مريحة ومنطقة تعقيم داخلية مخصصة لدعم رعاية جراحية آمنة.', 'textarea', 20),
+  ('laser_dermatology', 'title', 'Laser & Aesthetic Dermatology', 'الليزر والجلدية التجميلية', 'text', 10),
+  ('laser_dermatology', 'body', 'DEKA MOTUS AY laser hair removal, fractional laser, Q-switch laser, dermatology, aesthetics, injectables, PRP, mesotherapy, and peeling services.', 'إزالة الشعر بالليزر DEKA MOTUS AY والفركشنال ليزر وQ-switch والجلدية التجميلية والحقن والبلازما والميزوثيرابي والتقشير.', 'textarea', 20),
+  ('why_choose', 'title', 'Why choose Aspects Clinica', 'لماذا تختار أسبكتس كلينيكا', 'text', 10),
+  ('why_choose', 'body', 'A premium polyclinic experience with coordinated doctors, transparent availability, room-aware scheduling, and bilingual booking.', 'تجربة مركز طبي راقية مع أطباء منسقين ومواعيد واضحة وجدولة تراعي الغرف وحجز ثنائي اللغة.', 'textarea', 20),
   ('cta', 'title', 'Ready to book your visit?', 'هل أنت مستعد لحجز زيارتك؟', 'text', 10),
   ('cta', 'subtitle', 'Choose your doctor, branch, date, and time in a few simple steps.', 'اختر الطبيب والفرع والتاريخ والوقت بخطوات بسيطة.', 'textarea', 20),
   ('cta', 'button', 'Book now', 'احجز الآن', 'text', 30),
-  ('footer', 'tagline', 'No pain, just comfort.', 'راحة بلا ألم.', 'text', 10),
+  ('footer', 'tagline', 'Premium polyclinic care in Cairo.', 'رعاية طبية راقية متعددة التخصصات في القاهرة.', 'text', 10),
   ('contact', 'title', 'Contact Us', 'تواصل معنا', 'text', 10),
-  ('contact', 'body', 'Use the booking form or contact your nearest public branch for appointment support.', 'استخدم نموذج الحجز أو تواصل مع أقرب فرع متاح لمساعدتك في الموعد.', 'textarea', 20)
-ON CONFLICT (section_key, field_key) DO NOTHING;
+  ('contact', 'body', 'Building 164, between CMC and Shifa Hospital, Mews Cafe entrance, third floor, right of the elevator. WhatsApp and phone: +20 1212209011.', 'مبنى ١٦٤، ما بين CMC ومستشفى شفا، مدخل Mews Cafe، الدور التالت يمين الأسانسير. الهاتف والواتساب: +20 1212209011.', 'textarea', 20)
+ON CONFLICT (section_key, field_key) DO UPDATE SET
+  value_en = EXCLUDED.value_en,
+  value_ar = EXCLUDED.value_ar,
+  content_type = EXCLUDED.content_type,
+  display_order = EXCLUDED.display_order,
+  is_active = TRUE;
 
 INSERT INTO clinic_settings (key, value, description)
 VALUES
-  ('brand_primary_color', '#101010', 'Primary website brand color'),
-  ('brand_accent_color', '#D8A83E', 'Accent website brand color'),
-  ('brand_background_color', '#FFFDF7', 'Public website background color'),
+  ('brand_primary_color', '#123B67', 'Primary website brand color'),
+  ('brand_accent_color', '#D7E90A', 'Accent website brand color'),
+  ('brand_background_color', '#F7FBF8', 'Public website background color'),
   ('header_logo_url', '', 'Header logo URL'),
   ('footer_logo_url', '', 'Footer logo URL'),
   ('favicon_url', '', 'Favicon URL')

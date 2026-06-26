@@ -4,12 +4,16 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/types/database'
 import { getAdminOverrideSession } from '@/lib/admin/override-session'
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321'
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key'
+
 export async function createClient() {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -31,8 +35,8 @@ export async function createClient() {
 
 export async function createServiceClient() {
   return createSupabaseClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
     {
       auth: {
         persistSession: false,

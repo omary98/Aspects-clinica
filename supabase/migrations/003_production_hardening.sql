@@ -1,5 +1,5 @@
 -- ============================================================
--- EuroCure — Migration 003: Production Hardening
+-- Aspects Clinica — Migration 003: Production Hardening
 -- Run in Supabase SQL Editor AFTER 001 and 002
 -- ============================================================
 

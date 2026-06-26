@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminRequestContext, forbiddenResponse } from '@/lib/admin/auth'
 import { databaseErrorResponse } from '@/lib/admin/api-errors'
 import { createServiceClient } from '@/lib/supabase/server'
 
 const BUCKET = 'site-assets'
-const ALLOWED_FOLDERS = new Set(['branding', 'doctors', 'landing', 'specialties', 'general'])
+const ALLOWED_FOLDERS = new Set(['branding', 'doctors', 'landing', 'specialties', 'facilities', 'general'])
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif'])
 const MAX_SIZE_BYTES = 5 * 1024 * 1024
+const FULL_ACCESS_ROLES = new Set(['medical_director', 'general_manager'])
 
 function safeFileName(name: string) {
   const extension = name.includes('.') ? name.split('.').pop() : 'bin'
@@ -26,7 +28,7 @@ function safeFolder(value: FormDataEntryValue | null) {
 }
 
 function forbiddenCmsRole(role: string) {
-  return role !== 'medical_director'
+  return !FULL_ACCESS_ROLES.has(role)
 }
 
 export async function GET(request: NextRequest) {

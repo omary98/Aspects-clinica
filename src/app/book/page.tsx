@@ -53,10 +53,10 @@ export default async function BookPage({
   )
 
   return (
-    <div className="eurocure-page eurocure-section-soft min-h-screen bg-gray-50">
+    <div className="aspects-page aspects-section-soft min-h-screen bg-gray-50">
       <Navbar
-        logoUrl={settings.header_logo_url || settings.logo_url}
-        logoUrlDark={settings.header_logo_dark_url || settings.logo_dark_url || settings.header_logo_url || settings.logo_url}
+        logoUrl={settings.header_logo_url || settings.logo_url || '/aspects-clinica-logo.png'}
+        logoUrlDark={settings.header_logo_dark_url || settings.logo_dark_url || settings.header_logo_url || settings.logo_url || '/aspects-clinica-logo.png'}
       />
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="mb-8">

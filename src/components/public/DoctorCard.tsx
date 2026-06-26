@@ -33,7 +33,7 @@ export default function DoctorCard({ doctor, lang }: DoctorCardProps) {
   const initials = doctor.name_en.split(' ')[1]?.[0] || doctor.name_en[0] || '?'
 
   return (
-    <Card className="eurocure-specialty-card hover:shadow-md transition-shadow duration-200 border border-gray-100 h-full flex flex-col">
+    <Card className="aspects-specialty-card hover:shadow-md transition-shadow duration-200 border border-gray-100 h-full flex flex-col">
       <CardContent className="p-6 flex flex-col h-full">
         <div className="flex items-start gap-4">
           {/* Avatar / Photo */}

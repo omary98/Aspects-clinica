@@ -11,21 +11,21 @@ export const en: Translations = {
     adminLogin: 'Admin Login',
   },
   hero: {
-    tagline: 'Premium Polyclinic — Nasr City, Cairo',
-    title: 'Expert Care,',
-    titleHighlight: 'On Your Schedule',
+    tagline: 'Aspects Clinica — Premium Polyclinic',
+    title: 'Elegant Healthcare,',
+    titleHighlight: 'Seamless Booking',
     subtitle:
-      'Book appointments with leading specialists in Interventional Radiology, Surgery, and Dermatology & Aesthetics. Simple, fast, and secure.',
+      'Book appointments with Aspects Clinica specialists across surgery, dermatology, dentistry, internal medicine, aesthetics, and more.',
     bookCta: 'Book Appointment',
     viewSpecialties: 'View Specialties',
     verified: 'Verified Specialists',
     instant: 'Instant Confirmation',
-    multiLocation: 'Multiple Locations',
+    multiLocation: 'Cairo Location',
   },
   specialties: {
     sectionTitle: 'Our Specialties',
     sectionSubtitle:
-      'World-class care across three core medical disciplines, delivered by experienced consultants.',
+      'A broad range of medical and aesthetic specialties inside one premium, editable clinic platform.',
     viewDoctors: 'View doctors',
     bookIn: 'Book in',
   },
@@ -39,7 +39,7 @@ export const en: Translations = {
   },
   locations: {
     sectionTitle: 'Our Location',
-    sectionSubtitle: 'Conveniently located in the heart of Nasr City, Cairo.',
+    sectionSubtitle: 'Building 164, between CMC and Shifa Hospital, Mews Cafe entrance.',
     viewOnMaps: 'View on Google Maps',
     mainBranch: 'Main Branch',
     doctorSpecific: 'Doctor-specific location',
@@ -52,7 +52,7 @@ export const en: Translations = {
   },
   footer: {
     tagline:
-      'Expert polyclinic care in Nasr City, Cairo. Specialists in Interventional Radiology, Surgery, and Dermatology.',
+      'Premium polyclinic care in Cairo across surgical, aesthetic, and medical specialties.',
     quickLinks: 'Quick Links',
     rights: 'All rights reserved.',
     adminLogin: 'Admin Login',

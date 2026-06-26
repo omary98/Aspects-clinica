@@ -102,7 +102,7 @@ export default function SpecialtiesManager({ specialties }: SpecialtiesManagerPr
     try {
       const url = await uploadAdminImage(file, 'specialties', {
         label: `${form.name_en || 'Specialty'} image`,
-        altTextEn: form.name_en || 'EuroCure specialty',
+        altTextEn: form.name_en || 'Aspects Clinica specialty',
         altTextAr: form.name_ar || undefined,
       })
       setForm((current) => ({ ...current, image_url: url }))

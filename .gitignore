@@ -36,10 +36,16 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
+*.secret
+*.secrets
+*.key
+secrets/
 # .env.example is intentionally NOT ignored — commit it
 
 # vercel
 .vercel
+.vercel/
 
 # typescript
 *.tsbuildinfo

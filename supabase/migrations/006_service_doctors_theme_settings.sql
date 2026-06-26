@@ -39,7 +39,7 @@ VALUES
   ('footer_logo_dark_url', '', 'Footer logo URL for dark mode'),
   ('landing_hero_background_dark_url', '', 'Hero background image for dark mode'),
   ('landing_cta_background_dark_url', '', 'CTA background image for dark mode'),
-  ('brand_dark_primary_color', '#070707', 'Primary dark mode brand color'),
-  ('brand_dark_accent_color', '#E1B84D', 'Accent dark mode brand color'),
-  ('brand_dark_background_color', '#080806', 'Public website dark mode background color')
+  ('brand_dark_primary_color', '#06151E', 'Primary dark mode brand color'),
+  ('brand_dark_accent_color', '#D7E90A', 'Accent dark mode brand color'),
+  ('brand_dark_background_color', '#061016', 'Public website dark mode background color')
 ON CONFLICT (key) DO NOTHING;

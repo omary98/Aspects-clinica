@@ -1,5 +1,5 @@
 -- ============================================================
--- EuroCure — Migration 004: API role grants
+-- Aspects Clinica — Migration 004: API role grants
 -- Run in Supabase SQL Editor AFTER 001, 002, and 003
 -- ============================================================
 --

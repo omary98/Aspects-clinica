@@ -16,6 +16,7 @@ type AdminResource =
   | 'appointment-status'
 
 type AdminAction = 'create' | 'update' | 'delete' | 'upsert'
+const FULL_ACCESS_ROLES = new Set(['medical_director', 'general_manager'])
 
 type AdminManageBody = {
   resource: AdminResource
@@ -341,7 +342,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json() as AdminManageBody
   const { admin, supabase } = context
 
-  if (['clinic-settings', 'site-content'].includes(body.resource) && admin.role !== 'medical_director') {
+  if (['clinic-settings', 'site-content', 'admin-profiles'].includes(body.resource) && !FULL_ACCESS_ROLES.has(admin.role)) {
     return forbiddenResponse()
   }
 

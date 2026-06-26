@@ -8,8 +8,10 @@ function getResend(): Resend {
   if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
   return _resend
 }
-const FROM = process.env.EMAIL_FROM || 'reservations@eurocure.clinic'
-const BASE_URL = process.env.APP_BASE_URL || 'https://eurocure.clinic'
+const FROM = process.env.EMAIL_FROM || 'aspectsclinica@gmail.com'
+const BASE_URL = process.env.APP_BASE_URL || 'http://localhost:3500'
+const BRAND_BLUE = '#123B67'
+const BRAND_GOLD = '#D7E90A'
 
 const AR_DAY_NAMES = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 
@@ -69,9 +71,9 @@ export async function sendPatientConfirmation(
   const html = isAr
     ? `
       <div dir="rtl" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;color:#1a1a1a;text-align:right;">
-        <div style="background:#1B4F72;padding:32px;text-align:center;">
-          <h1 style="color:white;margin:0;font-size:24px;">EuroCure</h1>
-          <p style="color:#aed6f1;margin:8px 0 0;">تأكيد الحجز</p>
+        <div style="background:${BRAND_BLUE};padding:32px;text-align:center;">
+          <h1 style="color:white;margin:0;font-size:24px;">Aspects Clinica</h1>
+          <p style="color:${BRAND_GOLD};margin:8px 0 0;">تأكيد الحجز</p>
         </div>
         <div style="padding:32px;">
           <p>عزيزنا / عزيزتنا <strong>${appt.patient_name}</strong>،</p>
@@ -81,18 +83,18 @@ export async function sendPatientConfirmation(
             <strong>تنبيه مهم:</strong> يرجى الحضور قبل موعدك بـ 10 دقائق.
             في حال الرغبة في الإلغاء أو إعادة الجدولة، يرجى التواصل معنا في أقرب وقت ممكن.
           </p>
-          <p>للاستفسار، تواصل معنا على <a href="mailto:info@eurocure.clinic" style="color:#1B4F72;">info@eurocure.clinic</a></p>
+          <p>للاستفسار، تواصل معنا على <a href="mailto:aspectsclinica@gmail.com" style="color:${BRAND_BLUE};">aspectsclinica@gmail.com</a></p>
         </div>
         <div style="background:#f5f5f5;padding:16px;text-align:center;font-size:12px;color:#666;">
-          EuroCure Polyclinic · مصر الجديدة، القاهرة
+          أسبكتس كلينيكا · القاهرة
         </div>
       </div>
     `
     : `
       <div style="max-width:600px;margin:0 auto;font-family:sans-serif;color:#1a1a1a;">
-        <div style="background:#1B4F72;padding:32px;text-align:center;">
-          <h1 style="color:white;margin:0;font-size:24px;">EuroCure</h1>
-          <p style="color:#aed6f1;margin:8px 0 0;">Appointment Confirmation</p>
+        <div style="background:${BRAND_BLUE};padding:32px;text-align:center;">
+          <h1 style="color:white;margin:0;font-size:24px;">Aspects Clinica</h1>
+          <p style="color:${BRAND_GOLD};margin:8px 0 0;">Appointment Confirmation</p>
         </div>
         <div style="padding:32px;">
           <p>Dear <strong>${appt.patient_name}</strong>,</p>
@@ -102,17 +104,17 @@ export async function sendPatientConfirmation(
             <strong>Important:</strong> Please arrive 10 minutes before your scheduled time.
             If you need to cancel or reschedule, please contact us as soon as possible.
           </p>
-          <p>For any queries, please contact us at <a href="mailto:info@eurocure.clinic" style="color:#1B4F72;">info@eurocure.clinic</a></p>
+          <p>For any queries, please contact us at <a href="mailto:aspectsclinica@gmail.com" style="color:${BRAND_BLUE};">aspectsclinica@gmail.com</a></p>
         </div>
         <div style="background:#f5f5f5;padding:16px;text-align:center;font-size:12px;color:#666;">
-          EuroCure Polyclinic · Nasr City, Cairo
+          Aspects Clinica Polyclinic · Cairo
         </div>
       </div>
     `
 
   try {
     await getResend().emails.send({
-      from: `EuroCure Reservations <${FROM}>`,
+      from: `Aspects Clinica Reservations <${FROM}>`,
       to: appt.patient_email,
       subject,
       html,
@@ -133,12 +135,12 @@ export async function sendAdminNotification(
 
   try {
     await getResend().emails.send({
-      from: `EuroCure Booking System <${FROM}>`,
+      from: `Aspects Clinica Booking System <${FROM}>`,
       to: adminEmails,
       subject: `New Reservation: ${appt.patient_name} – ${appt.doctors.name_en} on ${dateStr}`,
       html: `
         <div style="max-width:600px;margin:0 auto;font-family:sans-serif;color:#1a1a1a;">
-          <div style="background:#1B4F72;padding:24px;">
+          <div style="background:${BRAND_BLUE};padding:24px;">
             <h2 style="color:white;margin:0;font-size:18px;">New Appointment Reserved</h2>
           </div>
           <div style="padding:24px;">
@@ -149,7 +151,7 @@ export async function sendAdminNotification(
             ${appt.referral_source ? `<p><strong>Referral Source:</strong> ${appt.referral_source}</p>` : ''}
             <div style="margin-top:24px;">
               <a href="${BASE_URL}/admin/appointments/${appt.id}"
-                 style="background:#1B4F72;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
+                 style="background:${BRAND_BLUE};color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
                 View in Dashboard
               </a>
             </div>
@@ -186,12 +188,12 @@ export async function sendReminderEmail(
 
   try {
     await getResend().emails.send({
-      from: `EuroCure Reminders <${FROM}>`,
+      from: `Aspects Clinica Reminders <${FROM}>`,
       to: appt.patient_email,
       subject,
       html: `
         <div dir="${isAr ? 'rtl' : 'ltr'}" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;color:#1a1a1a;${isAr ? 'text-align:right;' : ''}">
-          <div style="background:#1B4F72;padding:24px;text-align:${isAr ? 'right' : 'left'};">
+          <div style="background:${BRAND_BLUE};padding:24px;text-align:${isAr ? 'right' : 'left'};">
             <h2 style="color:white;margin:0;">${isAr ? 'تذكير بالموعد' : 'Appointment Reminder'}</h2>
           </div>
           <div style="padding:24px;">${body}</div>

@@ -1,11 +1,11 @@
 {
-  "name": "eurocure",
+  "name": "aspects-clinica-platform",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack -p 4000",
+    "dev": "next dev --webpack -p 3500",
     "build": "next build --webpack",
-    "start": "next start -p 4000",
+    "start": "next start -p 3500",
     "lint": "eslint"
   },
   "dependencies": {

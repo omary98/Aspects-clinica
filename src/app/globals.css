@@ -22,9 +22,9 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 213 67% 28%;
     --radius: 0.5rem;
-    --eurocure-blue: #1B4F72;
-    --eurocure-blue-light: #2E86C1;
-    --eurocure-gold: #D4AC0D;
+    --aspects-blue: #1B4F72;
+    --aspects-blue-light: #2E86C1;
+    --aspects-gold: #D4AC0D;
     --font-body: Optima, 'Avenir Next', 'Segoe UI', Arial, sans-serif;
     --font-display: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
     --font-arabic: 'Geeza Pro', 'Noto Naskh Arabic', Tahoma, Arial, sans-serif;
@@ -53,7 +53,7 @@
 
   h1,
   h2,
-  .eurocure-wordmark {
+  .aspects-wordmark {
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: 0;
@@ -61,7 +61,7 @@
 
   [dir="rtl"] h1,
   [dir="rtl"] h2,
-  [dir="rtl"] .eurocure-wordmark {
+  [dir="rtl"] .aspects-wordmark {
     font-family: var(--font-arabic);
     font-weight: 700;
     letter-spacing: 0;
@@ -93,12 +93,12 @@
     --ring: 43 69% 59%;
   }
 
-  .eurocure-page {
+  .aspects-page {
     background: var(--page-bg-light, #fffdf7);
     transition: background-color 320ms ease, color 320ms ease;
   }
 
-  [data-theme="dark"] .eurocure-page {
+  [data-theme="dark"] .aspects-page {
     background: var(--page-bg-dark, #080806);
     color: #f7f0df;
   }
@@ -130,7 +130,7 @@
     color: #d9cfb8;
   }
 
-  [data-theme="dark"] header .eurocure-wordmark {
+  [data-theme="dark"] header .aspects-wordmark {
     color: #f7d775;
   }
 
@@ -193,21 +193,21 @@
     color: #f6edd8;
   }
 
-  [data-theme="dark"] .eurocure-section {
+  [data-theme="dark"] .aspects-section {
     background:
       radial-gradient(circle at top left, rgba(225, 184, 77, 0.08), transparent 30%),
       #080806;
   }
 
-  [data-theme="dark"] .eurocure-section-soft {
+  [data-theme="dark"] .aspects-section-soft {
     background:
       linear-gradient(180deg, rgba(225, 184, 77, 0.04), rgba(8, 8, 6, 0)),
       #0b0a08;
   }
 
-  [data-theme="dark"] .eurocure-surface,
-  [data-theme="dark"] .eurocure-specialty-card,
-  [data-theme="dark"] .eurocure-location-card {
+  [data-theme="dark"] .aspects-surface,
+  [data-theme="dark"] .aspects-specialty-card,
+  [data-theme="dark"] .aspects-location-card {
     background:
       linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(225, 184, 77, 0.035)),
       #11100d !important;
@@ -215,84 +215,84 @@
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28) !important;
   }
 
-  [data-theme="dark"] .eurocure-specialty-card:hover,
-  [data-theme="dark"] .eurocure-location-card:hover {
+  [data-theme="dark"] .aspects-specialty-card:hover,
+  [data-theme="dark"] .aspects-location-card:hover {
     border-color: rgba(225, 184, 77, 0.46);
     background:
       linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(225, 184, 77, 0.06)),
       #14120e !important;
   }
 
-  [data-theme="dark"] .eurocure-premium-panel {
+  [data-theme="dark"] .aspects-premium-panel {
     background:
       linear-gradient(145deg, rgba(225, 184, 77, 0.12), rgba(255, 255, 255, 0.035)),
       #0d0c09 !important;
     border-color: rgba(225, 184, 77, 0.28) !important;
   }
 
-  [data-theme="dark"] .eurocure-page .text-\[\#1B4F72\],
-  [data-theme="dark"] .eurocure-page .text-\[\#9A6A16\] {
+  [data-theme="dark"] .aspects-page .text-\[\#1B4F72\],
+  [data-theme="dark"] .aspects-page .text-\[\#9A6A16\] {
     color: #e1b84d;
   }
 
-  [data-theme="dark"] .eurocure-page .bg-\[\#1B4F72\] {
+  [data-theme="dark"] .aspects-page .bg-\[\#1B4F72\] {
     background-color: #d8a83e;
     color: #080806;
   }
 
-  [data-theme="dark"] .eurocure-page .bg-\[\#101010\] {
+  [data-theme="dark"] .aspects-page .bg-\[\#101010\] {
     background-color: #d8a83e;
     color: #080806;
   }
 
-  [data-theme="dark"] .eurocure-page .hover\:bg-\[\#154360\]:hover,
-  [data-theme="dark"] .eurocure-page .hover\:bg-black:hover {
+  [data-theme="dark"] .aspects-page .hover\:bg-\[\#154360\]:hover,
+  [data-theme="dark"] .aspects-page .hover\:bg-black:hover {
     background-color: #f0ca62;
     color: #080806;
   }
 
-  [data-theme="dark"] .eurocure-booking-panel,
-  [data-theme="dark"] .eurocure-review-panel {
+  [data-theme="dark"] .aspects-booking-panel,
+  [data-theme="dark"] .aspects-review-panel {
     background:
       linear-gradient(145deg, rgba(225, 184, 77, 0.09), rgba(255, 255, 255, 0.025)),
       #11100d !important;
     border-color: rgba(225, 184, 77, 0.24) !important;
   }
 
-  [data-theme="dark"] .eurocure-calendar-day {
+  [data-theme="dark"] .aspects-calendar-day {
     background-color: #15130f !important;
     border-color: rgba(225, 184, 77, 0.18) !important;
     color: #f6edd8 !important;
   }
 
-  [data-theme="dark"] .eurocure-calendar-day-muted {
+  [data-theme="dark"] .aspects-calendar-day-muted {
     background-color: #0f0e0b !important;
     border-color: rgba(225, 184, 77, 0.1) !important;
     color: #6f674f !important;
   }
 
-  [data-theme="dark"] .eurocure-calendar-day-selected {
+  [data-theme="dark"] .aspects-calendar-day-selected {
     background-color: #d8a83e !important;
     border-color: #d8a83e !important;
     color: #080806 !important;
   }
 
-  .eurocure-hero,
-  .eurocure-cta {
+  .aspects-hero,
+  .aspects-cta {
     background-image: var(--hero-bg-light);
     background-size: cover;
     background-position: center;
   }
 
-  .eurocure-cta {
+  .aspects-cta {
     background-image: var(--cta-bg-light);
   }
 
-  [data-theme="dark"] .eurocure-hero {
+  [data-theme="dark"] .aspects-hero {
     background-image: var(--hero-bg-dark);
   }
 
-  [data-theme="dark"] .eurocure-cta {
+  [data-theme="dark"] .aspects-cta {
     background-image: var(--cta-bg-dark);
   }
 
@@ -305,25 +305,25 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .eurocure-page a,
-    .eurocure-page button,
-    .eurocure-page [role="button"] {
+    .aspects-page a,
+    .aspects-page button,
+    .aspects-page [role="button"] {
       transition-duration: 220ms;
       transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .eurocure-page section {
-      animation: eurocure-soft-rise 520ms ease both;
+    .aspects-page section {
+      animation: aspects-soft-rise 520ms ease both;
     }
 
-    .eurocure-page .group:hover,
-    .eurocure-page a:hover > .rounded-lg,
-    .eurocure-page button:hover {
+    .aspects-page .group:hover,
+    .aspects-page a:hover > .rounded-lg,
+    .aspects-page button:hover {
       transform: translateY(-1px);
     }
   }
 
-  @keyframes eurocure-soft-rise {
+  @keyframes aspects-soft-rise {
     from {
       opacity: 0;
       transform: translateY(8px);
@@ -360,26 +360,26 @@
   --radius-lg: var(--radius);
 }
 
-[data-theme="dark"] .eurocure-page {
+[data-theme="dark"] .aspects-page {
   background: var(--page-bg-dark, #080806) !important;
   color: #f7f0df !important;
 }
 
-[data-theme="dark"] .eurocure-section {
+[data-theme="dark"] .aspects-section {
   background:
     radial-gradient(circle at top left, rgba(225, 184, 77, 0.08), transparent 30%),
     #080806 !important;
 }
 
-[data-theme="dark"] .eurocure-section-soft {
+[data-theme="dark"] .aspects-section-soft {
   background:
     linear-gradient(180deg, rgba(225, 184, 77, 0.04), rgba(8, 8, 6, 0)),
     #0b0a08 !important;
 }
 
-[data-theme="dark"] .eurocure-surface,
-[data-theme="dark"] .eurocure-specialty-card,
-[data-theme="dark"] .eurocure-location-card {
+[data-theme="dark"] .aspects-surface,
+[data-theme="dark"] .aspects-specialty-card,
+[data-theme="dark"] .aspects-location-card {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(225, 184, 77, 0.035)),
     #11100d !important;
@@ -387,119 +387,119 @@
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28) !important;
 }
 
-[data-theme="dark"] .eurocure-premium-panel,
-[data-theme="dark"] .eurocure-booking-panel,
-[data-theme="dark"] .eurocure-review-panel {
+[data-theme="dark"] .aspects-premium-panel,
+[data-theme="dark"] .aspects-booking-panel,
+[data-theme="dark"] .aspects-review-panel {
   background:
     linear-gradient(145deg, rgba(225, 184, 77, 0.1), rgba(255, 255, 255, 0.03)),
     #0d0c09 !important;
   border-color: rgba(225, 184, 77, 0.28) !important;
 }
 
-[data-theme="dark"] .eurocure-page .bg-white,
-[data-theme="dark"] .eurocure-page .bg-white\/95,
-[data-theme="dark"] .eurocure-page .bg-gray-50,
-[data-theme="dark"] .eurocure-page .bg-gray-100,
-[data-theme="dark"] .eurocure-page .bg-gray-200,
-[data-theme="dark"] .eurocure-page .bg-blue-50,
-[data-theme="dark"] .eurocure-page .bg-\[\#FFFDF7\],
-[data-theme="dark"] .eurocure-page .bg-\[\#FFF3C7\] {
+[data-theme="dark"] .aspects-page .bg-white,
+[data-theme="dark"] .aspects-page .bg-white\/95,
+[data-theme="dark"] .aspects-page .bg-gray-50,
+[data-theme="dark"] .aspects-page .bg-gray-100,
+[data-theme="dark"] .aspects-page .bg-gray-200,
+[data-theme="dark"] .aspects-page .bg-blue-50,
+[data-theme="dark"] .aspects-page .bg-\[\#FFFDF7\],
+[data-theme="dark"] .aspects-page .bg-\[\#FFF3C7\] {
   background-color: #11100d !important;
 }
 
-[data-theme="dark"] .eurocure-page .text-gray-900,
-[data-theme="dark"] .eurocure-page .text-gray-800,
-[data-theme="dark"] .eurocure-page .text-gray-700,
-[data-theme="dark"] .eurocure-page .text-card-foreground {
+[data-theme="dark"] .aspects-page .text-gray-900,
+[data-theme="dark"] .aspects-page .text-gray-800,
+[data-theme="dark"] .aspects-page .text-gray-700,
+[data-theme="dark"] .aspects-page .text-card-foreground {
   color: #f6edd8 !important;
 }
 
-[data-theme="dark"] .eurocure-page .text-gray-600,
-[data-theme="dark"] .eurocure-page .text-gray-500 {
+[data-theme="dark"] .aspects-page .text-gray-600,
+[data-theme="dark"] .aspects-page .text-gray-500 {
   color: #c9bfa8 !important;
 }
 
-[data-theme="dark"] .eurocure-page .text-gray-400 {
+[data-theme="dark"] .aspects-page .text-gray-400 {
   color: #a99f89 !important;
 }
 
-[data-theme="dark"] .eurocure-page .text-\[\#1B4F72\],
-[data-theme="dark"] .eurocure-page .text-\[\#9A6A16\] {
+[data-theme="dark"] .aspects-page .text-\[\#1B4F72\],
+[data-theme="dark"] .aspects-page .text-\[\#9A6A16\] {
   color: #e1b84d !important;
 }
 
-[data-theme="dark"] .eurocure-calendar-day {
+[data-theme="dark"] .aspects-calendar-day {
   background-color: #15130f !important;
   border-color: rgba(225, 184, 77, 0.18) !important;
   color: #f6edd8 !important;
 }
 
-[data-theme="dark"] .eurocure-calendar-day-muted {
+[data-theme="dark"] .aspects-calendar-day-muted {
   background-color: #0f0e0b !important;
   border-color: rgba(225, 184, 77, 0.1) !important;
   color: #6f674f !important;
 }
 
-[data-theme="dark"] .eurocure-calendar-day-selected {
+[data-theme="dark"] .aspects-calendar-day-selected {
   background-color: #d8a83e !important;
   border-color: #d8a83e !important;
   color: #080806 !important;
 }
 
-[data-theme="dark"] .eurocure-page input,
-[data-theme="dark"] .eurocure-page textarea,
-[data-theme="dark"] .eurocure-page [role="combobox"] {
+[data-theme="dark"] .aspects-page input,
+[data-theme="dark"] .aspects-page textarea,
+[data-theme="dark"] .aspects-page [role="combobox"] {
   background-color: #0f0e0b !important;
   border-color: rgba(225, 184, 77, 0.24) !important;
   color: #f6edd8 !important;
 }
 
-.eurocure-nav-wordmark {
+.aspects-nav-wordmark {
   line-height: 1;
   text-shadow: 0 1px 0 rgba(216, 168, 62, 0.12);
 }
 
-.eurocure-theme-toggle {
+.aspects-theme-toggle {
   background-color: #fffaf0 !important;
   border-color: #d8dde6 !important;
   color: #263241 !important;
   box-shadow: 0 8px 20px rgba(16, 16, 16, 0.04);
 }
 
-.eurocure-theme-toggle:hover {
+.aspects-theme-toggle:hover {
   background-color: #fff3d4 !important;
   border-color: rgba(154, 106, 22, 0.42) !important;
   color: #8a5d12 !important;
 }
 
-[data-theme="dark"] .eurocure-nav-wordmark {
+[data-theme="dark"] .aspects-nav-wordmark {
   color: #f7d775 !important;
   text-shadow: 0 0 18px rgba(216, 168, 62, 0.18);
 }
 
-[data-theme="dark"] .eurocure-theme-toggle {
+[data-theme="dark"] .aspects-theme-toggle {
   background-color: #15130f !important;
   border-color: rgba(247, 215, 117, 0.28) !important;
   color: #f7d775 !important;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
 }
 
-[data-theme="dark"] .eurocure-theme-toggle:hover {
+[data-theme="dark"] .aspects-theme-toggle:hover {
   background-color: #211b0f !important;
   border-color: rgba(247, 215, 117, 0.5) !important;
   color: #ffe28a !important;
 }
 
-[data-theme="dark"] .eurocure-primary-cta,
-[data-theme="dark"] .eurocure-nav-cta {
+[data-theme="dark"] .aspects-primary-cta,
+[data-theme="dark"] .aspects-nav-cta {
   background: linear-gradient(135deg, #f0ca62, #d8a83e) !important;
   border-color: rgba(247, 215, 117, 0.62) !important;
   color: #080806 !important;
   box-shadow: 0 14px 34px rgba(216, 168, 62, 0.18) !important;
 }
 
-[data-theme="dark"] .eurocure-primary-cta:hover,
-[data-theme="dark"] .eurocure-nav-cta:hover {
+[data-theme="dark"] .aspects-primary-cta:hover,
+[data-theme="dark"] .aspects-nav-cta:hover {
   background: linear-gradient(135deg, #f7d775, #e1b84d) !important;
   color: #080806 !important;
 }
@@ -513,34 +513,34 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .eurocure-booking-flow {
-    animation: eurocure-booking-enter 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  .aspects-booking-flow {
+    animation: aspects-booking-enter 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 
-  .eurocure-booking-card {
-    animation: eurocure-card-enter 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  .aspects-booking-card {
+    animation: aspects-card-enter 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
   }
 
-  .eurocure-booking-card:hover {
+  .aspects-booking-card:hover {
     box-shadow: 0 18px 44px rgba(16, 16, 16, 0.08);
     transform: translateY(-1px);
   }
 
-  .eurocure-calendar-day,
-  .eurocure-slot-button,
+  .aspects-calendar-day,
+  .aspects-slot-button,
   .booking-select-trigger {
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease, color 180ms ease;
   }
 
-  .eurocure-calendar-day:hover:not(:disabled),
-  .eurocure-slot-button:hover,
+  .aspects-calendar-day:hover:not(:disabled),
+  .aspects-slot-button:hover,
   .booking-select-trigger:hover {
     transform: translateY(-1px);
   }
 }
 
-@keyframes eurocure-booking-enter {
+@keyframes aspects-booking-enter {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -551,7 +551,7 @@
   }
 }
 
-@keyframes eurocure-card-enter {
+@keyframes aspects-card-enter {
   from {
     opacity: 0;
     transform: translateY(12px) scale(0.995);

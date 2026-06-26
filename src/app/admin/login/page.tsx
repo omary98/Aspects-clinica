@@ -72,14 +72,14 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1B4F72] to-[#154360] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#06151E] via-[#123B67] to-[#0B8EA0] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-4">
             <Lock className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">EuroCure Admin</h1>
+          <h1 className="text-2xl font-bold text-white">Aspects Clinica Admin</h1>
           <p className="text-white/60 text-sm mt-1">Clinic Management Dashboard</p>
         </div>
 
@@ -87,7 +87,7 @@ export default function AdminLoginPage() {
           <CardHeader className="pb-4">
             <CardTitle className="text-lg">Sign In</CardTitle>
             <CardDescription>
-              Access the EuroCure administration panel
+              Access the Aspects Clinica administration panel
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@eurocure.clinic"
+                  placeholder="doitrous@hotmail.com"
                   required
                   autoComplete="email"
                 />
@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#1B4F72] hover:bg-[#154360] text-white"
+                className="w-full bg-[#123B67] hover:bg-[#0B8EA0] text-white"
                 disabled={loading}
               >
                 {loading ? (

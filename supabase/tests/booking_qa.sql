@@ -1,5 +1,5 @@
 -- ============================================================
--- EuroCure — Booking QA Tests
+-- Aspects Clinica — Booking QA Tests
 -- Run in Supabase SQL Editor to verify booking rules
 -- These use DO blocks that RAISE EXCEPTION on failure
 -- (All changes are rolled back — tests are non-destructive)
@@ -8,9 +8,9 @@
 -- Helper: get a known doctor / branch / specialty from seed data
 DO $$
 DECLARE
-  v_doctor_id   UUID := 'd1000000-0000-0000-0000-000000000001'; -- Dr. Ahmad Ghait
-  v_branch_id   UUID := 'b1000000-0000-0000-0000-000000000001'; -- EuroCure Nasr City
-  v_specialty   UUID := 'a1000000-0000-0000-0000-000000000001'; -- Interventional Radiology
+  v_doctor_id   UUID := 'd0000000-0000-0000-0000-000000000012'; -- Dr. Ahmad Ghait
+  v_branch_id   UUID := 'b0000000-0000-0000-0000-000000000001'; -- Aspects Clinica
+  v_specialty   UUID := 'a0000000-0000-0000-0000-000000000024'; -- Interventional Radiology
   v_appt1_id    UUID;
   v_appt2_id    UUID;
   v_future_date DATE := CURRENT_DATE + INTERVAL '7 days';
@@ -143,8 +143,8 @@ BEGIN
       duration_at_booking, status
     ) VALUES (
       'Test QA6 Room Conflict', '0100000099', '+20',
-      'd1000000-0000-0000-0000-000000000002', -- different doctor (Huda)
-      'a1000000-0000-0000-0000-000000000002',
+      'd0000000-0000-0000-0000-000000000009', -- different doctor (Huda)
+      'a0000000-0000-0000-0000-000000000002',
       v_branch_id,
       v_future_date, '17:00', '17:20',
       20, 'reserved'
@@ -208,7 +208,7 @@ BEGIN
   BEGIN
     SELECT COUNT(DISTINCT branch_id) INTO v_schedule_count
     FROM doctor_schedule_templates
-    WHERE doctor_id = 'd1000000-0000-0000-0000-000000000001'
+    WHERE doctor_id = 'd0000000-0000-0000-0000-000000000012'
       AND is_active = TRUE;
 
     IF v_schedule_count < 3 THEN
@@ -222,7 +222,7 @@ BEGIN
   -- ===========================================================
   DECLARE
     v_aspects_doctors INTEGER;
-    v_aspects_branch UUID := 'b1000000-0000-0000-0000-000000000002';
+    v_aspects_branch UUID := 'b0000000-0000-0000-0000-000000000001';
   BEGIN
     SELECT COUNT(DISTINCT doctor_id) INTO v_aspects_doctors
     FROM doctor_schedule_templates
@@ -236,37 +236,37 @@ BEGIN
   END;
 
   -- ===========================================================
-  -- TEST 11: Surgery & Dermatology only in EuroCure Nasr City
+  -- TEST 11: Surgery & Dermatology only in Aspects Clinica
   -- ===========================================================
   DECLARE
     v_surgery_outside INTEGER;
     v_derm_outside INTEGER;
   BEGIN
-    -- Surgery doctors at non-EuroCure branches
+    -- Surgery doctors at non-Aspects Clinica branches
     SELECT COUNT(*) INTO v_surgery_outside
     FROM doctor_schedule_templates dst
     JOIN doctors d ON d.id = dst.doctor_id
-    WHERE d.specialty_id = 'a1000000-0000-0000-0000-000000000002'
-      AND dst.branch_id <> 'b1000000-0000-0000-0000-000000000001'
+    WHERE d.specialty_id = 'a0000000-0000-0000-0000-000000000002'
+      AND dst.branch_id <> 'b0000000-0000-0000-0000-000000000001'
       AND dst.is_active = TRUE;
 
     IF v_surgery_outside > 0 THEN
-      RAISE NOTICE 'TEST 11 NOTE: Surgery doctor(s) appear outside EuroCure Nasr City (may be intentional)';
+      RAISE NOTICE 'TEST 11 NOTE: Surgery doctor(s) appear outside Aspects Clinica (may be intentional)';
     ELSE
-      RAISE NOTICE 'TEST 11 PASSED: Surgery only at EuroCure Nasr City';
+      RAISE NOTICE 'TEST 11 PASSED: Surgery only at Aspects Clinica';
     END IF;
 
     SELECT COUNT(*) INTO v_derm_outside
     FROM doctor_schedule_templates dst
     JOIN doctors d ON d.id = dst.doctor_id
-    WHERE d.specialty_id = 'a1000000-0000-0000-0000-000000000003'
-      AND dst.branch_id <> 'b1000000-0000-0000-0000-000000000001'
+    WHERE d.specialty_id = 'a0000000-0000-0000-0000-000000000005'
+      AND dst.branch_id <> 'b0000000-0000-0000-0000-000000000001'
       AND dst.is_active = TRUE;
 
     IF v_derm_outside > 0 THEN
-      RAISE NOTICE 'TEST 11 NOTE: Dermatology doctor(s) appear outside EuroCure Nasr City';
+      RAISE NOTICE 'TEST 11 NOTE: Dermatology doctor(s) appear outside Aspects Clinica';
     ELSE
-      RAISE NOTICE 'TEST 11 PASSED: Dermatology only at EuroCure Nasr City';
+      RAISE NOTICE 'TEST 11 PASSED: Dermatology only at Aspects Clinica';
     END IF;
   END;
 
@@ -275,7 +275,7 @@ BEGIN
   -- ===========================================================
   -- NOTE: This test must be verified manually by:
   --   1. Making a GET request to your Supabase REST API with anon key:
-  --      curl "https://YOUR_PROJECT.supabase.co/rest/v1/appointments?select=patient_name,patient_phone" \
+  --      curl "https://YOUR_NEW_SUPABASE_PROJECT_URL/rest/v1/appointments?select=patient_name,patient_phone" \
   --           -H "apikey: YOUR_ANON_KEY"
   --   2. Expected result: 200 OK with empty array []
   --   3. If you get patient data back, run Migration 003 to fix RLS.
@@ -300,7 +300,7 @@ END $$;
 -- Run these checks after deploying to production.
 --
 -- [ ] 1. Patient can book available slot
---         → Go to /book, select Dr. Ahmad Ghait, EuroCure, pick Sunday, book any slot
+--         → Go to /book, select Dr. Ahmad Ghait, Aspects Clinica, pick Sunday, book any slot
 --
 -- [ ] 2. Patient cannot book same slot twice
 --         → Try to book the same doctor/date/time in a second browser tab
@@ -345,7 +345,7 @@ END $$;
 --          → Open /admin/appointments in incognito → should redirect to /admin/login
 --
 -- [ ] 13. Reception Head cannot access /admin/users or destructive settings
---          → Log in as reception_head role → attempt to visit /admin/users
+--          → Log in as operational_manager role → attempt to visit /admin/users
 --          → Expected: blocked or empty (role check in UI)
 --
 -- [ ] 14. Doctor photo: if null, initials avatar shows

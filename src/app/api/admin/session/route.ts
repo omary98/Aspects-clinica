@@ -6,6 +6,7 @@ import {
   ADMIN_OVERRIDE_PROFILE,
   createAdminOverrideSessionValue,
   getAdminOverrideSession,
+  verifyAdminOverridePassword,
 } from '@/lib/admin/override-session'
 
 const cookieOptions = {
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
 
   if (
     String(email).trim().toLowerCase() !== ADMIN_OVERRIDE_PROFILE.email ||
-    String(password) !== ADMIN_OVERRIDE_PROFILE.password
+    !(await verifyAdminOverridePassword(String(password || '')))
   ) {
     return NextResponse.json(
       { ok: false, error: 'Invalid admin override credentials' },

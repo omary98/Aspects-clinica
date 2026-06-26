@@ -169,7 +169,7 @@ export default function DoctorsManager({ doctors, specialties }: DoctorsManagerP
     try {
       const url = await uploadAdminImage(file, 'doctors', {
         label: `${form.name_en || 'Doctor'} photo`,
-        altTextEn: form.name_en || 'EuroCure doctor',
+        altTextEn: form.name_en || 'Aspects Clinica doctor',
         altTextAr: form.name_ar || undefined,
       })
       setForm((current) => ({ ...current, photo_url: url }))

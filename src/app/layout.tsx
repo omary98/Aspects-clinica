@@ -5,40 +5,40 @@ import { LanguageProvider } from '@/components/LanguageProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { createClient } from '@/lib/supabase/server'
 
-const siteUrl = 'https://eurocure-clinic.vercel.app'
-const siteTitle = 'EuroCure Clinic — No Pain Just Comfort'
+const siteUrl = process.env.APP_BASE_URL || 'http://localhost:3500'
+const siteTitle = 'Aspects Clinica — أسبكتس كلينيكا'
 const siteDescription =
-  'Book your appointment at EuroCure Clinic with trusted specialists in interventional radiology, surgery, dermatology, and aesthetics.'
-const socialImageUrl = `${siteUrl}/eurocure-og.png?v=2`
+  'Arabic-first Aspects Clinica reservation platform for premium polyclinic appointments, doctors, services, rooms, schedules, and clinic content.'
+const socialImageUrl = `${siteUrl}/aspects-clinica-logo.png`
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: siteTitle,
   description: siteDescription,
-  keywords: 'EuroCure, يوروكيور, polyclinic, Nasr City, مصر الجديدة, interventional radiology, dermatology',
+  keywords: 'Aspects Clinica, أسبكتس كلينيكا, polyclinic, Cairo, dermatology, surgery, dentistry, laser',
   alternates: {
     canonical: siteUrl,
   },
   icons: {
     icon: [
-      { url: '/eurocure-logo.png', type: 'image/png' },
+      { url: '/aspects-clinica-logo.png', type: 'image/png' },
     ],
     apple: [
-      { url: '/eurocure-logo.png', type: 'image/png' },
+      { url: '/aspects-clinica-logo.png', type: 'image/png' },
     ],
   },
   openGraph: {
     title: siteTitle,
     description: siteDescription,
     url: siteUrl,
-    siteName: 'EuroCure Clinic',
+    siteName: 'Aspects Clinica',
     type: 'website',
     images: [
       {
         url: socialImageUrl,
         width: 1200,
         height: 630,
-        alt: 'EuroCure Clinic logo',
+        alt: 'Aspects Clinica logo',
       },
     ],
   },
@@ -54,7 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const lang = await getLang()
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
   const supabase = await createClient()
-  const { data: themeSetting } = await (supabase as any)
+  const { data: themeSetting } = await supabase
     .from('clinic_settings')
     .select('value')
     .eq('key', 'site_theme_default')

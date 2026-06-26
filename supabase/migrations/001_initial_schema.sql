@@ -1,4 +1,4 @@
--- EuroCure Polyclinic Reservation Platform
+-- Aspects Clinica Polyclinic Reservation Platform
 -- Migration 001: Initial Schema
 -- Default timezone: Africa/Cairo
 
@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 -- ENUMS
 -- =============================================
 
-CREATE TYPE admin_role AS ENUM ('medical_director', 'reception_head');
+CREATE TYPE admin_role AS ENUM ('medical_director', 'operational_manager', 'general_manager');
 
 CREATE TYPE appointment_status AS ENUM (
   'reserved',
@@ -40,7 +40,7 @@ CREATE TABLE admin_profiles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT NOT NULL,
-  role admin_role NOT NULL DEFAULT 'reception_head',
+  role admin_role NOT NULL DEFAULT 'operational_manager',
   email TEXT NOT NULL,
   whatsapp_number TEXT,
   notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE,
@@ -82,7 +82,7 @@ CREATE TABLE branches (
   address_ar TEXT,
   google_maps_url TEXT,
   phone TEXT,
-  -- true = main EuroCure branch; false = doctor-specific external location
+  -- true = main Aspects Clinica branch; false = doctor-specific external location
   is_public_branch BOOLEAN NOT NULL DEFAULT TRUE,
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   display_order INTEGER NOT NULL DEFAULT 0,
@@ -91,7 +91,7 @@ CREATE TABLE branches (
 );
 
 -- =============================================
--- ROOMS (EuroCure Nasr City rooms only enforced via RLS logic)
+-- ROOMS (Aspects Clinica rooms only enforced via RLS logic)
 -- =============================================
 
 CREATE TABLE rooms (
@@ -457,7 +457,7 @@ CREATE OR REPLACE FUNCTION is_medical_director()
 RETURNS BOOLEAN AS $$
   SELECT EXISTS (
     SELECT 1 FROM admin_profiles
-    WHERE user_id = auth.uid() AND role = 'medical_director' AND is_active = TRUE
+    WHERE user_id = auth.uid() AND role IN ('medical_director', 'general_manager') AND is_active = TRUE
   );
 $$ LANGUAGE sql SECURITY DEFINER;
 

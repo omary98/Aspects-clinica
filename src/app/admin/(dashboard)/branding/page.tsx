@@ -19,7 +19,7 @@ export default async function BrandingPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-gray-900">Branding</h1>
-      <p className="text-sm text-gray-500 mt-1 mb-6">Manage EuroCure logos, favicon, and public brand colors.</p>
+      <p className="text-sm text-gray-500 mt-1 mb-6">Manage Aspects Clinica logos, favicon, and public brand colors.</p>
       <BrandingManager settings={settings} />
     </div>
   )

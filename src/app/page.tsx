@@ -7,12 +7,14 @@ import Navbar from '@/components/public/Navbar'
 import DoctorCard from '@/components/public/DoctorCard'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Activity, Scissors, Sparkles, ChevronRight, Star, Shield, Clock, Mail } from 'lucide-react'
+import { MapPin, Phone, Activity, Scissors, Sparkles, ChevronRight, Star, Shield, Clock, Mail, HeartPulse, Waves } from 'lucide-react'
 
 const specialtyIcons: Record<string, React.ReactNode> = {
   'interventional-radiology': <Activity className="w-7 h-7" />,
-  'surgery': <Scissors className="w-7 h-7" />,
-  'dermatology-aesthetics': <Sparkles className="w-7 h-7" />,
+  'general-surgery': <Scissors className="w-7 h-7" />,
+  'bariatric-surgery': <Scissors className="w-7 h-7" />,
+  'plastic-surgery': <Sparkles className="w-7 h-7" />,
+  'cosmetic-dermatology': <Sparkles className="w-7 h-7" />,
 }
 
 export default async function HomePage() {
@@ -84,21 +86,26 @@ export default async function HomePage() {
   const logoDarkUrl = settings.header_logo_dark_url || settings.logo_dark_url || logoUrl
   const footerLogoUrl = settings.footer_logo_url || settings.logo_url
   const footerLogoDarkUrl = settings.footer_logo_dark_url || settings.logo_dark_url || footerLogoUrl
-  const primaryColor = settings.brand_primary_color || '#101010'
-  const accentColor = settings.brand_accent_color || '#D8A83E'
-  const backgroundColor = settings.brand_background_color || '#FFFDF7'
-  const darkPrimaryColor = settings.brand_dark_primary_color || '#070707'
-  const darkAccentColor = settings.brand_dark_accent_color || '#E1B84D'
-  const darkBackgroundColor = settings.brand_dark_background_color || '#080806'
+  const fallbackLogo = '/aspects-clinica-logo.png'
+  const primaryColor = settings.brand_primary_color || '#123B67'
+  const accentColor = settings.brand_accent_color || '#D7E90A'
+  const backgroundColor = settings.brand_background_color || '#F7FBF8'
+  const darkPrimaryColor = settings.brand_dark_primary_color || '#06151E'
+  const darkAccentColor = settings.brand_dark_accent_color || '#D7E90A'
+  const darkBackgroundColor = settings.brand_dark_background_color || '#061016'
   const heroTagline = cmsText('hero', 'tagline', lang === 'en' ? settings.landing_hero_tagline_en || t.hero.tagline : t.hero.tagline)
   const heroTitle = cmsText('hero', 'title', lang === 'en' ? settings.landing_hero_title_en || t.hero.title : t.hero.title)
   const heroSubtitle = cmsText('hero', 'subtitle', lang === 'en' ? settings.landing_hero_subtitle_en || t.hero.subtitle : t.hero.subtitle)
   const heroPrimaryCta = cmsText('hero', 'primary_cta', t.hero.bookCta)
   const heroSecondaryCta = cmsText('hero', 'secondary_cta', t.hero.viewSpecialties)
-  const aboutTitle = cmsText('about', 'title', lang === 'ar' ? 'عن يورو كيور' : 'About EuroCure')
-  const aboutBody = cmsText('about', 'body', lang === 'ar' ? 'رعاية متخصصة وتجربة حجز مريحة وواضحة.' : 'Specialist care with a clear, comfortable booking experience.')
-  const whyTitle = cmsText('why_choose', 'title', lang === 'ar' ? 'لماذا تختار يورو كيور' : 'Why choose EuroCure')
-  const whyBody = cmsText('why_choose', 'body', lang === 'ar' ? 'مواعيد واضحة، أطباء متخصصون، وفروع متعددة.' : 'Clear availability, coordinated specialists, and multiple branches.')
+  const aboutTitle = cmsText('about', 'title', lang === 'ar' ? 'عن أسبكتس كلينيكا' : 'About Aspects Clinica')
+  const aboutBody = cmsText('about', 'body', lang === 'ar' ? 'أسبكتس كلينيكا منشأة طبية متكاملة تقدم مجموعة واسعة من الخدمات الجراحية والتجميلية للمرضى المقيمين في القاهرة وزوارها، من الكشف الروتيني إلى التشخيص والعلاج.' : 'Aspects Clinica is a full-service healthcare facility providing a wide range of surgical and aesthetic procedures for residents of, and visitors to, Cairo, Egypt. We provide everything from routine physical examination to diagnosis and treatment.')
+  const whyTitle = cmsText('facilities', 'title', lang === 'ar' ? 'مرافق وتجهيزات متكاملة' : 'Integrated Facilities')
+  const whyBody = cmsText('facilities', 'body', lang === 'ar' ? 'تضم أسبكتس كلينيكا ٧ غرف عيادات، وغرفتي ليزر، وغرفة عمليات لجراحات اليوم الواحد، وغرفتي إفاقة، ومنطقة تعقيم داخلية، واستقبالين، وركن قهوة لتجربة أكثر راحة.' : 'Aspects Clinica includes 7 clinic rooms, 2 laser rooms, a fully equipped one-day surgery room, 2 recovery rooms, an internal sterilization area, 2 receptions, and a coffee corner.')
+  const surgeryTitle = cmsText('surgery_recovery', 'title', lang === 'ar' ? 'جراحات اليوم الواحد والإفاقة' : 'One-Day Surgery & Recovery')
+  const surgeryBody = cmsText('surgery_recovery', 'body', lang === 'ar' ? 'غرفة عمليات مجهزة لجراحات اليوم الواحد مع غرف إفاقة مريحة وعملية تعقيم داخلية مخصصة لدعم تجربة علاجية آمنة ومنظمة.' : 'A fully equipped one-day surgery room, premium recovery spaces, and a dedicated internal sterilization process support safe, organized care.')
+  const laserTitle = cmsText('laser_dermatology', 'title', lang === 'ar' ? 'الليزر والجلدية التجميلية' : 'Laser & Aesthetic Dermatology')
+  const laserBody = cmsText('laser_dermatology', 'body', lang === 'ar' ? 'تقنيات تشمل DEKA MOTUS AY لإزالة الشعر بالليزر، والفركشنال ليزر، وQ-switch، مع خدمات الجلدية والتجميل المتقدمة.' : 'Technology includes DEKA MOTUS AY laser hair removal, fractional laser, Q-switch laser, and advanced dermatology and aesthetic services.')
   const ctaTitle = cmsText('cta', 'title', t.cta.title)
   const ctaSubtitle = cmsText('cta', 'subtitle', t.cta.subtitle)
   const ctaButton = cmsText('cta', 'button', t.cta.bookNow)
@@ -107,8 +114,8 @@ export default async function HomePage() {
     'contact',
     'body',
     lang === 'ar'
-      ? 'فريق يوروكيور جاهز لمساعدتك في اختيار الفرع المناسب وتأكيد تفاصيل موعدك.'
-      : 'EuroCure is here to help you choose the right branch and confirm your appointment details.'
+      ? 'فريق أسبكتس كلينيكا جاهز لمساعدتك في اختيار الفرع المناسب وتأكيد تفاصيل موعدك.'
+      : 'Aspects Clinica is here to help you choose the right branch and confirm your appointment details.'
   )
   const footerTagline = cmsText('footer', 'tagline', t.footer.tagline)
   const clinicPhone = settings.clinic_phone || branchesList.find((branch: any) => branch.phone)?.phone || ''
@@ -116,7 +123,7 @@ export default async function HomePage() {
 
   return (
     <div
-      className="eurocure-page min-h-screen"
+      className="aspects-page min-h-screen"
       style={{
         '--page-bg-light': backgroundColor,
         '--page-bg-dark': darkBackgroundColor,
@@ -126,20 +133,17 @@ export default async function HomePage() {
         '--brand-accent-dark': darkAccentColor,
       } as CSSProperties}
     >
-      <Navbar logoUrl={logoUrl} logoUrlDark={logoDarkUrl} />
+      <Navbar logoUrl={logoUrl || fallbackLogo} logoUrlDark={logoDarkUrl || fallbackLogo} />
 
       {/* Hero */}
       <section
-        className="eurocure-hero relative text-white overflow-hidden"
+        className="aspects-hero relative text-white overflow-hidden"
         style={{
-          '--hero-bg-light': heroBackgroundUrl ? `linear-gradient(rgba(16, 16, 16, 0.74), rgba(16, 16, 16, 0.84)), url(${heroBackgroundUrl})` : `linear-gradient(135deg, ${primaryColor}, #2D2414)`,
-          '--hero-bg-dark': heroBackgroundDarkUrl ? `linear-gradient(rgba(7, 7, 7, 0.68), rgba(7, 7, 7, 0.9)), url(${heroBackgroundDarkUrl})` : `linear-gradient(135deg, ${darkPrimaryColor}, #1F180B)`,
+          '--hero-bg-light': heroBackgroundUrl ? `linear-gradient(rgba(6, 21, 30, 0.72), rgba(18, 59, 103, 0.82)), url(${heroBackgroundUrl})` : `radial-gradient(circle at 82% 20%, rgba(215, 233, 10, 0.20), transparent 24%), linear-gradient(135deg, ${primaryColor}, #0B8EA0 54%, #17A565)`,
+          '--hero-bg-dark': heroBackgroundDarkUrl ? `linear-gradient(rgba(6, 16, 22, 0.74), rgba(6, 16, 22, 0.92)), url(${heroBackgroundDarkUrl})` : `radial-gradient(circle at 82% 20%, rgba(215, 233, 10, 0.16), transparent 24%), linear-gradient(135deg, ${darkPrimaryColor}, #0B4D64 58%, #0F5A40)`,
         } as CSSProperties}
       >
-        <div className={`absolute inset-0 ${heroBackgroundUrl ? 'opacity-0' : 'opacity-10'}`}>
-          <div className="absolute top-0 end-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 start-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
-        </div>
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/18 to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur rounded-full px-4 py-1.5 text-sm mb-6">
@@ -156,7 +160,7 @@ export default async function HomePage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/book">
-                <Button size="lg" className="eurocure-primary-cta bg-white hover:bg-gray-100 font-semibold px-8" style={{ color: primaryColor }}>
+                <Button size="lg" className="aspects-primary-cta bg-white hover:bg-gray-100 font-semibold px-8" style={{ color: primaryColor }}>
                   {heroPrimaryCta}
                   <ChevronRight className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180 ms-1' : 'ms-1'}`} />
                 </Button>
@@ -187,21 +191,40 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="about" className="eurocure-section py-14 bg-white">
+      <section id="about" className="aspects-section py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="eurocure-surface rounded-lg border border-amber-100 bg-[#FFFDF7] p-7">
+          <div className="aspects-surface rounded-lg border border-amber-100 bg-[#FFFDF7] p-7">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">{aboutTitle}</h2>
             <p className="text-gray-600 leading-relaxed">{aboutBody}</p>
           </div>
-          <div className="eurocure-premium-panel rounded-lg border border-amber-100 bg-[#101010] p-7 text-white">
+          <div className="aspects-premium-panel rounded-lg border border-amber-100 bg-[#101010] p-7 text-white">
             <h2 className="text-2xl font-bold mb-3" style={{ color: darkAccentColor || accentColor }}>{whyTitle}</h2>
             <p className="text-white/75 leading-relaxed">{whyBody}</p>
           </div>
         </div>
       </section>
 
+      <section className="aspects-section py-14 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="aspects-surface rounded-lg border border-emerald-100 bg-white p-7">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#0B8EA0]/10 text-[#0B8EA0]">
+              <HeartPulse className="h-6 w-6" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">{surgeryTitle}</h2>
+            <p className="text-gray-600 leading-relaxed">{surgeryBody}</p>
+          </div>
+          <div className="aspects-surface rounded-lg border border-emerald-100 bg-white p-7">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-[#17A565]/10 text-[#17A565]">
+              <Waves className="h-6 w-6" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">{laserTitle}</h2>
+            <p className="text-gray-600 leading-relaxed">{laserBody}</p>
+          </div>
+        </div>
+      </section>
+
       {/* Specialties */}
-      <section id="specialties" className="eurocure-section-soft py-16 bg-[#FFFDF7]">
+      <section id="specialties" className="aspects-section-soft py-16 bg-[#FFFDF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.specialties.sectionTitle}</h2>
@@ -212,7 +235,7 @@ export default async function HomePage() {
               <a
                 key={specialty.id}
                 href={`#${specialty.slug}`}
-                className="eurocure-specialty-card group bg-white rounded-lg p-6 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                className="aspects-specialty-card group bg-white rounded-lg p-6 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
               >
                 {specialty.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -238,7 +261,7 @@ export default async function HomePage() {
       </section>
 
       {/* Doctors by Specialty */}
-      <section id="doctors" className="eurocure-section py-16">
+      <section id="doctors" className="aspects-section py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {specialtiesList.map((specialty: any) => {
             const specialtyDoctors = doctorsList.filter(
@@ -288,7 +311,7 @@ export default async function HomePage() {
       </section>
 
       {/* Locations */}
-      <section id="locations" className="eurocure-section-soft py-16 bg-[#FFFDF7]">
+      <section id="locations" className="aspects-section-soft py-16 bg-[#FFFDF7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">{t.locations.sectionTitle}</h2>
@@ -296,7 +319,7 @@ export default async function HomePage() {
           </div>
           <div className="max-w-2xl mx-auto">
             {publicBranchesList.map((branch: any) => (
-              <div key={branch.id} className="eurocure-location-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+              <div key={branch.id} className="aspects-location-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
                 <h3 className="font-semibold text-gray-900 text-lg mb-2">
                   {branch[nameField] || branch.name_en}
                 </h3>
@@ -332,7 +355,7 @@ export default async function HomePage() {
       </section>
 
       {/* Contact Us */}
-      <section id="contact" className="eurocure-section py-16 scroll-mt-20">
+      <section id="contact" className="aspects-section py-16 scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
             <div>
@@ -364,7 +387,7 @@ export default async function HomePage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {branchesList.map((branch: any) => (
-                <div key={`contact-${branch.id}`} className="eurocure-location-card rounded-lg border border-amber-100 bg-white p-5">
+                <div key={`contact-${branch.id}`} className="aspects-location-card rounded-lg border border-amber-100 bg-white p-5">
                   <h3 className="font-semibold text-gray-900 mb-2">{branch[nameField] || branch.name_en}</h3>
                   {branch[addressField] && (
                     <p className="flex items-start gap-2 text-sm text-gray-600 mb-3">
@@ -387,7 +410,7 @@ export default async function HomePage() {
 
       {/* CTA Banner */}
       <section
-        className="eurocure-cta py-16 bg-[#101010]"
+        className="aspects-cta py-16 bg-[#101010]"
         style={{
           '--cta-bg-light': ctaBackgroundUrl ? `linear-gradient(rgba(16, 16, 16, 0.84), rgba(16, 16, 16, 0.84)), url(${ctaBackgroundUrl})` : 'linear-gradient(135deg, #101010, #2D2414)',
           '--cta-bg-dark': ctaBackgroundDarkUrl ? `linear-gradient(rgba(7, 7, 7, 0.82), rgba(7, 7, 7, 0.9)), url(${ctaBackgroundDarkUrl})` : 'linear-gradient(135deg, #070707, #211806)',
@@ -397,7 +420,7 @@ export default async function HomePage() {
           <h2 className="text-3xl font-bold text-white mb-4">{ctaTitle}</h2>
           <p className="text-white/70 mb-8 text-lg">{ctaSubtitle}</p>
           <Link href="/book">
-            <Button size="lg" className="eurocure-primary-cta bg-white hover:bg-gray-100 font-semibold px-10" style={{ color: primaryColor }}>
+            <Button size="lg" className="aspects-primary-cta bg-white hover:bg-gray-100 font-semibold px-10" style={{ color: primaryColor }}>
               {ctaButton}
             </Button>
           </Link>
@@ -412,17 +435,17 @@ export default async function HomePage() {
               <div className="flex items-center gap-2 mb-3">
                 {(footerLogoUrl || footerLogoDarkUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={footerLogoUrl || footerLogoDarkUrl} alt="EuroCure" className="footer-logo-light w-6 h-6 rounded-full object-cover" />
+                  <img src={footerLogoUrl || footerLogoDarkUrl} alt="Aspects Clinica" className="footer-logo-light w-6 h-6 rounded-full object-cover" />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-[#D8A83E] flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">EC</span>
+                    <span className="text-white font-bold text-xs">AC</span>
                   </div>
                 )}
                 {footerLogoDarkUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={footerLogoDarkUrl} alt="EuroCure" className="footer-logo-dark hidden w-6 h-6 rounded-full object-cover" />
+                  <img src={footerLogoDarkUrl} alt="Aspects Clinica" className="footer-logo-dark hidden w-6 h-6 rounded-full object-cover" />
                 )}
-                <span className="eurocure-wordmark text-white">EuroCure</span>
+                <span className="aspects-wordmark text-white">{lang === 'ar' ? 'أسبكتس كلينيكا' : 'Aspects Clinica'}</span>
               </div>
               <p className="text-sm max-w-xs">{footerTagline}</p>
             </div>
@@ -436,7 +459,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-center">
-            &copy; {new Date().getFullYear()} EuroCure Polyclinic. {t.footer.rights}
+            &copy; {new Date().getFullYear()} Aspects Clinica. {t.footer.rights}
           </div>
         </div>
       </footer>

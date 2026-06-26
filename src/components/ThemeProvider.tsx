@@ -22,7 +22,7 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(defaultTheme)
 
   useEffect(() => {
-    const stored = window.localStorage.getItem('eurocure-theme')
+    const stored = window.localStorage.getItem('aspects-theme')
     const nextTheme = stored === 'dark' || stored === 'light'
       ? stored
       : defaultTheme
@@ -31,7 +31,7 @@ export function ThemeProvider({
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    window.localStorage.setItem('eurocure-theme', theme)
+    window.localStorage.setItem('aspects-theme', theme)
   }, [theme])
 
   const value = useMemo(() => ({

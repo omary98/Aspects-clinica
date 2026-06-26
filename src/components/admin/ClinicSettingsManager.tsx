@@ -20,7 +20,7 @@ const SETTING_LABELS: Record<string, { label: string; description: string; type?
   clinic_name_en: { label: 'Clinic Name (English)', description: 'Used in emails and notifications' },
   clinic_name_ar: { label: 'Clinic Name (Arabic)', description: 'Used in Arabic communications' },
   clinic_phone: { label: 'Clinic Phone', description: 'Main phone number displayed on the site' },
-  logo_url: { label: 'EuroCure Logo URL', description: 'Logo displayed in the navigation and footer' },
+  logo_url: { label: 'Aspects Clinica Logo URL', description: 'Logo displayed in the navigation and footer' },
   landing_hero_background_url: { label: 'Landing Hero Background URL', description: 'Main landing page background image' },
   landing_cta_background_url: { label: 'CTA Background URL', description: 'Optional background image for the booking call-to-action section' },
   landing_hero_tagline_en: { label: 'Hero Tagline (English)', description: 'Optional custom landing page tagline' },
@@ -158,7 +158,7 @@ export default function ClinicSettingsManager({ settings }: { settings: ClinicSe
         <CardContent className="pt-5">
           <h3 className="font-semibold text-gray-900 mb-3">Email Provider</h3>
           <p className="text-sm text-gray-500 mb-3">
-            EuroCure uses <strong>Resend</strong> for email delivery. Set your API key in the
+            Aspects Clinica uses <strong>Resend</strong> for email delivery. Set your API key in the
             environment variable <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">RESEND_API_KEY</code> in Vercel Project Settings.
           </p>
           <div className="space-y-1.5">
@@ -167,7 +167,7 @@ export default function ClinicSettingsManager({ settings }: { settings: ClinicSe
               type="email"
               value={values['email_from'] || ''}
               onChange={(e) => setValues({ ...values, email_from: e.target.value })}
-              placeholder="reservations@eurocure.clinic"
+              placeholder="aspectsclinica@gmail.com"
             />
           </div>
         </CardContent>

@@ -18,7 +18,7 @@ export default function Navbar({
   const { t, lang, toggleLang } = useLanguage()
   const { theme, toggleTheme } = useTheme()
   const currentLogoUrl = theme === 'dark' ? (logoUrlDark || logoUrl) : logoUrl
-  const brandName = lang === 'ar' ? 'يوروكيور' : 'EuroCure'
+  const brandName = lang === 'ar' ? 'أسبكتس كلينيكا' : 'Aspects Clinica'
 
   const navLinks = [
     { href: '/#specialties', label: t.nav.specialties },
@@ -35,13 +35,13 @@ export default function Navbar({
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             {currentLogoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={currentLogoUrl} alt="EuroCure" className="w-8 h-8 rounded-full object-cover" />
+              <img src={currentLogoUrl} alt="Aspects Clinica" className="h-9 w-auto max-w-[132px] object-contain" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-[#101010] flex items-center justify-center">
-                <span className="text-[#D8A83E] font-bold text-sm">EC</span>
+              <div className="w-8 h-8 rounded-full bg-[#123B67] flex items-center justify-center">
+                <span className="text-[#D7E90A] font-bold text-sm">AC</span>
               </div>
             )}
-            <span className="eurocure-wordmark eurocure-nav-wordmark text-2xl font-bold text-[#101010]">{brandName}</span>
+            <span className="aspects-wordmark aspects-nav-wordmark text-2xl font-bold text-[#101010]">{brandName}</span>
           </Link>
 
           {/* Desktop nav */}
@@ -71,21 +71,21 @@ export default function Navbar({
 
             <button
               onClick={toggleTheme}
-              className="eurocure-theme-toggle hidden md:flex h-8 w-8 items-center justify-center rounded-full border transition-colors"
+              className="aspects-theme-toggle hidden md:flex h-8 w-8 items-center justify-center rounded-full border transition-colors"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
 
             <Link href="/book">
-              <Button size="sm" className="eurocure-nav-cta bg-[#101010] hover:bg-black text-white">
+              <Button size="sm" className="aspects-nav-cta bg-[#101010] hover:bg-black text-white">
                 {t.nav.bookNow}
               </Button>
             </Link>
 
             <button
               onClick={toggleTheme}
-              className="eurocure-theme-toggle flex md:hidden h-9 w-9 items-center justify-center rounded-full border transition-colors"
+              className="aspects-theme-toggle flex md:hidden h-9 w-9 items-center justify-center rounded-full border transition-colors"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
@@ -132,7 +132,7 @@ export default function Navbar({
             </button>
             <button
               onClick={() => { toggleTheme(); setMobileOpen(false) }}
-              className="eurocure-theme-toggle flex items-center gap-1.5 text-xs font-medium rounded-lg px-3 py-2"
+              className="aspects-theme-toggle flex items-center gap-1.5 text-xs font-medium rounded-lg px-3 py-2"
             >
               {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
               {theme === 'dark' ? 'Light' : 'Dark'}
