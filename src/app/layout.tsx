@@ -4,6 +4,7 @@ import { getLang } from '@/lib/i18n/server'
 import { LanguageProvider } from '@/components/LanguageProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { createClient } from '@/lib/supabase/server'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const siteUrl = process.env.APP_BASE_URL || 'http://localhost:3500'
 const siteTitle = 'Aspects Clinica — أسبكتس كلينيكا'
@@ -77,6 +78,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </LanguageProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
