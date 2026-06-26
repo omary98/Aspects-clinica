@@ -8,6 +8,9 @@ import Navbar from '@/components/public/Navbar'
 import SpecialtiesDirectory from '@/components/public/SpecialtiesDirectory'
 import { Button } from '@/components/ui/button'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function SpecialtiesPage() {
   const supabase = await createClient()
   const lang = await getLang()

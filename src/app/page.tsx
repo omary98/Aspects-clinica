@@ -8,6 +8,9 @@ import { getT } from '@/lib/i18n'
 import Navbar from '@/components/public/Navbar'
 import { Button } from '@/components/ui/button'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 function pickHomepageItems<T extends { featured_on_homepage?: boolean; display_order?: number }>(items: T[], limit = 8) {
   const featured = items.filter((item) => item.featured_on_homepage)
   const source = featured.length ? featured : items
