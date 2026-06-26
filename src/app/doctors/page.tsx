@@ -31,6 +31,16 @@ export default async function DoctorsPage() {
       .from('clinic_settings')
       .select('key, value'),
   ])
+  let doctorsData = doctorsRes.data || []
+
+  if (doctorsRes.error) {
+    const fallbackDoctorsRes = await (supabase as any)
+      .from('doctors')
+      .select('*, specialties (id, name_en, name_ar)')
+      .eq('is_active', true)
+      .order('display_order')
+    doctorsData = fallbackDoctorsRes.data || []
+  }
 
   const settings = Object.fromEntries(
     ((settingsRes.data || []) as Array<{ key: string; value: string }>).map((setting) => [setting.key, setting.value])
@@ -68,7 +78,7 @@ export default async function DoctorsPage() {
               </Button>
             </Link>
           </div>
-          <DoctorsDirectory doctors={doctorsRes.data || []} specialties={specialtiesRes.data || []} />
+          <DoctorsDirectory doctors={doctorsData} specialties={specialtiesRes.data || []} />
         </section>
       </main>
     </div>
