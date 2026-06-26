@@ -3,10 +3,15 @@ export function normalizeSupabaseUrl(value: string | undefined, fallback = 'http
 
   try {
     const url = new URL(raw)
-    url.pathname = url.pathname.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '')
+    if (url.pathname === '/rest/v1' || url.pathname === '/rest/v1/') {
+      url.pathname = ''
+    } else {
+      url.pathname = url.pathname.split('/').filter(Boolean).join('/')
+      if (url.pathname) url.pathname = `/${url.pathname}`
+    }
     url.search = ''
     url.hash = ''
-    return url.toString().replace(/\/$/, '')
+    return `${url.protocol}//${url.host}${url.pathname}`
   } catch {
     return fallback
   }
