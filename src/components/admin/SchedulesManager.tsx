@@ -40,7 +40,7 @@ interface ScheduleForm {
 
 const emptyForm: ScheduleForm = {
   doctor_id: '', branch_id: '', day_of_week: '0',
-  start_time: '09:00', end_time: '17:00',
+  start_time: '16:00', end_time: '20:00',
   first_come_first_serve: false, first_come_capacity: '10',
   is_active: true, room_ids: [],
 }

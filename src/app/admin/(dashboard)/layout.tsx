@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (overrideSession) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50 lg:flex-row">
+      <div className="aspects-admin-shell flex min-h-screen flex-col bg-gray-50 lg:flex-row">
         <AdminSidebar adminName={overrideSession.fullName} adminRole={overrideSession.role} />
         <main className="w-full flex-1 min-w-0 overflow-x-hidden">
           <div className="w-full max-w-7xl mx-auto">
@@ -41,7 +41,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 lg:flex-row">
+    <div className="aspects-admin-shell flex min-h-screen flex-col bg-gray-50 lg:flex-row">
       <AdminSidebar adminName={profile.full_name} adminRole={profile.role} />
       <main className="w-full flex-1 min-w-0 overflow-x-hidden">
         <div className="w-full max-w-7xl mx-auto">

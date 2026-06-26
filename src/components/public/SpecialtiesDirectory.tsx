@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Search, Stethoscope, ChevronRight } from 'lucide-react'
+import { Search, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLanguage } from '@/components/LanguageProvider'
+import { SpecialtyIcon } from '@/lib/specialty-icons'
 
 type DirectoryService = {
   id: string
@@ -22,6 +23,7 @@ type DirectorySpecialty = {
   slug: string
   description_en: string | null
   description_ar: string | null
+  icon: string | null
   image_url: string | null
 }
 
@@ -78,7 +80,7 @@ export default function SpecialtiesDirectory({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={specialty.image_url} alt={specialty[nameField]} className="h-full w-full object-cover" />
                   ) : (
-                    <Stethoscope className="h-6 w-6" />
+                    <SpecialtyIcon icon={specialty.icon} className="h-6 w-6" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">

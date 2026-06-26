@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CSSProperties } from 'react'
 import Link from 'next/link'
-import { Activity, ChevronRight, Clock, HeartPulse, Mail, MapPin, Phone, Shield, Sparkles, Star, Stethoscope, User, Waves } from 'lucide-react'
+import { Activity, ChevronRight, Clock, HeartPulse, Mail, MapPin, Phone, Shield, Star, Stethoscope, User, Waves } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getLang } from '@/lib/i18n/server'
 import { getT } from '@/lib/i18n'
 import Navbar from '@/components/public/Navbar'
 import { Button } from '@/components/ui/button'
+import { SpecialtyIcon } from '@/lib/specialty-icons'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -174,7 +175,7 @@ export default async function HomePage() {
             {homepageSpecialties.map((specialty) => (
               <Link key={specialty.id} href={`/book?specialty=${specialty.id}`} className="aspects-specialty-card group rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FAF6] text-[#0B8EA0]">
-                  <Sparkles className="h-5 w-5" />
+                  <SpecialtyIcon icon={specialty.icon} />
                 </div>
                 <h3 className="font-semibold text-gray-900">{specialty[nameField] || specialty.name_en}</h3>
                 {specialty[descField] && <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-500">{specialty[descField]}</p>}

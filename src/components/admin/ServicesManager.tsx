@@ -24,13 +24,13 @@ interface ServicesManagerProps {
 
 interface ServiceForm {
   specialty_id: string; doctor_ids: string[]; name_en: string; name_ar: string
-  description_en: string; duration_minutes: string; fee: string
+  description_en: string; description_ar: string; duration_minutes: string; fee: string
   is_visible_to_patients: boolean; is_active: boolean; display_order: string
 }
 
 const emptyForm: ServiceForm = {
   specialty_id: '', doctor_ids: [], name_en: '', name_ar: '',
-  description_en: '', duration_minutes: '20', fee: '',
+  description_en: '', description_ar: '', duration_minutes: '20', fee: '',
   is_visible_to_patients: true, is_active: true, display_order: '0',
 }
 
@@ -54,6 +54,7 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
       specialty_id: svc.specialty_id, doctor_ids: assignedDoctorIds,
       name_en: svc.name_en, name_ar: svc.name_ar || '',
       description_en: svc.description_en || '',
+      description_ar: svc.description_ar || '',
       duration_minutes: String(svc.duration_minutes),
       fee: svc.fee?.toString() || '',
       is_visible_to_patients: svc.is_visible_to_patients,
@@ -73,6 +74,7 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
       name_en: form.name_en,
       name_ar: form.name_ar || null,
       description_en: form.description_en || null,
+      description_ar: form.description_ar || null,
       duration_minutes: parseInt(form.duration_minutes) || 20,
       fee: form.fee ? parseFloat(form.fee) : null,
       is_visible_to_patients: form.is_visible_to_patients,
@@ -229,6 +231,7 @@ export default function ServicesManager({ services, specialties, doctors }: Serv
             <div className="space-y-2"><Label>Name (English) *</Label><Input value={form.name_en} onChange={(e) => setForm({ ...form, name_en: e.target.value })} /></div>
             <div className="space-y-2"><Label>Name (Arabic)</Label><Input value={form.name_ar} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} dir="rtl" /></div>
             <div className="space-y-2"><Label>Description</Label><Textarea value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} rows={2} /></div>
+            <div className="space-y-2"><Label>Arabic Description</Label><Textarea value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} rows={2} dir="rtl" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2"><Label>Duration (min) *</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })} /></div>
               <div className="space-y-2"><Label>Fee (EGP)</Label><Input type="number" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} /></div>

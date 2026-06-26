@@ -6,10 +6,11 @@ import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Calendar, Users, Stethoscope, Building2,
   DoorOpen, ClipboardList, Clock, BanIcon, Settings,
-  LogOut, ChevronRight, X, Menu, ImageIcon, FileText, Library, Home
+  LogOut, ChevronRight, X, Menu, ImageIcon, FileText, Library, Home, Moon, Sun
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useTheme } from '@/components/ThemeProvider'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -41,6 +42,7 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -115,6 +117,15 @@ export default function AdminSidebar({ adminName, adminRole }: AdminSidebarProps
           <Home className="w-4 h-4" />
           Back to Website
         </Link>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+        </button>
         <div className="mb-3 px-1">
           <p className="text-sm font-medium text-gray-900 truncate">{adminName || 'Admin User'}</p>
           <p className="text-xs text-gray-400 capitalize">
