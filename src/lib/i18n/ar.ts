@@ -61,7 +61,7 @@ export const ar: Translations = {
   booking: {
     pageTitle: 'احجز موعدك',
     pageSubtitle:
-      'اختر طبيبك والوقت المناسب، واستلم تأكيد الحجز فوراً على بريدك الإلكتروني.',
+      'ابدأ بالتخصص أو اختر طبيبك مباشرة، ثم اختر الموعد المناسب لك.',
     steps: {
       select: 'اختر الطبيب',
       datetime: 'التاريخ والوقت',
@@ -69,7 +69,7 @@ export const ar: Translations = {
       review: 'المراجعة والتأكيد',
     },
     step1: {
-      title: 'اختر طبيبك والخدمة',
+      title: 'اختر التخصص أو الطبيب',
       specialty: 'التخصص',
       selectSpecialty: 'اختر التخصص...',
       doctor: 'الطبيب',
@@ -85,10 +85,10 @@ export const ar: Translations = {
     step2: {
       title: 'اختر التاريخ والموعد',
       changeDoctor: 'تغيير',
-      selectedLocation: 'الموقع المختار',
+      selectedLocation: 'أسبكتس كلينيكا',
       date: 'التاريخ',
       chooseDate: 'اختر تاريخاً...',
-      noAvailableDates: 'لا توجد مواعيد متاحة لهذا الطبيب والموقع.',
+      noAvailableDates: 'لا توجد مواعيد متاحة لهذا الطبيب.',
       slots: 'المواعيد المتاحة',
       sameDayCutoff: '(المواعيد في نفس اليوم تحتاج إشعار مسبق)',
       loadingSlots: 'جاري تحميل المواعيد المتاحة...',

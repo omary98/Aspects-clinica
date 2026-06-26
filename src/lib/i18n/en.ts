@@ -61,7 +61,7 @@ export const en: Translations = {
   booking: {
     pageTitle: 'Book an Appointment',
     pageSubtitle:
-      'Choose your doctor, preferred time, and fill in your details. Confirmation will be sent by email.',
+      'Start with a specialty or choose your doctor directly, then pick a suitable appointment time.',
     steps: {
       select: 'Choose Doctor',
       datetime: 'Date & Time',
@@ -69,7 +69,7 @@ export const en: Translations = {
       review: 'Review & Confirm',
     },
     step1: {
-      title: 'Choose Your Doctor & Service',
+      title: 'Choose Specialty or Doctor',
       specialty: 'Specialty',
       selectSpecialty: 'Select specialty...',
       doctor: 'Doctor',
@@ -85,10 +85,10 @@ export const en: Translations = {
     step2: {
       title: 'Select Date & Time',
       changeDoctor: 'Change',
-      selectedLocation: 'Selected location',
+      selectedLocation: 'Aspects Clinica',
       date: 'Date',
       chooseDate: 'Choose a date...',
-      noAvailableDates: 'No available dates for this doctor and location.',
+      noAvailableDates: 'No available dates for this doctor.',
       slots: 'Available Time Slots',
       sameDayCutoff: '(same-day slots require advance notice)',
       loadingSlots: 'Loading available slots...',

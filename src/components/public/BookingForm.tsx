@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, parseISO, startOfMonth, startOfWeek } from 'date-fns'
+import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, parseISO, startOfMonth, startOfWeek } from 'date-fns'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { COUNTRY_CODES, formatTime, getPhoneValidationMessage, normalizePhoneNumber } from '@/lib/utils'
 import { getAvailableDates } from '@/lib/availability'
-import { Loader2, Clock, Calendar, User, ChevronRight, ChevronLeft } from 'lucide-react'
+import { Loader2, Clock, Calendar, User, ChevronRight, ChevronLeft, Stethoscope } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageProvider'
 
 interface BookingFormProps {
@@ -68,11 +68,8 @@ export default function BookingForm({
 
   // Step 3: Patient details
   const [patientName, setPatientName] = useState('')
-  const [patientAge, setPatientAge] = useState('')
   const [countryCode, setCountryCode] = useState('+20')
   const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
-  const [complaint, setComplaint] = useState('')
   const [referralSource, setReferralSource] = useState('')
   const [isNewPatient, setIsNewPatient] = useState(true)
   const [notes, setNotes] = useState('')
@@ -95,7 +92,10 @@ export default function BookingForm({
   useEffect(() => {
     if (selectedDoctor) {
       setSpecialtyId(selectedDoctor.specialty_id)
-      setBranchId('')
+      const firstBranch = (selectedDoctor.doctor_schedule_templates || [])
+        .find((tmpl: { is_active: boolean; branches?: { id: string } | null }) => tmpl.is_active && tmpl.branches?.id)
+        ?.branches?.id || ''
+      setBranchId(firstBranch)
       setSelectedDate('')
       setSelectedSlot(null)
       setAvailableSlots([])
@@ -145,22 +145,6 @@ export default function BookingForm({
     fetchSlots()
   }, [fetchSlots])
 
-  const doctorBranches = selectedDoctor
-    ? Array.from(
-        new Map(
-          (selectedDoctor.doctor_schedule_templates || [])
-            .filter((tmpl: { is_active: boolean }) => tmpl.is_active)
-            .map((tmpl: { branches: { id: string; name_en: string; name_ar?: string } }) => [
-              tmpl.branches?.id,
-              tmpl.branches,
-            ])
-        ).values()
-      ).filter(Boolean)
-    : []
-  const branchPalette = ['#19B7C6', '#2E8B57', '#0B8EA0', '#326B8C', '#7C4D9E']
-  const branchColorMap = new Map(
-    (doctorBranches as Array<{ id: string }>).map((branch, index) => [branch.id, branchPalette[index % branchPalette.length]])
-  )
   const activeDoctorSchedules = (selectedDoctor?.doctor_schedule_templates || [])
     .filter((tmpl: { is_active: boolean }) => tmpl.is_active)
   const calendarGridStart = startOfWeek(startOfMonth(calendarMonth), { weekStartsOn: isRtl ? 6 : 0 })
@@ -169,21 +153,6 @@ export default function BookingForm({
     start: calendarGridStart,
     end: calendarGridEnd,
   })
-  const broadAvailability = new Map<string, Array<{ id: string; name_en: string; name_ar?: string }>>()
-  if (selectedDoctor) {
-    eachDayOfInterval({ start: calendarGridStart, end: calendarGridEnd }).forEach((day) => {
-      const branchesForDay = activeDoctorSchedules
-        .filter((tmpl: { day_of_week: number }) => tmpl.day_of_week === day.getDay())
-        .map((tmpl: { branches: { id: string; name_en: string; name_ar?: string } }) => tmpl.branches)
-        .filter(Boolean)
-      if (branchesForDay.length > 0) {
-        broadAvailability.set(
-          format(day, 'yyyy-MM-dd'),
-          Array.from(new Map(branchesForDay.map((branch: { id: string }) => [branch.id, branch])).values()) as Array<{ id: string; name_en: string; name_ar?: string }>
-        )
-      }
-    })
-  }
   const availableDateSet = new Set(availableDates)
   const firstComeNotice = isRtl
     ? 'ملحوظة: بعض مواعيد الطبيب تعمل بنظام أولوية الحضور. الحجز يؤكد مكانك في قائمة اليوم، والحضور يكون حسب أولوية الوصول إلا إذا أوضح فريق الميديا/السنتر غير ذلك.'
@@ -220,17 +189,17 @@ export default function BookingForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           patient_name: patientName.trim(),
-          patient_age: patientAge ? parseInt(patientAge) : null,
+          patient_age: null,
           patient_phone_country_code: countryCode,
           patient_phone: normalizedPhone,
-          patient_email: email.trim() || null,
+          patient_email: null,
           doctor_id: doctorId,
           specialty_id: specialtyId,
           branch_id: branchId,
           service_id: (serviceId && serviceId !== 'none') ? serviceId : null,
           appointment_date: selectedDate,
           start_time: selectedSlot.time,
-          primary_complaint: complaint.trim() || null,
+          primary_complaint: null,
           referral_source: referralSource || null,
           is_new_patient: isNewPatient,
           notes: notes.trim() || null,
@@ -305,11 +274,36 @@ export default function BookingForm({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-lg border border-[#19B7C6]/25 bg-[#F4FBFA] p-4">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-white text-[#0B8EA0]">
+                  <Stethoscope className="h-5 w-5" />
+                </div>
+                <p className="font-semibold text-gray-900">
+                  {isRtl ? 'ابدأ بالتخصص' : 'Start with a specialty'}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-gray-500">
+                  {isRtl ? 'اختر العيادة أو التخصص أولًا، ثم اختر الطبيب المناسب.' : 'Choose the clinic specialty first, then pick the right doctor.'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-[#19B7C6]/25 bg-white p-4">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6FAF6] text-[#0B8EA0]">
+                  <User className="h-5 w-5" />
+                </div>
+                <p className="font-semibold text-gray-900">
+                  {isRtl ? 'أو ابدأ بالطبيب' : 'Or start with a doctor'}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-gray-500">
+                  {isRtl ? 'إذا كنت تعرف الطبيب، اختره مباشرة وسنحدد التخصص تلقائيًا.' : 'If you already know the doctor, select them directly and we will set the specialty.'}
+                </p>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>{t.booking.step1.specialty}</Label>
               <Select
                 value={specialtyId}
-                onValueChange={(v) => { setSpecialtyId(v); setDoctorId(''); setBranchId('') }}
+                onValueChange={(v) => { setSpecialtyId(v); setDoctorId(''); setBranchId(''); setSelectedDate(''); setSelectedSlot(null) }}
               >
                 <SelectTrigger className="booking-select-trigger min-h-12 h-auto">
                   <SelectValue placeholder={t.booking.step1.selectSpecialty} />
@@ -347,91 +341,19 @@ export default function BookingForm({
               </Select>
             </div>
 
-            {doctorBranches.length > 0 && (
-              <div className="space-y-2">
-                <Label>{t.booking.step1.branch}</Label>
-                <Select value={branchId} onValueChange={setBranchId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t.booking.step1.selectBranch} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(doctorBranches as Array<{ id: string; name_en: string; name_ar?: string }>).map((b) => (
-                      <SelectItem key={b.id} value={b.id}>
-                        {getBranchDisplayName(b)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500">{firstComeNotice}</p>
-              </div>
+            {selectedDoctor && (
+              <DoctorPreview
+                doctor={selectedDoctor}
+                name={getDoctorDisplayName(selectedDoctor)}
+                title={(selectedDoctor[titleField] || selectedDoctor.title_en) as string}
+                changeLabel={t.booking.step2.changeDoctor}
+                onChange={() => { setDoctorId(''); setBranchId(''); setSelectedDate(''); setSelectedSlot(null) }}
+              />
             )}
 
-            {selectedDoctor && broadAvailability.size > 0 && (
-              <div className="aspects-booking-panel space-y-3 rounded-lg border border-amber-100 bg-[#F4FBFA] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{format(calendarMonth, 'MMMM yyyy')}</p>
-                    <p className="text-xs text-gray-500">{isRtl ? 'توافر الطبيب حسب الفروع' : 'Doctor availability by branch'}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, -1))}>
-                      <BackIcon className="w-4 h-4" />
-                    </Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}>
-                      <FwdIcon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-500">
-                  {calendarDayLabels.map((day) => <div key={day} className="truncate">{day}</div>)}
-                  {monthDays.map((day) => {
-                    const dayKey = format(day, 'yyyy-MM-dd')
-                    const branches = broadAvailability.get(dayKey) || []
-                    const hasAvailability = branches.length > 0
-                    const hasSelectedBranch = !!branchId && branches.some((branch) => branch.id === branchId)
-                    return (
-                      <button
-                        type="button"
-                        key={dayKey}
-                        disabled={!hasAvailability}
-                        onClick={() => {
-                          if (branches.length === 1) setBranchId(branches[0].id)
-                        }}
-                        className={`min-h-12 rounded-md border text-sm transition-colors ${
-                          hasAvailability
-                            ? 'aspects-calendar-day bg-white text-gray-800 hover:border-[#0B8EA0]'
-                            : isSameMonth(day, calendarMonth)
-                              ? 'aspects-calendar-day-muted bg-white text-gray-400 opacity-50'
-                              : 'aspects-calendar-day-muted bg-gray-50 text-gray-300 opacity-50'
-                        } ${hasSelectedBranch ? 'ring-2 ring-[#19B7C6] border-[#19B7C6] bg-[#E6FAF6]' : isToday(day) ? 'border-[#19B7C6]' : 'border-gray-100'}`}
-                      >
-                        <span className="block">{format(day, 'd')}</span>
-                        {hasAvailability && (
-                          <span className="mt-1 flex justify-center gap-0.5">
-                            {branches.slice(0, 4).map((branch) => (
-                              <span key={branch.id} className="h-1.5 w-4 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#19B7C6' }} />
-                            ))}
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-                {branchId && (
-                  <p className="text-xs text-gray-500">
-                    {isRtl
-                      ? 'الأيام المحددة بإطار مميز متاحة في الفرع الذي اخترته. الأيام الأخرى التي بها علامات ملوّنة متاحة في فروع أخرى.'
-                      : 'Highlighted days are available at your selected branch. Other marked days remain visible for the doctor at other branches.'}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  {(doctorBranches as Array<{ id: string; name_en: string; name_ar?: string }>).map((branch) => (
-                    <span key={branch.id} className="inline-flex items-center gap-1 text-xs text-gray-600">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: branchColorMap.get(branch.id) || '#19B7C6' }} />
-                      {getBranchDisplayName(branch)}
-                    </span>
-                  ))}
-                </div>
+            {selectedDoctor && !branchId && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {isRtl ? 'لا توجد مواعيد متاحة لهذا الطبيب حالياً.' : 'This doctor does not currently have available schedule slots.'}
               </div>
             )}
 
@@ -482,25 +404,16 @@ export default function BookingForm({
           </CardHeader>
           <CardContent className="space-y-5">
             {/* Doctor summary */}
-            <div className="aspects-booking-panel flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-transparent text-sm">
-              <div className="w-8 h-8 rounded-full bg-[#1B4F72] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                {(selectedDoctor?.name_en?.split(' ')?.[1]?.[0] || 'D').toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-gray-900">
-                  {selectedDoctor ? getDoctorDisplayName(selectedDoctor) : ''}
-                </div>
-                <div className="text-gray-500 text-xs truncate">
-                  {selectedBranch ? getBranchDisplayName(selectedBranch) : t.booking.step2.selectedLocation}
-                </div>
-              </div>
-              <button
-                className="text-xs text-[#1B4F72] underline flex-shrink-0"
-                onClick={() => setStep('select')}
-              >
-                {t.booking.step2.changeDoctor}
-              </button>
-            </div>
+            {selectedDoctor && (
+              <DoctorPreview
+                doctor={selectedDoctor}
+                name={getDoctorDisplayName(selectedDoctor)}
+                title={(selectedDoctor[titleField] || selectedDoctor.title_en) as string}
+                meta={selectedBranch ? getBranchDisplayName(selectedBranch) : t.booking.step2.selectedLocation}
+                changeLabel={t.booking.step2.changeDoctor}
+                onChange={() => setStep('select')}
+              />
+            )}
 
             {hasFirstComeForSelectedBranch && (
               <div className="rounded-lg border border-[#19B7C6]/30 bg-[#F4FBFA] p-3 text-sm text-gray-700">
@@ -651,27 +564,14 @@ export default function BookingForm({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="age">{t.booking.step3.age}</Label>
-                <Input
-                  id="age"
-                  type="number"
-                  min="0"
-                  max="120"
-                  value={patientAge}
-                  onChange={(e) => setPatientAge(e.target.value)}
-                  placeholder={t.booking.step3.agePlaceholder}
-                />
-              </div>
-
-              <div className="space-y-2">
+              <div className="space-y-2 sm:col-span-2">
                 <Label>{t.booking.step3.patientType}</Label>
-                <div className="flex gap-4 pt-1">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {[
                     { value: true, label: t.booking.step3.newPatient },
                     { value: false, label: t.booking.step3.followUp },
                   ].map((opt) => (
-                    <label key={String(opt.value)} className="flex items-center gap-2 cursor-pointer">
+                    <label key={String(opt.value)} className="flex cursor-pointer items-center gap-3 rounded-lg border bg-white p-3 text-sm">
                       <input
                         type="radio"
                         name="patientType"
@@ -716,32 +616,6 @@ export default function BookingForm({
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="email">
-                  {t.booking.step3.email}{' '}
-                  <span className="text-gray-400 text-xs">{t.booking.step3.emailNote}</span>
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  dir="ltr"
-                />
-              </div>
-
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="complaint">{t.booking.step3.complaint}</Label>
-                <Textarea
-                  id="complaint"
-                  value={complaint}
-                  onChange={(e) => setComplaint(e.target.value)}
-                  placeholder={t.booking.step3.complaintPlaceholder}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label>{t.booking.step3.referral}</Label>
                 <Select value={referralSource} onValueChange={setReferralSource}>
                   <SelectTrigger>
@@ -797,6 +671,14 @@ export default function BookingForm({
           <CardContent className="space-y-5">
             <div className="aspects-review-panel bg-blue-50 rounded-xl border border-transparent p-5 space-y-3">
               <h3 className="font-semibold text-[#1B4F72] mb-3">{t.booking.step4.appointmentDetails}</h3>
+              {selectedDoctor && (
+                <DoctorPreview
+                  doctor={selectedDoctor}
+                  name={getDoctorDisplayName(selectedDoctor)}
+                  title={(selectedDoctor[titleField] || selectedDoctor.title_en) as string}
+                  compact
+                />
+              )}
               <Row label={t.booking.step4.doctor} value={selectedDoctor ? getDoctorDisplayName(selectedDoctor) : undefined} />
               <Row label={t.booking.step4.specialty} value={selectedSpecialty ? (selectedSpecialty[nameField] || selectedSpecialty.name_en) : undefined} />
               <Row label={t.booking.step4.location} value={selectedBranch ? getBranchDisplayName(selectedBranch) : undefined} />
@@ -821,15 +703,13 @@ export default function BookingForm({
             <div className="aspects-review-panel bg-gray-50 rounded-xl border border-transparent p-5 space-y-3">
               <h3 className="font-semibold text-gray-800 mb-3">{t.booking.step4.patientInfo}</h3>
               <Row label={t.booking.step4.name} value={patientName} />
-              {patientAge && <Row label={t.booking.step4.type} value={patientAge} />}
-              <Row label={t.booking.step4.phoneLabel} value={`${countryCode} ${phone}`} ltr />
-              {email && <Row label={t.booking.step4.emailLabel} value={email} ltr />}
               <Row
                 label={t.booking.step4.type}
                 value={isNewPatient ? t.booking.step4.newPatient : t.booking.step4.followUp}
               />
-              {complaint && <Row label={t.booking.step4.complaint} value={complaint} />}
+              <Row label={t.booking.step4.phoneLabel} value={`${countryCode} ${phone}`} ltr />
               {referralSource && <Row label={t.booking.step4.referralLabel} value={referralSource} />}
+              {notes && <Row label={t.booking.step3.notes} value={notes} />}
             </div>
 
             {error && (
@@ -867,6 +747,54 @@ export default function BookingForm({
             <p className="text-xs text-gray-400 text-center">{t.booking.step4.policy}</p>
           </CardContent>
         </Card>
+      )}
+    </div>
+  )
+}
+
+function DoctorPreview({
+  doctor,
+  name,
+  title,
+  meta,
+  changeLabel,
+  onChange,
+  compact,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  doctor: any
+  name: string
+  title?: string
+  meta?: string
+  changeLabel?: string
+  onChange?: () => void
+  compact?: boolean
+}) {
+  return (
+    <div className={`aspects-booking-panel flex items-center gap-3 rounded-lg border border-transparent bg-blue-50 ${compact ? 'p-3' : 'p-4'} text-sm`}>
+      <div className={`${compact ? 'h-12 w-12' : 'h-16 w-16'} flex-shrink-0 overflow-hidden rounded-xl bg-[#1B4F72]/10`}>
+        {doctor.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={doctor.photo_url} alt={name} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-[#1B4F72] text-lg font-bold text-white">
+            {(doctor.name_en?.split(' ')?.[1]?.[0] || doctor.name_en?.[0] || 'D').toUpperCase()}
+          </div>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-semibold text-gray-900">{name}</p>
+        {title && <p className="truncate text-xs text-[#0B8EA0]">{title}</p>}
+        {meta && <p className="truncate text-xs text-gray-500">{meta}</p>}
+      </div>
+      {onChange && changeLabel && (
+        <button
+          type="button"
+          className="flex-shrink-0 text-xs font-semibold text-[#1B4F72] underline"
+          onClick={onChange}
+        >
+          {changeLabel}
+        </button>
       )}
     </div>
   )

@@ -23,7 +23,7 @@ export default async function ConfirmationPage({
 
   if (!appointmentId) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="aspects-page aspects-section-soft min-h-screen bg-gray-50">
         <Navbar />
         <div className="max-w-xl mx-auto px-4 py-20 text-center">
           <p className="text-gray-500">{t.confirmation.notFound}</p>
@@ -41,7 +41,7 @@ export default async function ConfirmationPage({
     .from('appointments')
     .select(`
       *,
-      doctors (name_en, name_ar, title_en, title_ar),
+      doctors (name_en, name_ar, title_en, title_ar, photo_url),
       specialties (name_en, name_ar),
       branches (name_en, name_ar, address_en, address_ar, google_maps_url, phone),
       services (name_en, name_ar, duration_minutes)
@@ -54,7 +54,7 @@ export default async function ConfirmationPage({
 
   if (!appt) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="aspects-page aspects-section-soft min-h-screen bg-gray-50">
         <Navbar />
         <div className="max-w-xl mx-auto px-4 py-20 text-center">
           <p className="text-gray-500">{t.confirmation.notFound}</p>
@@ -76,7 +76,7 @@ export default async function ConfirmationPage({
     : ''
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="aspects-page aspects-section-soft min-h-screen bg-gray-50">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Success header */}
@@ -92,7 +92,7 @@ export default async function ConfirmationPage({
         </div>
 
         {/* Appointment card */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+        <div className="aspects-surface bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
           <div className="bg-[#1B4F72] px-6 py-4">
             <p className="text-white/70 text-sm">{t.confirmation.reference}</p>
             <p className="text-white font-mono font-bold text-lg" dir="ltr">
@@ -103,8 +103,13 @@ export default async function ConfirmationPage({
           <div className="p-6 space-y-4">
             {/* Doctor */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#1B4F72]/10 flex items-center justify-center flex-shrink-0">
-                <User className="w-5 h-5 text-[#1B4F72]" />
+              <div className="w-12 h-12 rounded-xl bg-[#1B4F72]/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {appt.doctors?.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={appt.doctors.photo_url} alt={doctorName || ''} className="h-full w-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-[#1B4F72]" />
+                )}
               </div>
               <div>
                 <p className="font-semibold text-gray-900">{doctorName}</p>
@@ -168,9 +173,9 @@ export default async function ConfirmationPage({
         </div>
 
         {/* Important notes */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-sm text-amber-800">
-          <p className="font-semibold mb-2">{t.confirmation.important.title}</p>
-          <ul className="space-y-1.5 list-disc list-inside text-amber-700">
+        <div className="aspects-review-panel bg-[#F4FBFA] border border-[#19B7C6]/25 rounded-xl p-4 mb-6 text-sm text-gray-700">
+          <p className="font-semibold mb-2 text-gray-900">{t.confirmation.important.title}</p>
+          <ul className="space-y-1.5 list-disc list-inside text-gray-600">
             <li>{t.confirmation.important.arrive}</li>
             <li>{t.confirmation.important.bringRecords}</li>
             <li>{t.confirmation.important.cancel}</li>
